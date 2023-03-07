@@ -85,7 +85,6 @@ import com.hbm.tileentity.machine.rbmk.RBMKDials;
 import com.hbm.util.ArmorUtil;
 import com.hbm.util.Compat;
 import com.hbm.util.SuicideThreadDump;
-import com.hbm.world.ModBiomes;
 import com.hbm.world.feature.*;
 import com.hbm.world.generator.CellularDungeonFactory;
 
@@ -278,7 +277,6 @@ public class MainRegistry {
 		Fluids.init();
 		ModBlocks.mainRegistry();
 		ModItems.mainRegistry();
-		ModBiomes.init();
 		proxy.registerRenderInfo();
 		HbmWorld.mainRegistry();
 		GameRegistry.registerFuelHandler(new FuelHandler());
@@ -364,12 +362,14 @@ public class MainRegistry {
 		});
 		
 		GameRegistry.registerWorldGenerator(worldGenMoon, 0);
-		DimensionManager.registerProviderType(WorldConfig.moonDimension, WorldProviderMoon.class, false);
-	    DimensionManager.registerDimension(WorldConfig.moonDimension, WorldConfig.moonDimension);
+		DimensionManager.registerProviderType(15, WorldProviderMoon.class, false);
+	    DimensionManager.registerDimension(15, 15);
 
 		GameRegistry.registerWorldGenerator(worldGenDuna, 1);
-		DimensionManager.registerProviderType(WorldConfig.dunaDimension, WorldProviderDuna.class, false);
-	    DimensionManager.registerDimension(WorldConfig.dunaDimension, WorldConfig.dunaDimension);
+		DimensionManager.registerProviderType(16, WorldProviderDuna.class, false);
+	    DimensionManager.registerDimension(16, 16);
+	   
+	    
 		BlockDispenser.dispenseBehaviorRegistry.putObject(ModItems.grenade_generic, new BehaviorProjectileDispense() {
 
 			protected IProjectile getProjectileEntity(World p_82499_1_, IPosition p_82499_2_) {

@@ -1,6 +1,5 @@
 package com.hbm.dim.duna;
 
-import com.hbm.config.WorldConfig;
 import com.hbm.main.MainRegistry;
 import com.hbm.util.AstronomyUtil;
 
@@ -19,9 +18,9 @@ public class WorldProviderDuna extends WorldProvider {
 	
 	public void registerWorldChunkManager() {
 		
-		this.worldChunkMgr = new WorldChunkManagerDuna3();
-		//this.dimensionId = WorldConfig.dunaDimension;
-		//this.hasNoSky = false;
+		this.worldChunkMgr = new WorldChunkManagerHell(new BiomeGenDuna(111), dimensionId);
+		this.dimensionId = 16;
+		this.hasNoSky = false;
 	}
 
 	@Override
@@ -65,18 +64,19 @@ public class WorldProviderDuna extends WorldProvider {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public float getStarBrightness(float par1) {
-		float starBr = worldObj.getStarBrightnessBody(par1);
+		/*float starBr = worldObj.getStarBrightnessBody(par1);
+		float dust = MainRegistry.proxy.getImpactDust(worldObj);
 		float f1 = worldObj.getCelestialAngle(par1);
 		float f2 = 1.0F - (MathHelper.cos(f1 * (float) Math.PI * 2.0F) * 2.0F + 0.25F);
 
-		if(f2 < 0.0F) {
-			f2 = 0.0F;
+		if(f2 < 0.2F) {
+			f2 = 0.2F;
 		}
 
 		if(f2 > 1.0F) {
 			f2 = 1.0F;
-		}
-		return f2;
+		}*/
+		return 1f;
 	}
     public boolean canRespawnHere()
     {

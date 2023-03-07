@@ -17,7 +17,7 @@ public class BiomeGenDuna extends BiomeGenBase {
     //TODO: avoid doing an extra planets and make each planet unique and cool.
 	public BiomeGenDuna(int id) {
 		super(id);
-		this.setBiomeName("Dunaian Plains");
+		this.setBiomeName("Duna");
 		this.setDisableRain();
 		
         this.spawnableCreatureList.clear();
