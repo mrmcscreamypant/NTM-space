@@ -72,7 +72,7 @@ public class ChunkProviderDuna implements IChunkProvider {
 
 //	private MapGenCrater craterGenerator;
 	/** The biomes that are used to generate the chunk */
-	private BiomeGenBase[] biomesForGeneration;
+	private static final BiomeGenBase[] biomes = new BiomeGenBase[] {BiomeGenDuna BiomeGenDunaTesting};
 	double[] field_147427_d;
 	double[] field_147428_e;
 	double[] field_147425_f;
