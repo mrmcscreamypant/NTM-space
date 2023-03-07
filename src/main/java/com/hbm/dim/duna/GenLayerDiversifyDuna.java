@@ -1,3 +1,4 @@
+
 package com.hbm.dim.duna;
 
 import com.hbm.dim.duna.BiomeGenBaseDuna;
@@ -21,7 +22,7 @@ public class GenLayerDiversifyDuna extends GenLayer
     {
         return diversify(x, z, width, depth);
     }
-    
+
     private int[] diversify(int x, int z, int width, int height) {
         int input[] = this.parent.getInts(x, z, width, height);
         int output[] = IntCache.getIntCache(width * height);

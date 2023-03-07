@@ -1,15 +1,11 @@
-/*******************************************************************************
- * Copyright 2015 SteveKunG - More Planets Mod
- *
- * This work is licensed under a Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International Public License.
- * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
- ******************************************************************************/
-
 package com.hbm.dim.duna;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+//import com.hbm.dim.duna.GenLayerDuna.GenLayerDuna;
+import com.hbm.dim.duna.GenLayerDuna2;
 
 //import stevekung.mods.moreplanets.planets.fronos.worldgen.biome.BiomeGenBaseFronos;
 import net.minecraft.world.ChunkPosition;
@@ -132,7 +128,7 @@ public class WorldChunkManagerDuna extends WorldChunkManager
 	public BiomeGenBase[] getBiomeGenAt(BiomeGenBase[] par1ArrayOfBiomeGenBase, int x, int y, int width, int length, boolean cacheFlag)
 	{
 		IntCache.resetIntCache();
-		
+
 		int[] ai = this.zoomedBiomes.getInts(x, y, width, length);
 
 		if (par1ArrayOfBiomeGenBase == null || par1ArrayOfBiomeGenBase.length < width * length)
