@@ -85,6 +85,7 @@ import com.hbm.tileentity.machine.rbmk.RBMKDials;
 import com.hbm.util.ArmorUtil;
 import com.hbm.util.Compat;
 import com.hbm.util.SuicideThreadDump;
+import com.hbm.world.ModBiomes;
 import com.hbm.world.feature.*;
 import com.hbm.world.generator.CellularDungeonFactory;
 
@@ -275,6 +276,7 @@ public class MainRegistry {
 		HbmPotion.init();
 		
 		Fluids.init();
+		ModBiomes.init();
 		ModBlocks.mainRegistry();
 		ModItems.mainRegistry();
 		proxy.registerRenderInfo();
