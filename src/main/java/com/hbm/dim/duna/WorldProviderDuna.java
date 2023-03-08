@@ -19,7 +19,7 @@ public class WorldProviderDuna extends WorldProvider {
 	
 	public void registerWorldChunkManager() {
 		
-		this.worldChunkMgr = new WorldChunkManagerHell(new BiomeGenDuna(111), dimensionId);
+		this.worldChunkMgr = new WorldChunkManagerDuna(worldObj);
 		this.dimensionId = 16;
 		this.hasNoSky = false;
 		//this.dimensionId = WorldConfig.dunaDimension;
@@ -54,7 +54,8 @@ public class WorldProviderDuna extends WorldProvider {
     public float[] calcSunriseSunsetColors(float p_76560_1_, float p_76560_2_) {
     	return null;
     }
-
+    
+ 
     public boolean canDoLightning(Chunk chunk)
     {
         return false;
