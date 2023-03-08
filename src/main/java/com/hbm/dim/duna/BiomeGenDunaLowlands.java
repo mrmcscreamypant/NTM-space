@@ -8,16 +8,15 @@ import net.minecraft.block.material.Material;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
-import net.minecraftforge.common.BiomeDictionary;
 
-public class BiomeGenDunaTesting extends BiomeGenBase {
+public class BiomeGenDunaLowlands extends BiomeGenBase {
 	
-    public static final BiomeGenBase.Height height = new BiomeGenBase.Height(0.125F, 0.05F);
+    public static final BiomeGenBase.Height height = new BiomeGenBase.Height(-0.6F, 0.01F);
 
     //TODO: avoid doing an extra planets and make each planet unique and cool.
-	public BiomeGenDunaTesting() {
-		super(13);
-		this.setBiomeName("Dunatesting");
+	public BiomeGenDunaLowlands() {
+		super(15);
+		this.setBiomeName("Dunaian Lowland Plains");
 		this.setDisableRain();
 		
         this.spawnableCreatureList.clear();
@@ -29,9 +28,8 @@ public class BiomeGenDunaTesting extends BiomeGenBase {
         
         this.setHeight(height);
         
-        this.topBlock = ModBlocks.duna_iron;
-        this.fillerBlock = ModBlocks.duna_iron;
-        BiomeDictionary.registerBiomeType(this, BiomeDictionary.Type.DEAD);
+        this.topBlock = ModBlocks.duna_sands;
+        this.fillerBlock = ModBlocks.duna_rock;
 	}
 
     public void genTerrainBlocks(World world, Random rand, Block[] blocks, byte[] meta, int x, int z, double noise)
@@ -68,7 +66,7 @@ public class BiomeGenDunaTesting extends BiomeGenBase {
                             {
                                 block = null;
                                 b0 = 0;
-                                block1 = ModBlocks.duna_iron;
+                                block1 = ModBlocks.duna_rock;
                             }
                             else if (l1 >= 59 && l1 <= 64)
                             {

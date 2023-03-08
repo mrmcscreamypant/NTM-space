@@ -20,7 +20,8 @@ import net.minecraft.world.biome.BiomeGenBase;
 public class BiomeGenBaseDuna extends BiomeGenBase
 {
     public static final BiomeGenBase dunaPlains = new BiomeGenDuna(12).setTemperatureRainfall(-1.0F, 0.0F);
-    public static final BiomeGenBase dunaTest = new BiomeGenDunaTesting(13).setTemperatureRainfall(-1.0F, 0.0F);
+    public static final BiomeGenBase dunaTest = new BiomeGenDunaTesting().setTemperatureRainfall(-1.0F, 0.0F);
+    public static final BiomeGenBase dunaLowlands = new BiomeGenDunaTesting().setTemperatureRainfall(-1.0F, 0.0F);
     //public static final BiomeGenBase dunaLowlands = new BiomeGenDunaLowlands(WorldConfig.dunaLowlandsBiome).setTemperatureRainfall(-1.0F, 0.0F);
     //public static final BiomeGenBase dunaPolar = new BiomeGenDunaPolar(WorldConfig.dunaPolarBiome).setTemperatureRainfall(-1.0F, 0.0F);
     //public static final BiomeGenBase dunaRiver = new BiomeGenDunaRiver(WorldConfig.dunaRiverBiome).setTemperatureRainfall(-1.0F, 0.0F);

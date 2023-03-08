@@ -55,7 +55,7 @@ public class ChunkProviderDuna implements IChunkProvider
     private double[] octaves3;
     private double[] octaves4;
     private double[] stoneNoise = new double[256];
-    private static BiomeGenBase[] biomesForGeneration = new BiomeGenBase[] { BiomeGenBaseDuna.dunaPlains, BiomeGenBaseDuna.dunaTest};
+    private static BiomeGenBase [] biomesForGeneration;
 	protected Block fillblock;
     
 	private static double TERRAIN_HEIGHT_MOD = 18;
@@ -294,6 +294,7 @@ public class ChunkProviderDuna implements IChunkProvider
                     for (int i2 = -b0; i2 <= b0; ++i2)
                     {
                         BiomeGenBase biomegenbase1 = this.biomesForGeneration[j1 + l1 + 2 + (k1 + i2 + 2) * 10];
+                        System.out.println(biomesForGeneration);
                         float f3 = biomegenbase1.rootHeight;
                         float f4 = biomegenbase1.heightVariation;
 
