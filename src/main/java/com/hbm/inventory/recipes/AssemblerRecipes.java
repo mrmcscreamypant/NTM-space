@@ -1230,7 +1230,19 @@ public class AssemblerRecipes {
 					}, 15 * 60 * 20);
 			}
 		}
-		
+		if(Loader.isModLoaded("mcheli")) {
+			
+			Block mb = (Block) Block.blockRegistry.getObject("mcheli:");
+			
+			if(mb != null) {
+	
+				makeRecipe(new ComparableStack(mb, 1, 4), new AStack[] {
+						new OreDictStack(DURA.ingot(), 16),
+						new OreDictStack(DESH.ingot(), 8),
+						new OreDictStack(STEEL.plate(), 48),
+					}, 15 * 60 * 20);
+			}
+		}
 		
 		/// HIDDEN ///
 		hidden.put(new ComparableStack(ModBlocks.machine_radgen, 1), new HashSet() {{ add(ModItems.journal_pip); }});
