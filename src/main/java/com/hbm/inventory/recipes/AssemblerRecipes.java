@@ -1232,15 +1232,17 @@ public class AssemblerRecipes {
 		}
 		if(Loader.isModLoaded("mcheli")) {
 			
-			Block mb = (Block) Block.blockRegistry.getObject("mcheli:");
+			Item mb = (Item) Item.itemRegistry.getObject("mcheli:mi-24ps");
 			
 			if(mb != null) {
 	
 				makeRecipe(new ComparableStack(mb, 1, 4), new AStack[] {
-						new OreDictStack(DURA.ingot(), 16),
-						new OreDictStack(DESH.ingot(), 8),
-						new OreDictStack(STEEL.plate(), 48),
-					}, 15 * 60 * 20);
+						new OreDictStack(STEEL.plate(), 28),
+						new ComparableStack(ModItems.motor, 8),
+						new ComparableStack(ModItems.ingot_nickel, 2),
+						new ComparableStack(ModItems.tank_steel, 2)
+						
+					}, 500);
 			}
 		}
 		

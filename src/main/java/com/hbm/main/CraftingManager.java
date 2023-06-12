@@ -1,6 +1,7 @@
 package com.hbm.main;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.hbm.blocks.BlockEnums.DecoCabinetEnum;
@@ -1113,6 +1114,29 @@ public class CraftingManager {
 			if(toDestroy.size() > 0) {
 				net.minecraft.item.crafting.CraftingManager.getInstance().getRecipeList().removeAll(toDestroy);
 			}
+		}
+		if (Loader.isModLoaded("mcheli")) {
+		    List<IRecipe> toDestroy = new ArrayList<>();
+		    
+		    //Item heliItem = (Item) Item.itemRegistry.getKeys();
+		    
+		    Iterator<?> recipeIterator = net.minecraft.item.crafting.CraftingManager.getInstance().getRecipeList().iterator();
+		    
+		    while (recipeIterator.hasNext()) {
+		        Object recipeObj = recipeIterator.next();
+		        
+		        if (recipeObj instanceof IRecipe) {
+		            IRecipe recipe = (IRecipe) recipeObj;
+		            ItemStack outputStack = recipe.getRecipeOutput();
+		             {
+		                toDestroy.add(recipe);
+		            }
+		        }
+		    }
+		    
+		    if (!toDestroy.isEmpty()) {
+		    	net.minecraft.item.crafting.CraftingManager.getInstance().getRecipeList().removeAll(toDestroy);
+		    }
 		}
 	}
 	
