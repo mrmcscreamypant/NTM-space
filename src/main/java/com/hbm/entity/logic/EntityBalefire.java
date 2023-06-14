@@ -25,7 +25,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-public class EntityBalefire extends Entity {
+public class EntityBalefire extends EntityExplosionChunkloading  {
 	
 	public int age = 0;
 	public int destructionRange = 0;
@@ -91,6 +91,7 @@ public class EntityBalefire extends Entity {
         	flag = exp.update();
         	
         	if(flag) {
+				clearChunkLoader();
         		this.setDead();
         	}
         }
@@ -153,10 +154,7 @@ public class EntityBalefire extends Entity {
 			}
 		}
 	}
-    
-	@Override
-	protected void entityInit() { }
-	
+  
 	public EntityBalefire mute() {
 		this.mute = true;
 		return this;
