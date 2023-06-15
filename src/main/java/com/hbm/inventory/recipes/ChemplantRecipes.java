@@ -22,9 +22,10 @@ import com.hbm.inventory.recipes.loader.SerializableRecipe;
 import com.hbm.items.ModItems;
 import com.hbm.main.MainRegistry;
 
-
+import cpw.mods.fml.common.Loader;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 public class ChemplantRecipes extends SerializableRecipe {
@@ -524,6 +525,14 @@ public class ChemplantRecipes extends SerializableRecipe {
 						new FluidStack(FractionRecipes.light_frac_diesel * 10, Fluids.DIESEL),
 						new FluidStack(FractionRecipes.light_frac_kero * 10, Fluids.KEROSENE)
 						));
+		
+		if(Loader.isModLoaded("mcheli")) {
+			Item mb = (Item) Item.itemRegistry.getObject("mcheli:fuel");
+			ItemStack rb = new ItemStack(mb, 1, 400);
+			recipes.add(new ChemRecipe(121, "FP_LIGHTOIL", 50)
+					.inputFluids(new FluidStack(1000, Fluids.LIGHTOIL))
+					.outputItems(rb)); //unity 3d!
+		}
 	}
 
 	public static void registerOtherOil() {

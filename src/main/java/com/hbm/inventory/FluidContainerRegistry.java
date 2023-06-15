@@ -11,7 +11,9 @@ import com.hbm.inventory.fluid.Fluids.CD_Gastank;
 import com.hbm.items.ModItems;
 import com.hbm.util.Compat;
 
+import cpw.mods.fml.common.Loader;
 import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -62,7 +64,17 @@ public class FluidContainerRegistry {
 		FluidContainerRegistry.registerContainer(new FluidContainer(new ItemStack(ModItems.coffee), new ItemStack(ModItems.cmug_empty), Fluids.COFFEE, 100));
 		FluidContainerRegistry.registerContainer(new FluidContainer(new ItemStack(ModItems.teacup), new ItemStack(ModItems.teacup_empty), Fluids.TEA, 100));
 		FluidContainerRegistry.registerContainer(new FluidContainer(new ItemStack(ModItems.bottle_honey), new ItemStack(Items.glass_bottle), Fluids.HONEY, 100));
-
+		if(Loader.isModLoaded("mcheli")) {
+			Item mb = (Item) Item.itemRegistry.getObject("mcheli:fuel");
+			int maxDurability = 600;
+		    for (int i = 0; i <= maxDurability; i++) {
+		    	int fluidAmount = maxDurability - i;
+		        ItemStack rb = new ItemStack(mb, 1, Math.min(i, maxDurability));
+		        ItemStack lb = new ItemStack(mb, 1, Math.max(fluidAmount, maxDurability));
+		        FluidContainerRegistry.registerContainer(new FluidContainer(rb, lb, Fluids.LIGHTOIL, fluidAmount));		
+		        }
+		}
+		
 		
 		FluidType[] fluids = Fluids.getAll();
 		for(int i = 1; i < fluids.length; i++) {
