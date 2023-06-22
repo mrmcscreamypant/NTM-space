@@ -77,7 +77,12 @@ public class ModItems {
 		initializeItem();
 		registerItem();
 	}
-	
+
+	public static void inTheEventThatMcheliIsDetected()
+	{
+		heliCompatInit();
+		registerCompat();
+	}
 	public static Item redstone_sword;
 	public static Item big_sword;
 
@@ -2599,7 +2604,16 @@ public class ModItems {
 	
 	public static Item mysteryshovel;
 	public static Item memory;
-
+	
+	public static void heliCompatInit() {
+		mchelidebug = new ItemFuelMcheliCompat(1).setUnlocalizedName("mcheli_item").setCreativeTab(MainRegistry.partsTab).setTextureName(RefStrings.MODID + ":canister_empty");
+		registerCompat();
+	}
+	public static void registerCompat() {
+		GameRegistry.registerItem(mchelidebug, mchelidebug.getUnlocalizedName());
+	
+	}
+	
 	public static void initializeItem()
 	{			
 		redstone_sword = new RedstoneSword(ToolMaterial.STONE).setUnlocalizedName("redstone_sword").setCreativeTab(CreativeTabs.tabCombat).setTextureName(RefStrings.MODID + ":redstone_sword");
@@ -2701,6 +2715,11 @@ public class ModItems {
 		ingot_schraranium = new ItemSchraranium().setUnlocalizedName("ingot_schraranium").setCreativeTab(MainRegistry.partsTab).setTextureName(RefStrings.MODID + ":ingot_schraranium");
 		ingot_schrabidium = new ItemCustomLore().setRarity(EnumRarity.rare).setUnlocalizedName("ingot_schrabidium").setCreativeTab(MainRegistry.partsTab).setTextureName(RefStrings.MODID + ":ingot_schrabidium");
 		ingot_schrabidate = new ItemCustomLore().setRarity(EnumRarity.rare).setUnlocalizedName("ingot_schrabidate").setCreativeTab(MainRegistry.partsTab).setTextureName(RefStrings.MODID + ":ingot_schrabidate");
+<<<<<<< Updated upstream
+=======
+		//mchelidebug = new ItemFuelMcheliCompat(1).setUnlocalizedName("mcheli_item").setCreativeTab(MainRegistry.partsTab).setTextureName(RefStrings.MODID + ":canister_empty");
+
+>>>>>>> Stashed changes
 		plate_schrabidium = new ItemCustomLore().setRarity(EnumRarity.rare).setUnlocalizedName("plate_schrabidium").setCreativeTab(MainRegistry.partsTab).setTextureName(RefStrings.MODID + ":plate_schrabidium");
 		plate_copper = new Item().setUnlocalizedName("plate_copper").setCreativeTab(MainRegistry.partsTab).setTextureName(RefStrings.MODID + ":plate_copper");
 		plate_gold = new Item().setUnlocalizedName("plate_gold").setCreativeTab(MainRegistry.partsTab).setTextureName(RefStrings.MODID + ":plate_gold");
@@ -5855,7 +5874,12 @@ public class ModItems {
 		GameRegistry.registerItem(test_leggings, test_leggings.getUnlocalizedName());
 		GameRegistry.registerItem(test_boots, test_boots.getUnlocalizedName());
 		GameRegistry.registerItem(cape_test, cape_test.getUnlocalizedName());
+<<<<<<< Updated upstream
 		
+=======
+		//GameRegistry.registerItem(mchelidebug, mchelidebug.getUnlocalizedName());
+
+>>>>>>> Stashed changes
 		//Test Nuke
 		GameRegistry.registerItem(test_nuke_igniter, test_nuke_igniter.getUnlocalizedName());
 		GameRegistry.registerItem(test_nuke_propellant, test_nuke_propellant.getUnlocalizedName());

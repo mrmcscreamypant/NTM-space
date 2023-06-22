@@ -26,6 +26,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.util.EnumHelper;
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -276,6 +277,13 @@ public class MainRegistry {
 		
 		Fluids.init();
 		ModBlocks.mainRegistry();
+		
+		if(Loader.isModLoaded("mcheli")) {
+			ModItems.inTheEventThatMcheliIsDetected();
+		}else {
+			logger.info("nothing wrong here!");
+		}
+		
 		ModItems.mainRegistry();
 		proxy.registerRenderInfo();
 		HbmWorld.mainRegistry();
@@ -659,7 +667,11 @@ public class MainRegistry {
 	public static void load(FMLInitializationEvent event) {
 		
 		RodRecipes.registerInit();
+<<<<<<< Updated upstream
 
+=======
+		//McheliCompat.register();
+>>>>>>> Stashed changes
 		achSacrifice = new Achievement("achievement.sacrifice", "sacrifice", -3, 1, ModItems.burnt_bark, null).initIndependentStat().setSpecial().registerStat();
 		achImpossible = new Achievement("achievement.impossible", "impossible", 18, 10, ModItems.nothing, null).initIndependentStat().setSpecial().registerStat();
 		achTOB = new Achievement("achievement.tasteofblood", "tasteofblood", 3, 10, new ItemStack(ModItems.fluid_icon, 1, Fluids.ASCHRAB.getID()), null).initIndependentStat().setSpecial().registerStat();
