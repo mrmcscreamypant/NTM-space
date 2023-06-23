@@ -527,11 +527,22 @@ public class ChemplantRecipes extends SerializableRecipe {
 						));
 		
 		if(Loader.isModLoaded("mcheli")) {
-			Item mb = (Item) Item.itemRegistry.getObject("mcheli:fuel");
-			ItemStack rb = new ItemStack(mb, 1, 400);
-			recipes.add(new ChemRecipe(121, "FP_LIGHTOIL", 50)
-					.inputFluids(new FluidStack(1000, Fluids.LIGHTOIL))
-					.outputItems(rb)); //unity 3d!
+			recipes.add(new ChemRecipe(121, "MCH_T1", 50)
+					.inputFluids(new FluidStack(1000, Fluids.LIGHTOIL)) // the math here is garbage, each 100 durability translates to one canister used on right click,
+					.inputItems(new OreDictStack(STAINLESS.plate(), 2))
+					.outputItems(new ItemStack(ModItems.mchtier1))); //unity 3d!
+			recipes.add(new ChemRecipe(122, "MCH_T2", 50)
+					.inputFluids(new FluidStack(2000, Fluids.GASOLINE))
+					.inputItems(new OreDictStack(STAINLESS.plate(), 2))
+					.outputItems(new ItemStack(ModItems.mchtier2)));
+			recipes.add(new ChemRecipe(123, "MCH_T3", 50)
+					.inputFluids(new FluidStack(4000, Fluids.KEROSENE_REFORM))
+					.inputItems(new OreDictStack(STAINLESS.plate(), 2))
+					.outputItems(new ItemStack(ModItems.mchtier3)));
+			recipes.add(new ChemRecipe(124, "MCH_T4", 50)
+					.inputFluids(new FluidStack(1000, Fluids.NITAN))
+					.inputItems(new OreDictStack(STAINLESS.plate(), 2))
+					.outputItems(new ItemStack(ModItems.mchtier4)));
 		}
 	}
 

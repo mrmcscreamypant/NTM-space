@@ -281,7 +281,7 @@ public class MainRegistry {
 		if(Loader.isModLoaded("mcheli")) {
 			ModItems.inTheEventThatMcheliIsDetected();
 		}else {
-			logger.info("nothing wrong here!");
+			logger.info("mcheli is not found! thats okay, nothing wrong here!");
 		}
 		
 		ModItems.mainRegistry();
@@ -667,11 +667,7 @@ public class MainRegistry {
 	public static void load(FMLInitializationEvent event) {
 		
 		RodRecipes.registerInit();
-<<<<<<< Updated upstream
 
-=======
-		//McheliCompat.register();
->>>>>>> Stashed changes
 		achSacrifice = new Achievement("achievement.sacrifice", "sacrifice", -3, 1, ModItems.burnt_bark, null).initIndependentStat().setSpecial().registerStat();
 		achImpossible = new Achievement("achievement.impossible", "impossible", 18, 10, ModItems.nothing, null).initIndependentStat().setSpecial().registerStat();
 		achTOB = new Achievement("achievement.tasteofblood", "tasteofblood", 3, 10, new ItemStack(ModItems.fluid_icon, 1, Fluids.ASCHRAB.getID()), null).initIndependentStat().setSpecial().registerStat();
