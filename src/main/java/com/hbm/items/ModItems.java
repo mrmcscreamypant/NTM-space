@@ -2613,7 +2613,7 @@ public class ModItems {
 	public static Item mchtier4;
 
 	public static void heliCompatInit() {
-		mchelidebug = new ItemFuelMcheliCompat(100).setUnlocalizedName("mchelidebug_item").setCreativeTab(MainRegistry.partsTab).setTextureName(RefStrings.MODID + ":canister_empty");
+		//mchelidebug = new ItemFuelMcheliCompat(100).setUnlocalizedName("mchelidebug_item").setCreativeTab(MainRegistry.partsTab).setTextureName(RefStrings.MODID + ":canister_empty");
 		mchtier1 = new ItemFuelMcheliCompat(200).setUnlocalizedName("mchtier1").setCreativeTab(MainRegistry.partsTab).setTextureName(RefStrings.MODID + ":canister_t1");
 		mchtier2 = new ItemFuelMcheliCompat(400).setUnlocalizedName("mchtier2").setCreativeTab(MainRegistry.partsTab).setTextureName(RefStrings.MODID + ":canister_t2");
 		mchtier3 = new ItemFuelMcheliCompat(600).setUnlocalizedName("mchtier3").setCreativeTab(MainRegistry.partsTab).setTextureName(RefStrings.MODID + ":canister_t3");
@@ -2622,7 +2622,7 @@ public class ModItems {
 		registerCompat();
 	}
 	public static void registerCompat() {
-		GameRegistry.registerItem(mchelidebug, mchelidebug.getUnlocalizedName());
+		//GameRegistry.registerItem(mchelidebug, mchelidebug.getUnlocalizedName());
 		GameRegistry.registerItem(mchtier1, mchtier1.getUnlocalizedName());
 		GameRegistry.registerItem(mchtier2, mchtier2.getUnlocalizedName());
 		GameRegistry.registerItem(mchtier3, mchtier3.getUnlocalizedName());

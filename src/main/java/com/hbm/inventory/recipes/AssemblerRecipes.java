@@ -1242,15 +1242,161 @@ public class AssemblerRecipes {
 		if(Loader.isModLoaded("mcheli")) {
 			
 			Item mb = (Item) Item.itemRegistry.getObject("mcheli:mi-24ps");
-			
+			Item ah = (Item) Item.itemRegistry.getObject("mcheli:ah-64");
+			Item bell = (Item) Item.itemRegistry.getObject("mcheli:bell207");
+			Item chnu = (Item) Item.itemRegistry.getObject("mcheli:ch47");
+			Item mb4 = (Item) Item.itemRegistry.getObject("mcheli:ah-6");
+			Item mb5 = (Item) Item.itemRegistry.getObject("mcheli:ah-6x");
+
+
 			if(mb != null) {
 	
-				makeRecipe(new ComparableStack(mb, 1, 4), new AStack[] {
+				makeRecipe(new ComparableStack(mb, 1), new AStack[] {
 						new OreDictStack(STEEL.plate(), 28),
-						new ComparableStack(ModItems.motor, 8),
+						new ComparableStack(ModItems.motor, 4),
 						new ComparableStack(ModItems.ingot_nickel, 2),
-						new ComparableStack(ModItems.tank_steel, 2)
+						new ComparableStack(ModItems.tank_steel, 2)					
+					}, 500);
+			}
+			if(ah != null) {
+				
+				makeRecipe(new ComparableStack(ah, 1), new AStack[] {
+						new OreDictStack(STAINLESS.plate(), 32),
+						new OreDictStack(STEEL.plate(), 16),
+						new ComparableStack(ModItems.motor, 3),
+						new ComparableStack(ModItems.ingot_titanium, 2),
+						new ComparableStack(ModItems.circuit_red_copper, 2),
+						new ComparableStack(ModItems.tank_steel, 4),
+						new ComparableStack(ModItems.turbine_syngas),
+						new ComparableStack(ModItems.ingot_polymer, 2)
+					}, 500);
+			}
+			if(bell != null) {
+				
+				makeRecipe(new ComparableStack(bell, 1), new AStack[] {
+						new OreDictStack(STEEL.plate(), 12),
+						new ComparableStack(ModItems.motor, 2),
+						new ComparableStack(ModItems.ingot_nickel, 5),
+						new ComparableStack(ModItems.tank_steel, 2),
+						new ComparableStack(ModItems.pipes_steel),
+						new ComparableStack(ModItems.turbine_syngas)
 						
+					}, 500);
+			}
+			if(chnu != null) {
+				
+				makeRecipe(new ComparableStack(chnu, 1), new AStack[] {
+						new OreDictStack(STEEL.plate(), 28),
+						new ComparableStack(ModItems.motor, 4),
+						new ComparableStack(ModItems.ingot_titanium, 5),
+						new ComparableStack(ModItems.tank_steel, 2),
+						new ComparableStack(ModItems.turbine_syngas)
+					}, 500);
+			}
+			if(mb4 != null) {
+				
+				makeRecipe(new ComparableStack(mb4, 1), new AStack[] { //bell
+						new OreDictStack(STEEL.plate(), 12),
+						new ComparableStack(ModItems.motor, 2),
+						new ComparableStack(ModItems.tank_steel, 1),
+						
+					}, 500);
+			}
+			if(mb5 != null) {
+				
+				makeRecipe(new ComparableStack(mb5, 1), new AStack[] { // some other thing // DRONE
+						new OreDictStack(STEEL.plate(), 12),
+						new ComparableStack(ModItems.motor, 2),
+						new ComparableStack(ModItems.ingot_aluminium, 2),
+						new ComparableStack(ModItems.tank_steel, 2),
+						new ComparableStack(ModItems.ingot_cadmium)
+						
+					}, 500);
+			}
+			Item mb6 = (Item) Item.itemRegistry.getObject("mcheli:bell206l");
+			Item mb7 = (Item) Item.itemRegistry.getObject("mcheli:bell207");
+			Item mb8 = (Item) Item.itemRegistry.getObject("mcheli:bell47g");
+			Item mb9 = (Item) Item.itemRegistry.getObject("mcheli:bell47gf");
+			if(mb6 != null) {
+				
+				makeRecipe(new ComparableStack(mb6, 1), new AStack[] {
+						new OreDictStack(STEEL.plate(), 8),
+						new ComparableStack(ModItems.motor, 2),
+						new ComparableStack(ModItems.ingot_aluminium, 2),
+						new ComparableStack(ModItems.tank_steel, 2),
+					}, 500);
+			}
+			if(mb7 != null) {
+				
+				makeRecipe(new ComparableStack(mb7, 1), new AStack[] {
+						new OreDictStack(STAINLESS.plate(), 12),
+						new ComparableStack(ModItems.motor, 2),
+						new ComparableStack(ModItems.ingot_aluminium, 4),
+						new ComparableStack(ModItems.tank_steel, 2),
+						new ComparableStack(ModItems.ingot_polymer, 4),
+					}, 500);
+			}
+			if(mb8 != null) {
+				
+				makeRecipe(new ComparableStack(mb8, 1), new AStack[] {
+						new OreDictStack(STEEL.plate(), 8),
+						new ComparableStack(ModItems.motor, 1),
+						new ComparableStack(ModItems.ingot_aluminium, 2),
+						new ComparableStack(ModItems.tank_steel, 2),
+						new ComparableStack(Blocks.glass, 4)
+					}, 500);
+			}
+			if(mb9 != null) {
+				
+				makeRecipe(new ComparableStack(mb9, 1), new AStack[] {
+						new OreDictStack(STAINLESS.plate(), 4),
+						new ComparableStack(mb8),
+						new ComparableStack(ModItems.ingot_aluminium, 1),
+						new ComparableStack(ModItems.tank_steel, 4),
+						new ComparableStack(Blocks.glass, 8)
+					}, 500);
+			}
+			Item mb10 = (Item) Item.itemRegistry.getObject("mcheli:ec665");
+			Item mb11 = (Item) Item.itemRegistry.getObject("mcheli:fl282");
+			Item mb12 = (Item) Item.itemRegistry.getObject("mcheli:ka-27");
+			Item mb13 = (Item) Item.itemRegistry.getObject("mcheli:ka-29");
+			if(mb10 != null) {
+				
+				makeRecipe(new ComparableStack(mb10, 1), new AStack[] {
+						new OreDictStack(STEEL.plate(), 8),
+						new ComparableStack(ModItems.motor, 2),
+						new ComparableStack(ModItems.ingot_aluminium, 2),
+						new ComparableStack(ModItems.tank_steel, 2),
+					}, 500);
+			}
+			if(mb11 != null) {
+				
+				makeRecipe(new ComparableStack(mb11, 1), new AStack[] {
+						new OreDictStack(STAINLESS.plate(), 12),
+						new ComparableStack(ModItems.motor, 2),
+						new ComparableStack(ModItems.ingot_aluminium, 4),
+						new ComparableStack(ModItems.tank_steel, 2),
+						new ComparableStack(ModItems.ingot_polymer, 4),
+					}, 500);
+			}
+			if(mb12 != null) {
+				
+				makeRecipe(new ComparableStack(mb12, 1), new AStack[] {
+						new OreDictStack(STEEL.plate(), 8),
+						new ComparableStack(ModItems.motor, 1),
+						new ComparableStack(ModItems.ingot_aluminium, 2),
+						new ComparableStack(ModItems.tank_steel, 2),
+						new ComparableStack(Blocks.glass, 4)
+					}, 500);
+			}
+			if(mb13 != null) {
+				
+				makeRecipe(new ComparableStack(mb13, 1), new AStack[] {
+						new OreDictStack(STAINLESS.plate(), 4),
+						new ComparableStack(mb8),
+						new ComparableStack(ModItems.ingot_aluminium, 1),
+						new ComparableStack(ModItems.tank_steel, 4),
+						new ComparableStack(Blocks.glass, 8)
 					}, 500);
 			}
 		}

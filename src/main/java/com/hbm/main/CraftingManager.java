@@ -43,6 +43,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.RecipeSorter;
 import net.minecraftforge.oredict.ShapedOreRecipe;
@@ -1138,34 +1139,26 @@ public class CraftingManager {
 		}
 		if (Loader.isModLoaded("mcheli")) {
 		    List<IRecipe> toDestroy = new ArrayList<>();
-		    
-		    //Item heliItem = (Item) Item.itemRegistry.getKeys();
-		   Item heliItem = ModItems.mchelidebug;
-			ItemStack stwack  = new ItemStack(heliItem);
-			
-		    Iterator<?> recipeIterator = net.minecraft.item.crafting.CraftingManager.getInstance().getRecipeList().iterator();
-		    
-		    while (recipeIterator.hasNext()) {
-		        Object recipeObj = recipeIterator.next();
-		        
+
+		    for (Object recipeObj : net.minecraft.item.crafting.CraftingManager.getInstance().getRecipeList()) {
 		        if (recipeObj instanceof IRecipe) {
 		            IRecipe recipe = (IRecipe) recipeObj;
 		            ItemStack outputStack = recipe.getRecipeOutput();
-		             {
-		                 if (outputStack != null && outputStack.getItem() instanceof ItemFuelMcheliCompat && outputStack.getItemDamage() == stwack.getItemDamage()) {
-		                     continue; // Skip the current iteration and move to the next recipe
-		                 }
-		                toDestroy.add(recipe);
+
+		            if (outputStack != null && outputStack.getItem() != null) {
+		                Item outputItem = outputStack.getItem();
+		                if (outputItem.getClass().getName().startsWith("mcheli")) {
+		                    toDestroy.add(recipe);
+		                }
 		            }
 		        }
 		    }
-		    
+
 		    if (!toDestroy.isEmpty()) {
 		    	net.minecraft.item.crafting.CraftingManager.getInstance().getRecipeList().removeAll(toDestroy);
 		    }
 		}
 	}
-	
 
 	
 	//option 1: find every entry that needs to be ore dicted and change the recipe method by hand and commit to doing it right in the future
