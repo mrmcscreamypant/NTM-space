@@ -111,7 +111,7 @@ public class ItemFuelMcheliCompat extends MCH_ItemFuel {
                 }
             }
             if(stack.getItem() == ModItems.mchtier3){
-                if (is != null && is.getItem() == ModItems.canister_full && is.getItemDamage() == Fluids.KEROSENE_REFORM.getID()) {
+                if (is != null && is.getItem() == ModItems.canister_full && is.getItemDamage() == Fluids.DIESEL_REFORM.getID()) {
                     for (int j = 0; is.stackSize > 0 && stack.isItemDamaged() && j < 64; ++j) {
                         int damage = stack.getItemDamage() - ((coalType == 1) ? 75 : 100);
                         if (damage < 0) {
@@ -127,7 +127,7 @@ public class ItemFuelMcheliCompat extends MCH_ItemFuel {
                 }
             }
             if(stack.getItem() == ModItems.mchtier4) {
-                if (is != null && is.getItem() == ModItems.canister_full && is.getItemDamage() == Fluids.NITAN.getID()) {
+                if (is != null && is.getItem() == ModItems.canister_full && is.getItemDamage() == Fluids.KEROSENE_REFORM.getID()) {
                     for (int j = 0; is.stackSize > 0 && stack.isItemDamaged() && j < 64; ++j) {
                         int damage = stack.getItemDamage() - ((coalType == 1) ? 75 : 100);
                         if (damage < 0) {

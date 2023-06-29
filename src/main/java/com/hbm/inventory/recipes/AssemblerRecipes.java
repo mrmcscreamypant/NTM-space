@@ -1542,22 +1542,26 @@ public class AssemblerRecipes {
 
 			if (mch31 != null) {
 			    makeRecipe(new ComparableStack(mch31, 1), new AStack[] {
-						new OreDictStack(NI.plate(), 8),
-						new ComparableStack(ModItems.motor, 1),			    
+						new OreDictStack(TI.plate(), 12),
+						new OreDictStack(STEEL.plate(), 24),
+						new ComparableStack(ModItems.motor, 1),	
+						new ComparableStack(ModItems.bdcl, 1),	
 						}, 500);
 			}
 
 			if (mch32 != null) {
 			    makeRecipe(new ComparableStack(mch32, 1), new AStack[] {
-						new OreDictStack(NI.plate(), 8),
-						new ComparableStack(ModItems.motor, 1),			    
+						new OreDictStack(CU.plate(), 2),
+						new ComparableStack(ModItems.motor, 1),	
+						new ComparableStack(ModItems.ingot_c4),    
 						}, 500);
 			}
 
 			if (mch33 != null) {
 			    makeRecipe(new ComparableStack(mch33, 1), new AStack[] {
-						new OreDictStack(NI.plate(), 8),
-						new ComparableStack(ModItems.motor, 1),			    
+						new OreDictStack(CU.plate(), 2),
+						new ComparableStack(ModItems.motor, 1),	
+						new ComparableStack(ModItems.circuit_copper, 4),			    
 						}, 500);
 			}
 
@@ -1612,6 +1616,81 @@ public class AssemblerRecipes {
 						new ComparableStack(ModItems.motor, 1),				    
 						}, 500);
 			}
+
+
+			Item t1 = (Item) Item.itemRegistry.getObject("mcheli:bnr32");
+			Item t2 = (Item) Item.itemRegistry.getObject("mcheli:centauro");
+			Item t3 = (Item) Item.itemRegistry.getObject("mcheli:m1129");
+			Item t4 = (Item) Item.itemRegistry.getObject("mcheli:growler");
+			Item t5 = (Item) Item.itemRegistry.getObject("mcheli:kurganets25");
+			Item t6 = (Item) Item.itemRegistry.getObject("mcheli:m1a2");
+			Item t7 = (Item) Item.itemRegistry.getObject("mcheli:m26");
+			Item t8 = (Item) Item.itemRegistry.getObject("mcheli:merkava_mk4");
+			if (t1 != null) {
+			    makeRecipe(new ComparableStack(t1, 1), new AStack[] {
+						new OreDictStack(STAINLESS.plate(), 16),
+						new ComparableStack(ModItems.motor, 2),
+						new ComparableStack(Blocks.glass, 2),
+						new ComparableStack(ModItems.piston_set, 1)
+
+						}, 500);
+			}
+			if (t2 != null) {
+			    makeRecipe(new ComparableStack(t2, 1), new AStack[] {
+						new OreDictStack(STAINLESS.plate(), 23),
+						new ComparableStack(ModItems.motor, 4),
+						new ComparableStack(ModItems.piston_set, 2),
+						new ComparableStack(ModItems.pipes_steel, 2),
+						new OreDictStack(ANY_PLASTIC.ingot(), 4),
+
+						}, 500);
+			}
+			if (t3 != null) {
+			    makeRecipe(new ComparableStack(t3, 1), new AStack[] {
+						new OreDictStack(NI.plate(), 4),
+						new OreDictStack(STEEL.plate(), 4),
+						new OreDictStack(STAINLESS.ingot(), 8),
+						new ComparableStack(ModItems.motor, 4),
+						new ComparableStack(ModItems.piston_set, 2),
+						new ComparableStack(ModItems.pipes_steel, 2),
+						new OreDictStack(ANY_PLASTIC.ingot(), 4),
+			    }, 500);
+			}
+
+			if (t4 != null) {
+			    makeRecipe(new ComparableStack(t4, 1), new AStack[] {
+						new OreDictStack(STEEL.plate(), 8),
+						new ComparableStack(ModItems.motor, 1),
+						new ComparableStack(Blocks.glass, 1),
+						new ComparableStack(ModItems.piston_set, 1)
+			    }, 500);
+			}
+
+			if (t5 != null) {
+			    makeRecipe(new ComparableStack(t5, 1), new AStack[] {
+			        // Auto-generated recipe for t5
+			    }, 500);
+			}
+
+			if (t6 != null) {
+			    makeRecipe(new ComparableStack(t6, 1), new AStack[] {
+			        // Auto-generated recipe for t6
+			    }, 500);
+			}
+
+			if (t7 != null) {
+			    makeRecipe(new ComparableStack(t7, 1), new AStack[] {
+			        // Auto-generated recipe for t7
+			    }, 500);
+			}
+
+			if (t8 != null) {
+			    makeRecipe(new ComparableStack(t8, 1), new AStack[] {
+			        // Auto-generated recipe for t8
+			    }, 500);
+			}
+
+			
 		}
 		
 		/// HIDDEN ///

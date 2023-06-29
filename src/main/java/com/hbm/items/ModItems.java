@@ -2616,8 +2616,8 @@ public class ModItems {
 		//mchelidebug = new ItemFuelMcheliCompat(100).setUnlocalizedName("mchelidebug_item").setCreativeTab(MainRegistry.partsTab).setTextureName(RefStrings.MODID + ":canister_empty");
 		mchtier1 = new ItemFuelMcheliCompat(200).setUnlocalizedName("mchtier1").setCreativeTab(MainRegistry.partsTab).setTextureName(RefStrings.MODID + ":canister_t1");
 		mchtier2 = new ItemFuelMcheliCompat(400).setUnlocalizedName("mchtier2").setCreativeTab(MainRegistry.partsTab).setTextureName(RefStrings.MODID + ":canister_t2");
-		mchtier3 = new ItemFuelMcheliCompat(600).setUnlocalizedName("mchtier3").setCreativeTab(MainRegistry.partsTab).setTextureName(RefStrings.MODID + ":canister_t3");
-		mchtier4 = new ItemFuelMcheliCompat(2000).setUnlocalizedName("mchtier4").setCreativeTab(MainRegistry.partsTab).setTextureName(RefStrings.MODID + ":canister_t4");
+		mchtier3 = new ItemFuelMcheliCompat(600).setUnlocalizedName("mchtier3").setCreativeTab(MainRegistry.partsTab).setTextureName(RefStrings.MODID + ":canister_t4");
+		mchtier4 = new ItemFuelMcheliCompat(2000).setUnlocalizedName("mchtier4").setCreativeTab(MainRegistry.partsTab).setTextureName(RefStrings.MODID + ":canister_t3");
 
 		registerCompat();
 	}

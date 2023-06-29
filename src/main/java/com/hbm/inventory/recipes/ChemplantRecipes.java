@@ -536,11 +536,11 @@ public class ChemplantRecipes extends SerializableRecipe {
 					.inputItems(new OreDictStack(STAINLESS.plate(), 2))
 					.outputItems(new ItemStack(ModItems.mchtier2)));
 			recipes.add(new ChemRecipe(123, "MCH_T3", 50)
-					.inputFluids(new FluidStack(4000, Fluids.KEROSENE_REFORM))
+					.inputFluids(new FluidStack(4000, Fluids.DIESEL_REFORM))
 					.inputItems(new OreDictStack(STAINLESS.plate(), 2))
 					.outputItems(new ItemStack(ModItems.mchtier3)));
 			recipes.add(new ChemRecipe(124, "MCH_T4", 50)
-					.inputFluids(new FluidStack(1000, Fluids.NITAN))
+					.inputFluids(new FluidStack(1000, Fluids.KEROSENE_REFORM))
 					.inputItems(new OreDictStack(STAINLESS.plate(), 2))
 					.outputItems(new ItemStack(ModItems.mchtier4)));
 		}
