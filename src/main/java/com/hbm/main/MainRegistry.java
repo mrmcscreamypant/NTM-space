@@ -278,11 +278,6 @@ public class MainRegistry {
 		Fluids.init();
 		ModBlocks.mainRegistry();
 		
-		if(Loader.isModLoaded("mcheli")) {
-			ModItems.inTheEventThatMcheliIsDetected();
-		}else {
-			logger.info("mcheli is not found! thats okay, nothing wrong here!");
-		}
 		
 		ModItems.mainRegistry();
 		proxy.registerRenderInfo();

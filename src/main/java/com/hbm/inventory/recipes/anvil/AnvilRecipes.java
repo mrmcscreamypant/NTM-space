@@ -12,10 +12,13 @@ import com.hbm.inventory.RecipesCommon.ComparableStack;
 import com.hbm.inventory.RecipesCommon.OreDictStack;
 import com.hbm.inventory.fluid.Fluids;
 import com.hbm.inventory.recipes.AssemblerRecipes;
+import com.hbm.inventory.recipes.anvil.AnvilRecipes.AnvilConstructionRecipe;
+import com.hbm.inventory.recipes.anvil.AnvilRecipes.AnvilOutput;
 import com.hbm.items.ItemAmmoEnums.*;
 import com.hbm.items.ModItems;
 import com.hbm.items.food.ItemFlask.EnumInfusion;
 
+import cpw.mods.fml.common.Loader;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -495,7 +498,7 @@ public class AnvilRecipes {
 				new AnvilOutput(new ItemStack(ModItems.flask_infusion, 1, EnumInfusion.NITAN.ordinal()))).setTier(2));
 		
 		constructionRecipes.add(new AnvilConstructionRecipe(
-				new AStack[] {new OreDictStack(GAAS.ingot()), new OreDictStack(REDSTONE.dust(), 4), new OreDictStack(ASBESTOS.ingot(), 2)},
+				new AStack[] {new OreDictStack(TA.ingot()), new OreDictStack(REDSTONE.dust(), 4), new OreDictStack(ASBESTOS.ingot(), 2)},
 				new AnvilOutput(new ItemStack(ModItems.circuit_arsenic_raw))).setTier(5));
 		
 		constructionRecipes.add(new AnvilConstructionRecipe(new ComparableStack(ModItems.ingot_u233, 1), new AnvilOutput(new ItemStack(ModItems.plate_fuel_u233))).setTier(4));
@@ -505,7 +508,31 @@ public class AnvilRecipes {
 		constructionRecipes.add(new AnvilConstructionRecipe(new ComparableStack(ModItems.ingot_schrabidium, 1), new AnvilOutput(new ItemStack(ModItems.plate_fuel_sa326))).setTier(4));
 		constructionRecipes.add(new AnvilConstructionRecipe(new ComparableStack(ModItems.billet_ra226be, 1), new AnvilOutput(new ItemStack(ModItems.plate_fuel_ra226be))).setTier(4));
 		constructionRecipes.add(new AnvilConstructionRecipe(new ComparableStack(ModItems.billet_pu238be, 1), new AnvilOutput(new ItemStack(ModItems.plate_fuel_pu238be))).setTier(4));
-
+		if(Loader.isModLoaded("mcheli")) {
+			Item wrench = (Item) Item.itemRegistry.getObject("mcheli:wrench");
+			Item parachute = (Item) Item.itemRegistry.getObject("mcheli:parachute");
+			Item rangefinder = (Item) Item.itemRegistry.getObject("mcheli:rangefinder");
+			if (wrench != null) {
+			constructionRecipes.add(new AnvilConstructionRecipe(
+					new AStack[] {
+							new OreDictStack(AL.ingot(), 2),
+					}, new AnvilOutput(new ItemStack(wrench))).setTier(1));
+			}
+			if (parachute != null) {
+			constructionRecipes.add(new AnvilConstructionRecipe(
+					new AStack[] {
+							new ComparableStack(Blocks.wool, 4),
+							new ComparableStack(Items.string, 4)
+							}, new AnvilOutput(new ItemStack(parachute))).setTier(1));
+			}
+			if (rangefinder != null) {
+			constructionRecipes.add(new AnvilConstructionRecipe(
+					new AStack[] {
+							new ComparableStack(ModItems.circuit_copper, 2),
+							new ComparableStack(Blocks.glass)
+							}, new AnvilOutput(new ItemStack(rangefinder))).setTier(1));
+			}
+		}
 		for(int i = 0; i < 15; i += 3) {
 			constructionRecipes.add(new AnvilConstructionRecipe(new OreDictStack(IRON.plate(), 1), new AnvilOutput(new ItemStack(ModBlocks.fluid_duct_box, 1, i))).setTier(2).setOverlay(OverlayType.CONSTRUCTION));
 			constructionRecipes.add(new AnvilConstructionRecipe(new OreDictStack(CU.plate(), 1), new AnvilOutput(new ItemStack(ModBlocks.fluid_duct_box, 1, i + 1))).setTier(2).setOverlay(OverlayType.CONSTRUCTION));
@@ -812,6 +839,7 @@ public class AnvilRecipes {
 						new AnvilOutput(new ItemStack(ModItems.lithium, 1)),
 						new AnvilOutput(new ItemStack(ModItems.cell_empty, 1))
 						}).setTier(2));
+	
 		
 		//RBMK
 		constructionRecipes.add(new AnvilConstructionRecipe(

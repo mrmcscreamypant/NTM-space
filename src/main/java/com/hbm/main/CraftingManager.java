@@ -1141,10 +1141,9 @@ public class CraftingManager {
 		}
 		if (Loader.isModLoaded("mcheli")) {
 		    List<IRecipe> toDestroy = new ArrayList<>();
-			Item r44 = (Item) Item.itemRegistry.getObject("mcheli:robinson_r44");
-			Item r44f = (Item) Item.itemRegistry.getObject("mcheli:robinson_r44f");
-			Item bell47g = (Item) Item.itemRegistry.getObject("mcheli:bell47g");
-			Item bell47f = (Item) Item.itemRegistry.getObject("mcheli:bell47gf");
+			//Item r44f = (Item) Item.itemRegistry.getObject("mcheli:robinson_r44f");
+			//Item bell47g = (Item) Item.itemRegistry.getObject("mcheli:bell47g");
+			//Item bell47f = (Item) Item.itemRegistry.getObject("mcheli:bell47gf");
 		    for (Object recipeObj : net.minecraft.item.crafting.CraftingManager.getInstance().getRecipeList()) {
 		        if (recipeObj instanceof IRecipe) {
 		            IRecipe recipe = (IRecipe) recipeObj;
@@ -1152,8 +1151,11 @@ public class CraftingManager {
 
 		            if (outputStack != null && outputStack.getItem() != null) {
 		                Item outputItem = outputStack.getItem();
-		                if(outputStack.getItem() == r44 && outputStack.getItem() == r44f && outputStack.getItem() == bell47g && outputStack.getItem() == bell47f )
+
 		                if (outputItem.getClass().getName().startsWith("mcheli")) {
+		                    if(outputItem.getClass().getName().equals("mcheli:wrench")) {
+		                    	continue;
+		                    }
 		                    toDestroy.add(recipe);
 		                }
 		            }
