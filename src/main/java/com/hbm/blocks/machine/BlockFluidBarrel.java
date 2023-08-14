@@ -7,11 +7,14 @@ import java.util.Random;
 import com.hbm.blocks.IPersistentInfoProvider;
 import com.hbm.blocks.ITooltipProvider;
 import com.hbm.blocks.ModBlocks;
+import com.hbm.entity.projectile.EntityBombletZeta;
 import com.hbm.inventory.fluid.Fluids;
 import com.hbm.inventory.fluid.tank.FluidTank;
+import com.hbm.inventory.fluid.trait.FT_Flammable;
 import com.hbm.main.MainRegistry;
 import com.hbm.tileentity.IPersistentNBT;
 import com.hbm.tileentity.machine.storage.TileEntityBarrel;
+import com.hbm.tileentity.machine.storage.TileEntityMachineFluidTank;
 import com.hbm.util.I18nUtil;
 
 import cpw.mods.fml.client.registry.RenderingRegistry;
@@ -22,6 +25,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -29,6 +33,7 @@ import net.minecraft.stats.StatList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -142,7 +147,24 @@ public class BlockFluidBarrel extends BlockContainer implements ITooltipProvider
 		super.onBlockPlacedBy(world, x, y, z, player, stack);
 		IPersistentNBT.restoreData(world, x, y, z, stack);
 	}
-	
+	@Override
+	public void onBlockExploded(World world, int x, int y, int z, Explosion explosion) {
+		
+		TileEntity core = world.getTileEntity(x, y, z);
+		if(!(core instanceof TileEntityBarrel)) return;
+		
+		TileEntityBarrel tank = (TileEntityBarrel) core;
+		if(tank.lastExplosion == explosion) return;
+		tank.lastExplosion = explosion;
+		
+		if(!tank.hasExploded) {
+			tank.explode(world, x, y, z);
+			
+		} else {
+			world.setBlock(x, y, z, Blocks.air);
+		}
+		
+	}
 	@Override
 	public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune) {
 		return IPersistentNBT.getDrops(world, x, y, z, this);
@@ -162,6 +184,23 @@ public class BlockFluidBarrel extends BlockContainer implements ITooltipProvider
 	public void harvestBlock(World world, EntityPlayer player, int x, int y, int z, int meta) {
 		player.addStat(StatList.mineBlockStatArray[getIdFromBlock(this)], 1);
 		player.addExhaustion(0.025F);
+	}
+
+	@Override
+	public boolean hasComparatorInputOverride() {
+		return true;
+	}
+
+	@Override
+	public int getComparatorInputOverride(World world, int x, int y, int z, int side) {
+
+		TileEntity te = world.getTileEntity(x, y, z);
+
+		if(!(te instanceof TileEntityBarrel))
+			return 0;
+
+		TileEntityBarrel barrel = (TileEntityBarrel) te;
+		return barrel.getComparatorPower();
 	}
 
 	@Override

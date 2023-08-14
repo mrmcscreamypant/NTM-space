@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.List;
 
 import com.hbm.blocks.ModBlocks;
+import com.hbm.explosion.ExplosionLarge;
 import com.hbm.extprop.HbmLivingProps;
 import com.hbm.handler.radiation.ChunkRadiationManager;
 import com.hbm.inventory.fluid.FluidType;
@@ -14,6 +15,7 @@ import com.hbm.inventory.fluid.trait.FT_Flammable;
 import com.hbm.inventory.fluid.trait.FT_Poison;
 import com.hbm.inventory.fluid.trait.FT_Toxin;
 import com.hbm.inventory.fluid.trait.FT_VentRadiation;
+import com.hbm.inventory.fluid.trait.FluidTraitSimple.FT_EXPLOSIVE;
 import com.hbm.inventory.fluid.trait.FluidTraitSimple.FT_ULTRAKILL;
 import com.hbm.lib.ModDamageSource;
 import com.hbm.main.MainRegistry;
@@ -176,7 +178,7 @@ public class EntityChemical extends EntityThrowableNT {
 		}
 		
 		if(type.temperature >= 100) {
-			EntityDamageUtil.attackEntityFromIgnoreIFrame(e, getDamage(ModDamageSource.s_boil), 5F + (type.temperature - 100) * 0.02F); //5 damage at 100°C with one extra damage every 50°C
+			EntityDamageUtil.attackEntityFromIgnoreIFrame(e, getDamage(ModDamageSource.s_boil), 0.25F + (type.temperature - 100) * 0.001F); //.25 damage at 100°C with one extra damage every 1000°C
 			
 			if(type.temperature >= 500) {
 				e.setFire(10); //afterburn for 10 seconds
@@ -186,9 +188,15 @@ public class EntityChemical extends EntityThrowableNT {
 		if(style == ChemicalStyle.LIQUID || style == ChemicalStyle.GAS) {
 			if(type.temperature < -20) {
 				if(living != null) { //only living things are affected
-					EntityDamageUtil.attackEntityFromIgnoreIFrame(e, getDamage(ModDamageSource.s_cryolator), 5F + (type.temperature + 20) * -0.05F); //5 damage at -20°C with one extra damage every -20°C
-					living.addPotionEffect(new PotionEffect(Potion.moveSlowdown.id, 100, 2));
-					living.addPotionEffect(new PotionEffect(Potion.digSlowdown.id, 100, 4));
+					
+					HbmLivingProps.setTemperature(living, HbmLivingProps.getTemperature(living) + type.temperature / 20);
+					
+					if(HbmLivingProps.isFrozen(living)) {
+						if(!EntityDamageUtil.attackEntityFromIgnoreIFrame(e, getDamage(ModDamageSource.s_cryolator), living.getMaxHealth() * -type.temperature / 273 * 0.01F))
+							e.attackEntityFrom(getDamage(ModDamageSource.s_cryolator), living.getMaxHealth() * -type.temperature / 273);
+						living.addPotionEffect(new PotionEffect(Potion.moveSlowdown.id, 100, 2));
+						living.addPotionEffect(new PotionEffect(Potion.digSlowdown.id, 100, 4));
+					}
 				}
 			}
 			
@@ -230,23 +238,20 @@ public class EntityChemical extends EntityThrowableNT {
 		
 		if(type.hasTrait(FT_Corrosive.class)) {
 			FT_Corrosive trait = type.getTrait(FT_Corrosive.class);
-			EntityDamageUtil.attackEntityFromIgnoreIFrame(e, getDamage(ModDamageSource.s_acid), trait.getRating() / 20F);
+			EntityDamageUtil.attackEntityFromIgnoreIFrame(e, getDamage(ModDamageSource.s_acid), trait.getRating() / 50F);
 			
 			if(living != null) {
 				for(int i = 0; i < 4; i++) {
-					ArmorUtil.damageSuit(living, i, trait.getRating() / 5);
+					ArmorUtil.damageSuit(living, i, (int) Math.ceil(trait.getRating() / 50));
 				}
 			}
 		}
 		if(type.hasTrait(FT_ULTRAKILL.class)) {
 			FT_ULTRAKILL trait = type.getTrait(FT_ULTRAKILL.class);
-			if(living != null) {
-				for(int i = 0; i < 1; i++) {
-					attackEntityFrom(DamageSource.magic, 20F);
-				}
+			if(living != null && living.isEntityAlive()) {
+				living.heal(10F * (float) intensity); //blood is simply better lole
 			}
 		}
-		
 		if(type.hasTrait(FT_VentRadiation.class)) {
 			FT_VentRadiation trait = type.getTrait(FT_VentRadiation.class);
 			if(living != null) {
@@ -404,7 +409,7 @@ public class EntityChemical extends EntityThrowableNT {
 						}
 					}
 				}
-				
+
 				if(this.isExtinguishing()) {
 					
 					for(ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS) {
@@ -424,6 +429,12 @@ public class EntityChemical extends EntityThrowableNT {
 				}
 				
 				Block block = worldObj.getBlock(x, y, z);
+				if(type.hasTrait(FT_EXPLOSIVE.class)) {
+					int eX = mop.blockX;
+					int eY = mop.blockY;
+					int eZ = mop.blockZ;
+					worldObj.createExplosion(thrower, eX, eY, eZ, 1, addedToChunk);
+				}
 				if(type == Fluids.SEEDSLURRY) {
 					if(block == Blocks.dirt || block == ModBlocks.waste_earth || block == ModBlocks.dirt_dead || block == ModBlocks.dirt_oily) {
 						
@@ -441,6 +452,7 @@ public class EntityChemical extends EntityThrowableNT {
 				
 				this.setDead();
 			}
+			
 		}
 	}
 

@@ -40,14 +40,24 @@ public class WorldConfig {
 	
 	public static int bedrockIronSpawn = 200;
 	public static int bedrockCopperSpawn = 200;
-	public static int bedrockBoraxSpawn = 300;
-	public static int bedrockAsbestosSpawn = 300;
-	public static int bedrockNiobiumSpawn = 300;
-	public static int bedrockTitaniumSpawn = 400;
-	public static int bedrockTungstenSpawn = 300;
-	public static int bedrockGoldSpawn = 500;
+	public static int bedrockBoraxSpawn = 50;
+	public static int bedrockChlorocalciteSpawn = 35;
+	public static int bedrockAsbestosSpawn = 50;
+	public static int bedrockNiobiumSpawn = 50;
+	public static int bedrockTitaniumSpawn = 100;
+	public static int bedrockTungstenSpawn = 100;
+	public static int bedrockGoldSpawn = 50;
+	public static int bedrockUraniumSpawn = 35;
+	public static int bedrockThoriumSpawn = 50;
+	public static int bedrockCoalSpawn = 200;
+	public static int bedrockNiterSpawn = 50;
+	public static int bedrockFluoriteSpawn = 50;
+	public static int bedrockRedstoneSpawn = 50;
 	public static int bedrockBismuthSpawn = 400;
 	public static int bedrockCadmiumSpawn = 300;
+	public static int bedrockGlowstoneSpawn = 100;
+	public static int bedrockPhosphorusSpawn = 50;
+	public static int bedrockQuartzSpawn = 100;
 
 	public static int ironClusterSpawn = 4;
 	public static int titaniumClusterSpawn = 2;
@@ -78,7 +88,6 @@ public class WorldConfig {
 	public static int dungeonStructure = 64;
 	public static int relayStructure = 500;
 	public static int satelliteStructure = 500;
-	public static int bunkerStructure = 1000;
 	public static int siloStructure = 1000;
 	public static int factoryStructure = 1000;
 	public static int dudStructure = 500;
@@ -105,36 +114,7 @@ public class WorldConfig {
 	public static int meteorStrikeChance = 20 * 60 * 180;
 	public static int meteorShowerChance = 20 * 60 * 5;
 	public static int meteorShowerDuration = 6000;
-	
-	public static int moonDimension = 15;
-	public static int dunaDimension = 16;
-	public static int ikeDimension = 17;
-	public static int eveDimension = 18;
-	public static int mohoDimension = 20;
-	public static int minmusDimension = 21;
-	
-	public static int moonBiome = 111;
-	public static int dunaBiome = 112;
-	public static int dunaLowlandsBiome = 113;
-	public static int dunaPolarBiome = 114;
-	public static int dunaHillsBiome = 115;
-	public static int dunaPolarHillsBiome = 116;
-	public static int eveBiome = 117;
-	public static int eveMountainsBiome = 118;
-	public static int eveOceanBiome = 119;
-	public static int ikeBiome = 145;
-	public static int ikecfreq = 90;
-	public static int drescfreq = 90;
 
-	
-	public static int DresBiome = 120;
-	public static int dreBasins = 121;
-	public static int dresDimension = 19;
-	
-	public static int mohoBiome = 122;
-	
-	public static int minmusBiome = 146;
-	public static int minmusBasins = 147;
 	
 	public static void loadFromConfig(Configuration config) {
 
@@ -174,17 +154,29 @@ public class WorldConfig {
 		mineralSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.26_mineralSpawnrate", "Amount of mineral ore veins per chunk", 4);
 		dunaoilSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.27S_oilSpawnRate", "Spawns an oil bubble every nTH chunk (on duna)", 100);
 
-		bedrockIronSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.B00_bedrockIronSpawn", "Spawns a bedrock iron deposit every nTH chunk", 200);
-		bedrockCopperSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.B01_bedrockCopperSpawn", "Spawns a bedrock copper deposit every nTH chunk", 200);
-		bedrockBoraxSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.B02_bedrockBoraxSpawn", "Spawns a bedrock borax deposit every nTH chunk", 300);
-		bedrockAsbestosSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.B03_bedrockAsbestosSpawn", "Spawns a bedrock asbestos deposit every nTH chunk", 300);
-		bedrockNiobiumSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.B04_bedrockNiobiumSpawn", "Spawns a bedrock niobium deposit every nTH chunk", 300);
-		bedrockTitaniumSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.B05_bedrockTitaniumSpawn", "Spawns a bedrock titanium deposit every nTH chunk", 500);
-		bedrockTungstenSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.B06_bedrockTungstenSpawn", "Spawns a bedrock tungsten deposit every nTH chunk", 300);
-		bedrockGoldSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.B07_bedrockGoldSpawn", "Spawns a bedrock gold deposit every nTH chunk", 500);
+		bedrockIronSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.B00_bedrockIronWeight", "Spawn weight for iron bedrock ore", 100);
+		bedrockCopperSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.B01_bedrockCopperWeight", "Spawn weight for copper bedrock ore", 200);
+		bedrockBoraxSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.B02_bedrockBoraxWeight", "Spawn weight for borax bedrock ore", 50);
+		bedrockAsbestosSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.B03_bedrockAsbestosWeight", "Spawn weight for asbestos bedrock ore", 50);
+		bedrockNiobiumSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.B04_bedrockNiobiumWeight", "Spawn weight for niobium bedrock ore", 50);
+		bedrockTitaniumSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.B05_bedrockTitaniumWeight", "Spawn weight for titanium bedrock ore", 100);
+		bedrockTungstenSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.B06_bedrockTungstenWeight", "Spawn weight for tungsten bedrock ore", 100);
+		bedrockGoldSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.B07_bedrockGoldWeight", "Spawn weight for gold bedrock ore", 50);
+		bedrockUraniumSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.B08_bedrockUraniumWeight", "Spawn weight for uranium bedrock ore", 35);
+		bedrockThoriumSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.B09_bedrockThoriumWeight", "Spawn weight for thorium bedrock ore", 50);
+		bedrockCoalSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.B10_bedrockCoalWeight", "Spawn weight for coal bedrock ore", 200);
+		bedrockNiterSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.B11_bedrockNiterWeight", "Spawn weight for niter bedrock ore", 50);
+		bedrockFluoriteSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.B12_bedrockFluoriteWeight", "Spawn weight for fluorite bedrock ore", 50);
+		bedrockRedstoneSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.B13_bedrockRedstoneWeight", "Spawn weight for redstone bedrock ore", 50);
 		bedrockBismuthSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.B08_bedrockBismuthSpawn", "Spawns a bedrock bismuth deposit every nTH chunk", 400);
 		bedrockCadmiumSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.B09_bedrockCadmiumSpawn", "Spawns a bedrock cadmium deposit every nTH chunk", 400);
+		// JESUS CHRIST....
+		bedrockChlorocalciteSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.B14_bedrockbChlorocalciteWeight", "Spawn weight for chlorocalcite bedrock ore", 35);
+		bedrockChlorocalciteSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.B14_bedrockChlorocalciteWeight", "Spawn weight for chlorocalcite bedrock ore", 35);
 
+		bedrockGlowstoneSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.BN00_bedrockGlowstoneWeight", "Spawn weight for glowstone bedrock ore", 100);
+		bedrockPhosphorusSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.BN01_bedrockPhosphorusWeight", "Spawn weight for phosphorus bedrock ore", 50);
+		bedrockQuartzSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.BN01_bedrockQuartzWeight", "Spawn weight for quartz bedrock ore", 100);
 
 		ironClusterSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.C00_ironClusterSpawn", "Amount of iron cluster veins per chunk", 4);
 		titaniumClusterSpawn = CommonConfig.createConfigInt(config, CATEGORY_OREGEN, "2.C01_titaniumClusterSpawn", "Amount of titanium cluster veins per chunk", 2);
@@ -215,7 +207,6 @@ public class WorldConfig {
 		dungeonStructure = CommonConfig.createConfigInt(config, CATEGORY_DUNGEON, "4.04_dungeonSpawn", "Spawn library dungeon on every nTH chunk", 64);
 		relayStructure = CommonConfig.createConfigInt(config, CATEGORY_DUNGEON, "4.05_relaySpawn", "Spawn relay on every nTH chunk", 500);
 		satelliteStructure = CommonConfig.createConfigInt(config, CATEGORY_DUNGEON, "4.06_satelliteSpawn", "Spawn satellite dish on every nTH chunk", 500);
-		bunkerStructure = CommonConfig.createConfigInt(config, CATEGORY_DUNGEON, "4.07_bunkerSpawn", "Spawn bunker on every nTH chunk", 1000);
 		siloStructure = CommonConfig.createConfigInt(config, CATEGORY_DUNGEON, "4.08_siloSpawn", "Spawn missile silo on every nTH chunk", 1000);
 		factoryStructure = CommonConfig.createConfigInt(config, CATEGORY_DUNGEON, "4.09_factorySpawn", "Spawn factory on every nTH chunk", 1000);
 		dudStructure = CommonConfig.createConfigInt(config, CATEGORY_DUNGEON, "4.10_dudSpawn", "Spawn dud on every nTH chunk", 500);
@@ -243,23 +234,7 @@ public class WorldConfig {
 		meteorShowerChance = CommonConfig.createConfigInt(config, CATEGORY_METEOR, "5.04_meteorShowerChance", "The probability of a meteor spawning during meteor shower (an average of once every nTH ticks)", 20 * 60 * 15);
 		meteorShowerDuration = CommonConfig.createConfigInt(config, CATEGORY_METEOR, "5.05_meteorShowerDuration", "Max duration of meteor shower in ticks", 20 * 60 * 30);
 
-		final String CATEGORY_BIOME = CommonConfig.CATEGORY_BIOMES;
-		moonDimension = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.00_moonDimension", "Mun Dimension ID", 15);
-		dunaDimension = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.01_dunaDimension", "Duna Dimension ID", 16);
-		ikeDimension = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.01_ikeDimension", "Ike Dimension ID", 17);
-		eveDimension = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.01_eveDimension", "Eve Dimension ID", 18);
-		dresDimension = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.01_dresDimension", "Dres Dimension ID", 19);
-		moonBiome = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.02_moonBiome", "Mun Biome ID", 111);
-		dunaBiome = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.03_dunaBiome", "Duna Biome ID", 112);
-		dunaLowlandsBiome = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.04_dunaLowlandsBiome", "Duna Lowlands Biome ID", 113);
-		dunaPolarBiome = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.05_dunaPolarBiome", "Duna Polar Biome ID", 114);
-		dunaHillsBiome = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.06_dunaHillsBiome", "Duna Hills Biome ID", 115);
-		dunaPolarHillsBiome = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.07_dunaPolarHillsBiome", "Duna Polar Hills Biome ID", 116);
-		eveBiome = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.08_eveBiome", "Eve Biome ID", 117);
-		eveMountainsBiome = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.09_eveMountainsBiome", "Eve Mountains Biome ID", 118);
-		eveOceanBiome = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.10_eveOceanBiome", "Eve Ocean Biome ID", 119);
-		ikeBiome = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.11_IkeBiome", "Ike Biome ID", 145);
-		
+	
 		
 		radioStructure = CommonConfig.setDefZero(radioStructure, 1000);
 		antennaStructure = CommonConfig.setDefZero(antennaStructure, 1000);
@@ -268,7 +243,6 @@ public class WorldConfig {
 		dungeonStructure = CommonConfig.setDefZero(dungeonStructure, 1000);
 		relayStructure = CommonConfig.setDefZero(relayStructure, 1000);
 		satelliteStructure = CommonConfig.setDefZero(satelliteStructure, 1000);
-		bunkerStructure = CommonConfig.setDefZero(bunkerStructure, 1000);
 		siloStructure = CommonConfig.setDefZero(siloStructure, 1000);
 		factoryStructure = CommonConfig.setDefZero(factoryStructure, 1000);
 		dudStructure = CommonConfig.setDefZero(dudStructure, 1000);
@@ -286,8 +260,6 @@ public class WorldConfig {
 		capsuleStructure = CommonConfig.setDefZero(capsuleStructure, 100);
 		arcticStructure = CommonConfig.setDefZero(arcticStructure, 500);
 		
-		ikecfreq = CommonConfig.setDefZero(ikecfreq, 90);
-		drescfreq = CommonConfig.setDefZero(drescfreq, 90);
 
 		
 		meteorStrikeChance = CommonConfig.setDef(meteorStrikeChance, 1000);

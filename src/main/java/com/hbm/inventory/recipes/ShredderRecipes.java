@@ -208,6 +208,8 @@ public class ShredderRecipes extends SerializableRecipe {
 		ShredderRecipes.setRecipe(ModBlocks.moon_titanium, new ItemStack(ModItems.powder_titanium, 4));
 		ShredderRecipes.setRecipe(ModBlocks.moon_aluminium, new ItemStack(ModItems.powder_aluminium, 4));
 		ShredderRecipes.setRecipe(ModBlocks.moon_lithium, new ItemStack(ModItems.powder_lithium, 4));
+		ShredderRecipes.setRecipe(ModBlocks.ore_mineral, new ItemStack(ModItems.mineral_dust, 1)); // it was deserved
+
 		
 		ShredderRecipes.setRecipe(ModItems.bean_roast,  new ItemStack(ModItems.powder_coffee, 1));
 		
@@ -316,10 +318,6 @@ public class ShredderRecipes extends SerializableRecipe {
 		ShredderRecipes.setRecipe(ModBlocks.chain, new ItemStack(ModItems.powder_steel_tiny, 1));
 		ShredderRecipes.setRecipe(ModBlocks.steel_grate, new ItemStack(ModItems.powder_steel_tiny, 3));
 		ShredderRecipes.setRecipe(ModItems.pipes_steel, new ItemStack(ModItems.powder_steel, 27));
-		ShredderRecipes.setRecipe(ModBlocks.oil_duct, new ItemStack(ModItems.powder_steel_tiny, 3));
-		ShredderRecipes.setRecipe(ModBlocks.oil_duct_solid, new ItemStack(ModItems.powder_steel_tiny, 3));
-		ShredderRecipes.setRecipe(ModBlocks.gas_duct, new ItemStack(ModItems.powder_steel, 1));
-		ShredderRecipes.setRecipe(ModBlocks.gas_duct_solid, new ItemStack(ModItems.powder_steel, 1));
 		ShredderRecipes.setRecipe(ModBlocks.machine_fluidtank, new ItemStack(ModItems.powder_steel, 32));
 
 		/* Sellafite scrapping */

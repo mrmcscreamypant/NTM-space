@@ -11,6 +11,8 @@ import com.hbm.items.ModItems;
 import com.hbm.items.machine.ItemRBMKRod;
 import com.hbm.tileentity.machine.rbmk.TileEntityRBMKConsole.ColumnType;
 import com.hbm.util.Compat;
+import com.hbm.util.ParticleUtil;
+
 import cpw.mods.fml.common.Optional;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -83,10 +85,17 @@ public class TileEntityRBMKRod extends TileEntityRBMKSlottedBase implements IRBM
 				
 				super.updateEntity();
 				
-				if(this.heat > this.maxHeat() && !RBMKDials.getMeltdownsDisabled(worldObj)) {
-					this.meltdown();
+				if(this.heat > this.maxHeat()) {
+					
+					if(RBMKDials.getMeltdownsDisabled(worldObj)) {
+						ParticleUtil.spawnGasFlame(worldObj, xCoord + 0.5, yCoord + RBMKDials.getColumnHeight(worldObj) + 0.5, zCoord + 0.5, 0, 0.2, 0);
+					} else {
+						this.meltdown();
+					}
 					return;
 				}
+				
+				if(this.heat > 10_000) this.heat = 10_000;
 				
 				//for spreading, we want the buffered flux to be 0 because we want to know exactly how much gets reflected back
 				this.fluxFast = 0;
@@ -384,25 +393,25 @@ public class TileEntityRBMKRod extends TileEntityRBMKSlottedBase implements IRBM
 		return "rbmk_fuel_rod";
 	}
 
-	@Callback(direct = true, limit = 8)
+	@Callback(direct = true, limit = 16)
 	@Optional.Method(modid = "OpenComputers")
 	public Object[] getHeat(Context context, Arguments args) {
 		return new Object[] {heat};
 	}
 
-	@Callback(direct = true, limit = 8)
+	@Callback(direct = true, limit = 16)
 	@Optional.Method(modid = "OpenComputers")
 	public Object[] getFluxSlow(Context context, Arguments args) {
 		return new Object[] {fluxSlow};
 	}
 
-	@Callback(direct = true, limit = 8)
+	@Callback(direct = true, limit = 16)
 	@Optional.Method(modid = "OpenComputers")
 	public Object[] getFluxFast(Context context, Arguments args) {
 		return new Object[] {fluxFast};
 	}
 	
-	@Callback(direct = true, limit = 8)
+	@Callback(direct = true, limit = 16)
 	@Optional.Method(modid = "OpenComputers")
 	public Object[] getDepletion(Context context, Arguments args) {
 		if(slots[0] != null && slots[0].getItem() instanceof ItemRBMKRod) {
@@ -411,7 +420,7 @@ public class TileEntityRBMKRod extends TileEntityRBMKSlottedBase implements IRBM
 		return new Object[] {"N/A"};
 	}
 
-	@Callback(direct = true, limit = 8)
+	@Callback(direct = true, limit = 16)
 	@Optional.Method(modid = "OpenComputers")
 	public Object[] getXenonPoison(Context context, Arguments args) {
 		if(slots[0] != null && slots[0].getItem() instanceof ItemRBMKRod) {
@@ -420,7 +429,7 @@ public class TileEntityRBMKRod extends TileEntityRBMKSlottedBase implements IRBM
 		return new Object[] {"N/A"};
 	}
 
-	@Callback(direct = true, limit = 8)
+	@Callback(direct = true, limit = 16)
 	@Optional.Method(modid = "OpenComputers")
 	public Object[] getCoreHeat(Context context, Arguments args) {
 		if(slots[0] != null && slots[0].getItem() instanceof ItemRBMKRod) {
@@ -429,7 +438,7 @@ public class TileEntityRBMKRod extends TileEntityRBMKSlottedBase implements IRBM
 		return new Object[] {"N/A"};
 	}
 
-	@Callback(direct = true, limit = 8)
+	@Callback(direct = true, limit = 16)
 	@Optional.Method(modid = "OpenComputers")
 	public Object[] getSkinHeat(Context context, Arguments args) {
 		if(slots[0] != null && slots[0].getItem() instanceof ItemRBMKRod) {
@@ -438,28 +447,34 @@ public class TileEntityRBMKRod extends TileEntityRBMKSlottedBase implements IRBM
 		return new Object[] {"N/A"};
 	}
 
-	@Callback(direct = true, limit = 8)
+	@Callback(direct = true, limit = 16)
 	@Optional.Method(modid = "OpenComputers")
 	public Object[] getInfo(Context context, Arguments args) {
 		Object OC_enrich_buf;
 		Object OC_poison_buf;
+		Object OC_hull_buf;
+		Object OC_core_buf;
 		if(slots[0] != null && slots[0].getItem() instanceof ItemRBMKRod) {
 			OC_enrich_buf = ItemRBMKRod.getEnrichment(slots[0]);
 			OC_poison_buf = ItemRBMKRod.getPoison(slots[0]);
+			OC_hull_buf = ItemRBMKRod.getHullHeat(slots[0]);
+			OC_core_buf = ItemRBMKRod.getCoreHeat(slots[0]);
 		} else {
 			OC_enrich_buf = "N/A";
 			OC_poison_buf = "N/A";
+			OC_hull_buf = "N/A";
+			OC_core_buf = "N/A";
 		}
-		return new Object[] {heat, fluxSlow, fluxFast, OC_enrich_buf, OC_poison_buf, ((RBMKRod)this.getBlockType()).moderated, xCoord, yCoord, zCoord};
+		return new Object[] {heat, OC_hull_buf, OC_core_buf, fluxSlow, fluxFast, OC_enrich_buf, OC_poison_buf, ((RBMKRod)this.getBlockType()).moderated, xCoord, yCoord, zCoord};
 	}
 
-	@Callback(direct = true, limit = 8)
+	@Callback(direct = true, limit = 16)
 	@Optional.Method(modid = "OpenComputers")
 	public Object[] getModerated(Context context, Arguments args) {
 		return new Object[] {((RBMKRod)this.getBlockType()).moderated};
 	}
 
-	@Callback(direct = true, limit = 8)
+	@Callback(direct = true, limit = 16)
 	@Optional.Method(modid = "OpenComputers")
 	public Object[] getCoordinates(Context context, Arguments args) {
 		return new Object[] {xCoord, yCoord, zCoord};

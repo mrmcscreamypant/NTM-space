@@ -1,12 +1,15 @@
 package com.hbm.items.tool;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import com.hbm.dim.DebugTeleporter;
 
 import com.hbm.blocks.ModBlocks;
 import com.hbm.blocks.generic.BlockBedrockOreTE.TileEntityBedrockOre;
+import com.hbm.config.SpaceConfig;
 import com.hbm.config.WorldConfig;
 import com.hbm.dim.DebugTeleporter;
 import com.hbm.entity.effect.EntityNukeTorex;
@@ -17,11 +20,26 @@ import com.hbm.inventory.FluidStack;
 import com.hbm.inventory.fluid.Fluids;
 import com.hbm.items.ModItems;
 import com.hbm.items.special.ItemBookLore;
-import com.hbm.items.special.ItemBookLore.BookLoreType;
 import com.hbm.items.special.ItemKitCustom;
 import com.hbm.items.special.ItemBedrockOre.EnumBedrockOre;
+import com.hbm.blocks.ModBlocks;
+import com.hbm.blocks.rail.IRailNTM;
+import com.hbm.blocks.rail.IRailNTM.RailContext;
+import com.hbm.explosion.vanillant.ExplosionVNT;
+import com.hbm.explosion.vanillant.standard.BlockAllocatorBulkie;
+import com.hbm.explosion.vanillant.standard.BlockMutatorBulkie;
+import com.hbm.explosion.vanillant.standard.BlockProcessorStandard;
+import com.hbm.explosion.vanillant.standard.EntityProcessorStandard;
+import com.hbm.explosion.vanillant.standard.ExplosionEffectStandard;
+import com.hbm.explosion.vanillant.standard.PlayerProcessorStandard;
 import com.hbm.lib.Library;
+import com.hbm.packet.PacketDispatcher;
+import com.hbm.packet.PlayerInformPacket;
 import com.hbm.saveddata.TomSaveData;
+import com.hbm.util.ParticleUtil;
+import com.hbm.util.PlanetaryTraitUtil;
+import com.hbm.util.PlanetaryTraitUtil.Hospitality;
+import com.hbm.util.fauxpointtwelve.BlockPos;
 import com.hbm.world.feature.OilSpot;
 import com.hbm.world.generator.DungeonToolbox;
 import com.hbm.world.machine.FWatz;
@@ -31,23 +49,19 @@ import com.hbm.extprop.HbmLivingProps;
 import com.hbm.handler.pollution.PollutionHandler;
 import com.hbm.handler.pollution.PollutionHandler.PollutionType;
 
-import cpw.mods.fml.common.eventhandler.Event.Result;
-import cpw.mods.fml.relauncher.ReflectionHelper;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.EntityTracker;
-import net.minecraft.entity.EntityTrackerEntry;
-import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IntHashMap;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.gen.structure.MapGenStronghold;
@@ -89,15 +103,15 @@ public class ItemWandD extends Item {
 				switch(stack.stackTagCompound.getInteger("dim"))
 				{
 				case 0:
-					DebugTeleporter.teleport(player, WorldConfig.moonDimension, player.posX, 300, player.posZ);
+					DebugTeleporter.teleport(player, SpaceConfig.moonDimension, player.posX, 300, player.posZ);
 					//thePlayer.mcServer.getConfigurationManager().transferPlayerToDimension(thePlayer, WorldConfig.moonDimension, new DebugTeleporter(thePlayer.getServerForPlayer()));
 					break;
 				case 1:
-					DebugTeleporter.teleport(player, WorldConfig.ikeDimension, player.posX, 300, player.posZ);
+					DebugTeleporter.teleport(player, SpaceConfig.ikeDimension, player.posX, 300, player.posZ);
 					//thePlayer.mcServer.getConfigurationManager().transferPlayerToDimension(thePlayer, WorldConfig.ikeDimension, new DebugTeleporter(thePlayer.getServerForPlayer()));
 					break;
 				case 2:
-					DebugTeleporter.teleport(player, WorldConfig.dunaDimension, player.posX, 300, player.posZ);
+					DebugTeleporter.teleport(player, SpaceConfig.dunaDimension, player.posX, 300, player.posZ);
 					//thePlayer.mcServer.getConfigurationManager().transferPlayerToDimension(thePlayer, WorldConfig.dunaDimension, new DebugTeleporter(thePlayer.getServerForPlayer()));
 					break;
 				case 3:
@@ -105,21 +119,21 @@ public class ItemWandD extends Item {
 					//thePlayer.mcServer.getConfigurationManager().transferPlayerToDimension(thePlayer, WorldConfig.dunaDimension, new DebugTeleporter(thePlayer.getServerForPlayer()));
 					break;
 				case 4:
-					DebugTeleporter.teleport(player, WorldConfig.eveDimension, player.posX, 300, player.posZ);
+					DebugTeleporter.teleport(player, SpaceConfig.eveDimension, player.posX, 300, player.posZ);
 					//thePlayer.mcServer.getConfigurationManager().transferPlayerToDimension(thePlayer, WorldConfig.dunaDimension, new DebugTeleporter(thePlayer.getServerForPlayer()));
 					break;
 				case 5:
-					DebugTeleporter.teleport(player, WorldConfig.dresDimension, player.posX, 300, player.posZ);
+					DebugTeleporter.teleport(player, SpaceConfig.dresDimension, player.posX, 300, player.posZ);
 					//DebugTeleporter.teleport(player, WorldConfig.eveDimension, player.posX, 300, player.posZ);
 					//thePlayer.mcServer.getConfigurationManager().transferPlayerToDimension(thePlayer, WorldConfig.dunaDimension, new DebugTeleporter(thePlayer.getServerForPlayer()));
 					break;
 				case 6:
-					DebugTeleporter.teleport(player, WorldConfig.mohoDimension, player.posX, 300, player.posZ);
+					DebugTeleporter.teleport(player, SpaceConfig.mohoDimension, player.posX, 300, player.posZ);
 					//DebugTeleporter.teleport(player, WorldConfig.eveDimension, player.posX, 300, player.posZ);
 					//thePlayer.mcServer.getConfigurationManager().transferPlayerToDimension(thePlayer, WorldConfig.dunaDimension, new DebugTeleporter(thePlayer.getServerForPlayer()));
 					break;
 				case 7:
-					DebugTeleporter.teleport(player, WorldConfig.minmusDimension, player.posX, 300, player.posZ);
+					DebugTeleporter.teleport(player, SpaceConfig.minmusDimension, player.posX, 300, player.posZ);
 				case 8:
 					TomSaveData data = TomSaveData.forWorld(world);
 					data.impact = false;
@@ -186,9 +200,26 @@ public class ItemWandD extends Item {
 					}
 				}
 			}
-			
+		//what this code SHOULD do is strip the traits from moho, and then add the trait that makes it breatheable
+			if(world.provider.dimensionId == SpaceConfig.mohoDimension) {
+				Set<Hospitality> traits = EnumSet.of(Hospitality.HOT, Hospitality.OXYNEG);
+				Set<Hospitality> newtraits = EnumSet.of(Hospitality.BREATHEABLE);
+				PlanetaryTraitUtil.removeTraitsFromDimension(world.provider.dimensionId, traits);
+				PlanetaryTraitUtil.addTraitsToDimension(world.provider.dimensionId, newtraits);
+				player.addChatMessage(new ChatComponentText("added!" + newtraits));
+			}
 			/*
 			return stack;
+			
+			/*ExplosionVNT vnt = new ExplosionVNT(world, pos.hitVec.xCoord, pos.hitVec.yCoord, pos.hitVec.zCoord, 7);
+			vnt.setBlockAllocator(new BlockAllocatorBulkie(60));
+			vnt.setBlockProcessor(new BlockProcessorStandard().withBlockEffect(new BlockMutatorBulkie(ModBlocks.block_slag)).setNoDrop());
+			vnt.setEntityProcessor(new EntityProcessorStandard());
+			vnt.setPlayerProcessor(new PlayerProcessorStandard());
+			vnt.setSFX(new ExplosionEffectStandard());
+			vnt.explode();*/
+			
+			//PollutionHandler.incrementPollution(world, pos.blockX, pos.blockY, pos.blockZ, PollutionType.SOOT, 15);
 			
 			/*TimeAnalyzer.startCount("setBlock");
 			world.setBlock(pos.blockX, pos.blockY, pos.blockZ, Blocks.dirt);
@@ -198,6 +229,8 @@ public class ItemWandD extends Item {
 			TimeAnalyzer.dump();*/
 			
 			/*TomSaveData data = TomSaveData.forWorld(world);
+			/*
+			TomSaveData data = TomSaveData.forWorld(world);
 			data.impact = true;
 			data.fire = 0F;
 			data.dust = 0F;

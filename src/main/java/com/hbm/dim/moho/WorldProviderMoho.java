@@ -1,8 +1,11 @@
 package com.hbm.dim.moho;
 
+import com.hbm.config.SpaceConfig;
 import com.hbm.config.WorldConfig;
 import com.hbm.main.MainRegistry;
 import com.hbm.util.AstronomyUtil;
+import com.hbm.util.PlanetaryTraitUtil;
+import com.hbm.util.PlanetaryTraitUtil.Hospitality;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -19,8 +22,8 @@ public class WorldProviderMoho extends WorldProvider {
 	
 	public void registerWorldChunkManager() {
 		
-		this.worldChunkMgr = new WorldChunkManagerHell(new BiomeGenMoho(WorldConfig.mohoBiome), dimensionId);
-		this.dimensionId = WorldConfig.mohoDimension;
+		this.worldChunkMgr = new WorldChunkManagerHell(new BiomeGenMoho(SpaceConfig.mohoBiome), dimensionId);
+		this.dimensionId = SpaceConfig.mohoDimension;
 		this.hasNoSky = false;
 	}
 
@@ -43,7 +46,13 @@ public class WorldProviderMoho extends WorldProvider {
     }
     
     public Vec3 getSkyColor(Entity camera, float partialTicks) {
-      return Vec3.createVectorHelper(0.0D, 0.0D, 0.0D);
+        if(PlanetaryTraitUtil.isDimensionWithTrait(worldObj, Hospitality.BREATHEABLE)) {
+        	return Vec3.createVectorHelper(0.3D, 0.2D, 0.1D);
+        }
+        else {
+            return Vec3.createVectorHelper(0.0D, 0.0D, 0.0D);
+
+        }
     }
     
     @SideOnly(Side.CLIENT)
