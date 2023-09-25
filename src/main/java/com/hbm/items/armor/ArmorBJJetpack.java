@@ -23,8 +23,8 @@ import net.minecraft.world.World;
 
 public class ArmorBJJetpack extends ArmorBJ {
 
-	public ArmorBJJetpack(ArmorMaterial material, int layer, int slot, String texture, long maxPower, long chargeRate, long consumption, long drain) {
-		super(material, layer, slot, texture, maxPower, chargeRate, consumption, drain);
+	public ArmorBJJetpack(ArmorMaterial material, int slot, String texture, long maxPower, long chargeRate, long consumption, long drain) {
+		super(material, slot, texture, maxPower, chargeRate, consumption, drain);
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -89,13 +89,13 @@ public class ArmorBJJetpack extends ArmorBJ {
 				}
 			}
 		}
-    }
-    
-    @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean ext) {
-    	super.addInformation(stack, player, list, ext);
+	}
 
-    	list.add(EnumChatFormatting.RED + "  + " + I18nUtil.resolveKey("armor.electricJetpack"));
-    	list.add(EnumChatFormatting.GRAY + "  + " + I18nUtil.resolveKey("armor.glider"));
-    }
+	@SideOnly(Side.CLIENT)
+	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean ext) {
+		super.addInformation(stack, player, list, ext);
+
+		list.add(EnumChatFormatting.RED + "  + " + I18nUtil.resolveKey("armor.electricJetpack"));
+		list.add(EnumChatFormatting.GRAY + "  + " + I18nUtil.resolveKey("armor.glider"));
+	}
 }

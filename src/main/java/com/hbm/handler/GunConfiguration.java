@@ -5,11 +5,16 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.hbm.lib.HbmCollection.EnumGunManufacturer;
+import com.hbm.packet.AuxParticlePacketNT;
+import com.hbm.packet.PacketDispatcher;
 import com.hbm.render.anim.BusAnimation;
 import com.hbm.render.anim.HbmAnimations.AnimType;
 import com.hbm.render.util.RenderScreenOverlay.Crosshair;
 
+import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 
 public class GunConfiguration implements Cloneable {
 	
@@ -25,6 +30,8 @@ public class GunConfiguration implements Cloneable {
 	public int rateOfFire;
 	//amount of bullets fired per delay passed
 	public int roundsPerCycle;
+	/** Amount of rounds per burst, irrelevant if not a burst fire weapon**/
+	public int roundsPerBurst;
 	//0 = normal, 1 = release, 2 = both
 	public int gunMode;
 	//0 = manual, 1 = automatic
@@ -32,9 +39,14 @@ public class GunConfiguration implements Cloneable {
 	//weapon won't fire after weapon breaks (main only)
 	public int durability;
 	
+	public World dimWorld;
+	public int x;
+	public int y;
+	public int z;
+	
 	//animations!
 	public HashMap<AnimType, BusAnimation> animations = new HashMap();
-	//whether or not to disable crosshair when sneaking
+	//when sneaking, disables crosshair and centers the bullet spawn point
 	public boolean hasSights;
 	//texture overlay when sneaking
 	public ResourceLocation scopeTexture;
@@ -46,12 +58,13 @@ public class GunConfiguration implements Cloneable {
 	//how long the reload animation will play
 	//MUST BE GREATER THAN ZERO ! ! !
 	public int reloadDuration;
-	//duration of every animation cycle
+	//duration of every animation cycle, used also for how quickly a burst fire rifle can fire
 	public int firingDuration;
 	//sound path to the reload sound
 	public String reloadSound = "";
 	//sound path to the shooting sound
 	public String firingSound = "";
+	public float firingVolume = 1.0F;
 	public float firingPitch = 1.0F;
 	//whether the reload sound should be played at the beginning or at the end of the reload
 	public boolean reloadSoundEnd = true;
@@ -93,6 +106,7 @@ public class GunConfiguration implements Cloneable {
 
 	public static final int FIRE_MANUAL = 0;
 	public static final int FIRE_AUTO = 1;
+	public static final int FIRE_BURST = 2;
 
 	public static final int RELOAD_NONE = 0;
 	public static final int RELOAD_FULL = 1;
@@ -104,11 +118,19 @@ public class GunConfiguration implements Cloneable {
 	public static final String RSOUND_SHOTGUN = "hbm:weapon.shotgunReload";
 	public static final String RSOUND_LAUNCHER = "hbm:weapon.rpgReload";
 	public static final String RSOUND_GRENADE = "hbm:weapon.hkReload";
+	public static final String RSOUND_GRENADE_NEW = "hbm:weapon.glReload";
 	public static final String RSOUND_FATMAN = "hbm:weapon.fatmanReload";
 	
 	public GunConfiguration silenced() {
 		this.firingSound = "hbm:weapon.silencerShoot";
 		return this;
 	}
-
+	public static void spawnParticles(World world, double x, double y, double z, int count) {
+		
+		NBTTagCompound data = new NBTTagCompound();
+		data.setString("type", "smoke");
+		data.setString("mode", "cloud");
+		data.setInteger("count", count);
+		PacketDispatcher.wrapper.sendToAllAround(new AuxParticlePacketNT(data, x, y, z),  new TargetPoint(world.provider.dimensionId, x, y, z, 250));
+	}
 }

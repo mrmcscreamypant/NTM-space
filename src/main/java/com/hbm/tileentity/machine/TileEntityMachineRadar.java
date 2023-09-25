@@ -6,22 +6,33 @@ import java.util.List;
 import com.hbm.blocks.ModBlocks;
 import com.hbm.config.WeaponConfig;
 import com.hbm.extprop.HbmLivingProps;
-import com.hbm.interfaces.Untested;
+import com.hbm.inventory.container.ContainerMachineRadar;
+import com.hbm.inventory.gui.GUIMachineRadar;
+import com.hbm.tileentity.IGUIProvider;
 import com.hbm.tileentity.TileEntityTickingBase;
 
 import api.hbm.energy.IEnergyUser;
 import api.hbm.entity.IRadarDetectable;
 import api.hbm.entity.IRadarDetectable.RadarTargetType;
+import cpw.mods.fml.common.Optional;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.world.World;
+import li.cil.oc.api.machine.Arguments;
+import li.cil.oc.api.machine.Callback;
+import li.cil.oc.api.machine.Context;
+import li.cil.oc.api.network.SimpleComponent;
 
-public class TileEntityMachineRadar extends TileEntityTickingBase implements IEnergyUser {
+@Optional.InterfaceList({@Optional.Interface(iface = "li.cil.oc.api.network.SimpleComponent", modid = "OpenComputers")})
+public class TileEntityMachineRadar extends TileEntityTickingBase implements IEnergyUser, IGUIProvider, SimpleComponent {
 
 	public List<Entity> entList = new ArrayList();
 	public List<int[]> nearbyMissiles = new ArrayList();
@@ -173,8 +184,8 @@ public class TileEntityMachineRadar extends TileEntityTickingBase implements IEn
 				
 				for(int i = 0; i < nearbyMissiles.size(); i++) {
 					
-					if(nearbyMissiles.get(i)[3] + 1 > power) {
-						power = nearbyMissiles.get(i)[3] + 1;
+					if(nearbyMissiles.get(i)[2] + 1 > power) {
+						power = nearbyMissiles.get(i)[2] + 1;
 					}
 				}
 				
@@ -278,5 +289,63 @@ public class TileEntityMachineRadar extends TileEntityTickingBase implements IEn
 	public double getMaxRenderDistanceSquared()
 	{
 		return 65536.0D;
+	}
+
+	// do some opencomputer stuff
+
+	@Override
+	public String getComponentName() {
+		return "ntm_radar";
+	}
+
+	@Callback(direct = true, limit = 8)
+	@Optional.Method(modid = "OpenComputers")
+	public Object[] getEnergyInfo(Context context, Arguments args) {
+		return new Object[] {getPower(), getMaxPower()};
+	}
+
+	@Callback(direct = true, limit = 8)
+	@Optional.Method(modid = "OpenComputers")
+	public Object[] isJammed(Context context, Arguments args) {
+		return new Object[] {jammed};
+	}
+
+	@Callback(direct = true, limit = 8)
+	@Optional.Method(modid = "OpenComputers")
+	public Object[] getEntities(Context context, Arguments args) { //fuck fuck fuck
+		if(!jammed) {
+			List<Object> list = new ArrayList();
+			list.add(entList.size());     // small header of how many entities in the list
+			for (Entity e : entList) {
+				list.add(e.posX);   	  //  positions
+				list.add(e.posY);
+				list.add(e.posZ);
+				list.add(e.motionX);
+				list.add(e.motionY);
+				list.add(e.motionZ);
+				list.add(e.rotationYaw); //  just do rotation so you can calculate DOT
+				list.add(Math.sqrt(Math.pow(e.posX - xCoord, 2) + Math.pow(e.posZ - zCoord, 2))); //  distance
+				boolean player = e instanceof EntityPlayer;
+				list.add(player);         //  isPlayer boolean
+				if(!player)			      //  missile tier
+					list.add(((IRadarDetectable) e).getTargetType().ordinal());
+				else 				      //  player name (hopefully)
+					list.add(((EntityPlayer) e).getDisplayName());
+			}
+			return new Object[] {list};   // long-ass list (like 9 entries per entity)
+		} else {
+			return new Object[] {"Radar jammed!"};
+		}
+	}
+
+	@Override
+	public Container provideContainer(int ID, EntityPlayer player, World world, int x, int y, int z) {
+		return new ContainerMachineRadar(player.inventory, this);
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public GuiScreen provideGUI(int ID, EntityPlayer player, World world, int x, int y, int z) {
+		return new GUIMachineRadar(player.inventory, this);
 	}
 }

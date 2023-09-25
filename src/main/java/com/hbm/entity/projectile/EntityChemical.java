@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.List;
 
 import com.hbm.blocks.ModBlocks;
+import com.hbm.explosion.ExplosionLarge;
 import com.hbm.extprop.HbmLivingProps;
 import com.hbm.handler.radiation.ChunkRadiationManager;
 import com.hbm.inventory.fluid.FluidType;
@@ -12,11 +13,16 @@ import com.hbm.inventory.fluid.trait.FT_Combustible;
 import com.hbm.inventory.fluid.trait.FT_Corrosive;
 import com.hbm.inventory.fluid.trait.FT_Flammable;
 import com.hbm.inventory.fluid.trait.FT_Poison;
+import com.hbm.inventory.fluid.trait.FT_Toxin;
 import com.hbm.inventory.fluid.trait.FT_VentRadiation;
+import com.hbm.inventory.fluid.trait.FluidTraitSimple.FT_EXPLOSIVE;
 import com.hbm.inventory.fluid.trait.FluidTraitSimple.FT_ULTRAKILL;
 import com.hbm.lib.ModDamageSource;
 import com.hbm.main.MainRegistry;
+import com.hbm.tileentity.IRepairable;
+import com.hbm.tileentity.IRepairable.EnumExtinguishType;
 import com.hbm.util.ArmorUtil;
+import com.hbm.util.CompatExternal;
 import com.hbm.util.ContaminationUtil;
 import com.hbm.util.EnchantmentUtil;
 import com.hbm.util.ContaminationUtil.ContaminationType;
@@ -31,6 +37,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSourceIndirect;
 import net.minecraft.util.MathHelper;
@@ -44,7 +51,7 @@ public class EntityChemical extends EntityThrowableNT {
 	/*
 	 * TYPE INFO:
 	 * 
-	 * if ANTIMATTER: ignore all other traits, become a gamme beam with no gravity
+	 * if ANTIMATTER: ignore all other traits, become a gamma beam with no gravity
 	 * if HOT: set fire and deal extra fire damage, scaling with the temperature
 	 * if COLD: freeze, duration scaling with temperature, assuming COMBUSTIBLE does not apply
 	 * if GAS: short range with the spread going up
@@ -161,8 +168,17 @@ public class EntityChemical extends EntityThrowableNT {
 			}
 		}
 		
+		if(style == ChemicalStyle.LIGHTNING) {
+			EntityDamageUtil.attackEntityFromIgnoreIFrame(e, ModDamageSource.electricity, 0.5F);
+			if(living != null) {
+				living.addPotionEffect(new PotionEffect(Potion.moveSlowdown.id, 60, 9));
+				living.addPotionEffect(new PotionEffect(Potion.weakness.id, 60, 9));
+				return;
+			}
+		}
+		
 		if(type.temperature >= 100) {
-			EntityDamageUtil.attackEntityFromIgnoreIFrame(e, getDamage(ModDamageSource.s_boil), 5F + (type.temperature - 100) * 0.02F); //5 damage at 100°C with one extra damage every 50°C
+			EntityDamageUtil.attackEntityFromIgnoreIFrame(e, getDamage(ModDamageSource.s_boil), 0.25F + (type.temperature - 100) * 0.001F); //.25 damage at 100°C with one extra damage every 1000°C
 			
 			if(type.temperature >= 500) {
 				e.setFire(10); //afterburn for 10 seconds
@@ -172,9 +188,15 @@ public class EntityChemical extends EntityThrowableNT {
 		if(style == ChemicalStyle.LIQUID || style == ChemicalStyle.GAS) {
 			if(type.temperature < -20) {
 				if(living != null) { //only living things are affected
-					EntityDamageUtil.attackEntityFromIgnoreIFrame(e, getDamage(ModDamageSource.s_cryolator), 5F + (type.temperature + 20) * -0.05F); //5 damage at -20°C with one extra damage every -20°C
-					living.addPotionEffect(new PotionEffect(Potion.moveSlowdown.id, 100, 2));
-					living.addPotionEffect(new PotionEffect(Potion.digSlowdown.id, 100, 4));
+					
+					HbmLivingProps.setTemperature(living, HbmLivingProps.getTemperature(living) + type.temperature / 20);
+					
+					if(HbmLivingProps.isFrozen(living)) {
+						if(!EntityDamageUtil.attackEntityFromIgnoreIFrame(e, getDamage(ModDamageSource.s_cryolator), living.getMaxHealth() * -type.temperature / 273 * 0.01F))
+							e.attackEntityFrom(getDamage(ModDamageSource.s_cryolator), living.getMaxHealth() * -type.temperature / 273);
+						living.addPotionEffect(new PotionEffect(Potion.moveSlowdown.id, 100, 2));
+						living.addPotionEffect(new PotionEffect(Potion.digSlowdown.id, 100, 4));
+					}
 				}
 			}
 			
@@ -216,23 +238,20 @@ public class EntityChemical extends EntityThrowableNT {
 		
 		if(type.hasTrait(FT_Corrosive.class)) {
 			FT_Corrosive trait = type.getTrait(FT_Corrosive.class);
-			EntityDamageUtil.attackEntityFromIgnoreIFrame(e, getDamage(ModDamageSource.s_acid), trait.getRating() / 20F);
+			EntityDamageUtil.attackEntityFromIgnoreIFrame(e, getDamage(ModDamageSource.s_acid), trait.getRating() / 50F);
 			
 			if(living != null) {
 				for(int i = 0; i < 4; i++) {
-					ArmorUtil.damageSuit(living, i, trait.getRating() / 5);
+					ArmorUtil.damageSuit(living, i, (int) Math.ceil(trait.getRating() / 50));
 				}
 			}
 		}
 		if(type.hasTrait(FT_ULTRAKILL.class)) {
 			FT_ULTRAKILL trait = type.getTrait(FT_ULTRAKILL.class);
-			if(living != null) {
-				for(int i = 0; i < 1; i++) {
-					attackEntityFrom(DamageSource.magic, 20F);
-				}
+			if(living != null && living.isEntityAlive()) {
+				living.heal(10F * (float) intensity); //blood is simply better lole
 			}
 		}
-		
 		if(type.hasTrait(FT_VentRadiation.class)) {
 			FT_VentRadiation trait = type.getTrait(FT_VentRadiation.class);
 			if(living != null) {
@@ -249,6 +268,14 @@ public class EntityChemical extends EntityThrowableNT {
 			}
 		}
 		
+		if(type.hasTrait(FT_Toxin.class)) {
+			FT_Toxin trait = type.getTrait(FT_Toxin.class);
+			
+			if(living != null) {
+				trait.affect(living, intensity);
+			}
+		}
+		
 		if(type == Fluids.XPJUICE) {
 			
 			if(e instanceof EntityPlayer) {
@@ -262,8 +289,14 @@ public class EntityChemical extends EntityThrowableNT {
 		}
 	}
 	
+	/* whether this type should extinguish entities */
 	protected boolean isExtinguishing() {
 		return this.getStyle() == ChemicalStyle.LIQUID && this.getType().temperature < 50 && !this.getType().hasTrait(FT_Flammable.class);
+	}
+
+	/* the extinguish type for burning multiblocks, roughly identical to the fire extinguisher */
+	protected EnumExtinguishType getExtinguishingType(FluidType type) {
+		return type == Fluids.CARBONDIOXIDE ? EnumExtinguishType.CO2 : type == Fluids.WATER || type == Fluids.HEAVYWATER || type == Fluids.COOLANT ? EnumExtinguishType.WATER : null;
 	}
 	
 	protected DamageSource getDamage(String name) {
@@ -376,7 +409,7 @@ public class EntityChemical extends EntityThrowableNT {
 						}
 					}
 				}
-				
+
 				if(this.isExtinguishing()) {
 					
 					for(ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS) {
@@ -387,7 +420,21 @@ public class EntityChemical extends EntityThrowableNT {
 					}
 				}
 				
+				EnumExtinguishType fext = this.getExtinguishingType(type);
+				if(fext != null) {
+					TileEntity core = CompatExternal.getCoreFromPos(worldObj, x, y, z);
+					if(core instanceof IRepairable) {
+						((IRepairable) core).tryExtinguish(worldObj, x, y, z, fext);
+					}
+				}
+				
 				Block block = worldObj.getBlock(x, y, z);
+				if(type.hasTrait(FT_EXPLOSIVE.class)) {
+					int eX = mop.blockX;
+					int eY = mop.blockY;
+					int eZ = mop.blockZ;
+					worldObj.createExplosion(thrower, eX, eY, eZ, 1, addedToChunk);
+				}
 				if(type == Fluids.SEEDSLURRY) {
 					if(block == Blocks.dirt || block == ModBlocks.waste_earth || block == ModBlocks.dirt_dead || block == ModBlocks.dirt_oily) {
 						
@@ -405,6 +452,7 @@ public class EntityChemical extends EntityThrowableNT {
 				
 				this.setDead();
 			}
+			
 		}
 	}
 
@@ -414,6 +462,7 @@ public class EntityChemical extends EntityThrowableNT {
 		ChemicalStyle type = getStyle();
 
 		if(type == ChemicalStyle.AMAT) return 1F;
+		if(type == ChemicalStyle.LIGHTNING) return 1F;
 		if(type == ChemicalStyle.GAS) return 0.95F;
 		
 		return 0.99F;
@@ -425,6 +474,7 @@ public class EntityChemical extends EntityThrowableNT {
 		ChemicalStyle type = getStyle();
 
 		if(type == ChemicalStyle.AMAT) return 1F;
+		if(type == ChemicalStyle.LIGHTNING) return 1F;
 		if(type == ChemicalStyle.GAS) return 1F;
 		
 		return 0.8F;
@@ -434,6 +484,7 @@ public class EntityChemical extends EntityThrowableNT {
 		
 		switch(this.getStyle()) {
 		case AMAT: return 100;
+		case LIGHTNING: return 5;
 		case BURNING:return 600;
 		case GAS: return 60;
 		case GASFLAME: return 20;
@@ -448,6 +499,7 @@ public class EntityChemical extends EntityThrowableNT {
 		ChemicalStyle type = getStyle();
 
 		if(type == ChemicalStyle.AMAT) return 0D;
+		if(type == ChemicalStyle.LIGHTNING) return 0D;
 		if(type == ChemicalStyle.GAS) return 0D;
 		if(type == ChemicalStyle.GASFLAME) return -0.01D;
 		
@@ -459,6 +511,10 @@ public class EntityChemical extends EntityThrowableNT {
 	}
 	
 	public static ChemicalStyle getStyleFromType(FluidType type) {
+		
+		if(type == Fluids.IONGEL) {
+			return ChemicalStyle.LIGHTNING;
+		}
 		
 		if(type.isAntimatter()) {
 			return ChemicalStyle.AMAT;
@@ -490,6 +546,7 @@ public class EntityChemical extends EntityThrowableNT {
 	 */
 	public static enum ChemicalStyle {
 		AMAT,		//renders as beam
+		LIGHTNING,	//renders as beam
 		LIQUID,		//no renderer, fluid particles
 		GAS,		//renders as particles
 		GASFLAME,	//renders as fire particles

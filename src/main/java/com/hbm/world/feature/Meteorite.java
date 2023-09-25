@@ -8,7 +8,7 @@ import java.util.Random;
 import com.hbm.blocks.ModBlocks;
 import com.hbm.config.WorldConfig;
 import com.hbm.explosion.ExplosionLarge;
-import com.hbm.explosion.ExplosionNukeSmall;
+import com.hbm.interfaces.Spaghetti;
 import com.hbm.items.ModItems;
 import com.hbm.lib.ModDamageSource;
 
@@ -19,21 +19,24 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 
+@Spaghetti("why")
 public class Meteorite {
 	
 	public static boolean safeMode = false;
 
-	public void generate(World world, Random rand, int x, int y, int z, boolean safe, boolean allowSpecials) {
+	public void generate(World world, Random rand, int x, int y, int z, boolean safe, boolean allowSpecials, boolean damagingImpact) {
 		safeMode = safe;
 		
 		if(replacables.isEmpty()) {
 			generateReplacables();
 		}
 
-		List<Entity> list = (List<Entity>) world.getEntitiesWithinAABBExcludingEntity(null, AxisAlignedBB.getBoundingBox(x - 7.5, y - 7.5, z - 7.5, x + 7.5, y + 7.5, z + 7.5));
-
-		for(Entity e : list) {
-			e.attackEntityFrom(ModDamageSource.meteorite, 1000);
+		if(damagingImpact) {
+			List<Entity> list = (List<Entity>) world.getEntitiesWithinAABBExcludingEntity(null, AxisAlignedBB.getBoundingBox(x - 7.5, y - 7.5, z - 7.5, x + 7.5, y + 7.5, z + 7.5));
+	
+			for(Entity e : list) {
+				e.attackEntityFrom(ModDamageSource.meteorite, 1000);
+			}
 		}
 
 		if(WorldConfig.enableSpecialMeteors && allowSpecials)
@@ -116,11 +119,6 @@ public class Meteorite {
 				list10.add(new ItemStack(ModBlocks.block_meteor_broken));
 				generateSphere5x5(world, rand, x, y, z, list10);
 				setBlock(world, x, y, z, ModBlocks.taint, 9, 2);
-				return;
-			case 11:
-				// Atomic meteorite
-				
-				ExplosionNukeSmall.explode(world, x + 0.5, y + 0.5, z + 0.5, safe ? ExplosionNukeSmall.safe : ExplosionNukeSmall.medium);
 				return;
 			case 12:
 				// Star Blaster
@@ -712,6 +710,8 @@ public class Meteorite {
 			ores.add(new ItemStack(ModBlocks.ore_meteor_lithium));
 		for(int i = 0; i < 1; i++)
 			ores.add(new ItemStack(ModBlocks.ore_meteor_starmetal));
+		for(int i = 0; i < 9; i++)
+			ores.add(new ItemStack(ModBlocks.ore_meteor_iron));
 
 		return ores;
 	}
@@ -746,5 +746,7 @@ public class Meteorite {
 		replacables.add(ModBlocks.ore_meteor_lead);
 		replacables.add(ModBlocks.ore_meteor_lithium);
 		replacables.add(ModBlocks.ore_meteor_starmetal);
+		replacables.add(ModBlocks.ore_meteor_iron);
+
 	}
 }

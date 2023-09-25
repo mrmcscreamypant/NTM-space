@@ -2,17 +2,22 @@ package com.hbm.blocks.bomb;
 
 import java.util.Random;
 
+import org.apache.logging.log4j.Level;
+
 import com.hbm.blocks.ModBlocks;
+import com.hbm.config.GeneralConfig;
 import com.hbm.explosion.ExplosionLarge;
 import com.hbm.explosion.ExplosionNukeSmall;
 import com.hbm.interfaces.IBomb;
 import com.hbm.items.ModItems;
+import com.hbm.main.MainRegistry;
 import com.hbm.tileentity.bomb.TileEntityLandmine;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.BlockFence;
 import net.minecraft.block.material.Material;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -25,7 +30,6 @@ import net.minecraft.world.World;
 public class Landmine extends BlockContainer implements IBomb {
 
 	public static boolean safeMode = false;
-	static Random rand = new Random();;
 
 	public Landmine(Material p_i45386_1_) {
 		super(p_i45386_1_);
@@ -100,18 +104,23 @@ public class Landmine extends BlockContainer implements IBomb {
 		}
 
 		if(flag) {
-			this.dropBlockAsItem(world, x, y, z, world.getBlockMetadata(x, y, z), 0);
-			world.setBlockToAir(x, y, z);
+
+			if(!safeMode) {
+				explode(world, x, y, z);
+			} else {
+				world.setBlockToAir(x, y, z);
+			}
 		}
 	}
 
-	public void breakBlock(World world, int x, int y, int z, Block block, int i) {
+	@Override
+	public void onBlockDestroyedByPlayer(World world, int x, int y, int z, int meta) {
 
 		if(!safeMode) {
 			explode(world, x, y, z);
 		}
 
-		super.breakBlock(world, x, y, z, block, i);
+		super.onBlockDestroyedByPlayer(world, x, y, z, meta);
 	}
 
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int i, float fx, float fy, float fz) {
@@ -165,11 +174,19 @@ public class Landmine extends BlockContainer implements IBomb {
 			}
 			if(this == ModBlocks.mine_fat) {
 
-				ExplosionNukeSmall.explode(world, x + 0.5, y + 0.5, z + 0.5, ExplosionNukeSmall.medium);
+				ExplosionNukeSmall.explode(world, x + 0.5, y + 0.5, z + 0.5, ExplosionNukeSmall.PARAMS_MEDIUM);
 			}
 		}
 
 		return BombReturnCode.DETONATED;
+	}
+	@Override
+	public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase player, ItemStack itemStack) {
+		if(!world.isRemote) {
+			if(GeneralConfig.enableExtendedLogging) {
+				MainRegistry.logger.log(Level.INFO, "[BOMBPL]" + this.getLocalizedName() + " placed at " + x + " / " + y + " / " + z + "! " + "by "+ player.getCommandSenderName());
+		}	
+	}
 	}
 
 }

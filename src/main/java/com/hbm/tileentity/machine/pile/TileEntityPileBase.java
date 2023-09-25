@@ -21,11 +21,8 @@ public abstract class TileEntityPileBase extends TileEntity {
 	public abstract void updateEntity();
 	
 	protected void castRay(int flux, int range) {
-		
 		Random rand = worldObj.rand;
-		int[] vecVals = { 0, 0, 0,};
-		vecVals[rand.nextInt(3)] = 1;
-		Vec3 vec = Vec3.createVectorHelper(vecVals[0], vecVals[1], vecVals[2]);
+		Vec3 vec = Vec3.createVectorHelper(1, 0, 0);
 		vec.rotateAroundZ((float)(rand.nextDouble() * Math.PI * 2D));
 		vec.rotateAroundY((float)(rand.nextDouble() * Math.PI * 2D));
 		vec.rotateAroundX((float)(rand.nextDouble() * Math.PI * 2D));
@@ -47,21 +44,23 @@ public abstract class TileEntityPileBase extends TileEntity {
 			prevY = y;
 			prevZ = z;
 			
-			/*if(i == range) {
+			/*if(i == range || i == 1) {
 				NBTTagCompound data2 = new NBTTagCompound();
 				data2.setString("type", "vanillaExt");
-				data2.setString("mode", "greendust");
-				data2.setDouble("posX", xCoord + 0.5 + vec.xCoord * range);
-				data2.setDouble("posY", yCoord + 0.5 + vec.yCoord * range);
-				data2.setDouble("posZ", zCoord + 0.5 + vec.zCoord * range);
+				data2.setString("mode", i == range ? "greendust" : 
+										i == 1 ? "reddust" : "bluedust");
+				data2.setDouble("posX", xCoord + 0.5 + vec.xCoord * i);
+				data2.setDouble("posY", yCoord + 0.5 + vec.yCoord * i);
+				data2.setDouble("posZ", zCoord + 0.5 + vec.zCoord * i);
 				MainRegistry.proxy.effectNT(data2);
-			}*/
+			}
 			
 			Block b = worldObj.getBlock(x, y, z);
 			
 			if(b == ModBlocks.concrete || b == ModBlocks.concrete_smooth || b == ModBlocks.concrete_asbestos || b == ModBlocks.concrete_colored || b == ModBlocks.brick_concrete)
 				flux *= 0.25;
-			
+			if(b == ModBlocks.ducrete || b == ModBlocks.ducrete_smooth || b == ModBlocks.brick_ducrete)
+				flux *= 0.0625;
 			if(b == ModBlocks.block_boron)
 				return;
 			
@@ -91,8 +90,9 @@ public abstract class TileEntityPileBase extends TileEntity {
 			if(entities != null)
 				for(EntityLivingBase e : entities) {
 					
-					ContaminationUtil.contaminate(e, HazardType.RADIATION, ContaminationType.CREATIVE, flux / 2);
+					ContaminationUtil.contaminate(e, HazardType.RADIATION, ContaminationType.CREATIVE, flux / 4F);
 				}
+				*/
 		}
 	}
 }

@@ -1,6 +1,7 @@
 package com.hbm.items.machine;
 
 import java.util.List;
+import java.util.Locale;
 
 import com.hbm.items.ModItems;
 import com.hbm.main.MainRegistry;
@@ -205,7 +206,7 @@ public class ItemRBMKRod extends Item {
 			double avg = (heat + hullHeat + coreHeat) / 3D;
 			this.setCoreHeat(stack, avg);
 			this.setHullHeat(stack, avg);
-			return avg;
+			return avg - heat;
 		}
 		
 		if(hullHeat <= heat)
@@ -230,7 +231,8 @@ public class ItemRBMKRod extends Item {
 		SQUARE_ROOT(EnumChatFormatting.YELLOW + "MEDIUM / SQUARE ROOT"),	//sqrt(x) * 10 * reactivity
 		LINEAR(EnumChatFormatting.RED + "DANGEROUS / LINEAR"),				//x * reactivity
 		QUADRATIC(EnumChatFormatting.RED + "DANGEROUS / QUADRATIC"),		//x^2 / 100 * reactivity
-		EXPERIMENTAL(EnumChatFormatting.RED + "EXPERIMENTAL / SINE SLOPE");		//x * (sin(x) + 1)
+		EXPERIMENTAL(EnumChatFormatting.RED + "EXPERIMENTAL / SINE SLOPE"), 	//x * (sin(x) + 1)
+		SLOW_LINEAR(EnumChatFormatting.YELLOW + "MEDIUM / SLOW LINEAR");          //sqrt(2 * x + 30) / 10 * reactivity / 2.5 very | fucky i know, i don't know what i was thinking
 		
 		public String title = "";
 		
@@ -257,6 +259,7 @@ public class ItemRBMKRod extends Item {
 		case LINEAR: return flux / 100D * reactivity;
 		case QUADRATIC: return flux * flux / 10000D * reactivity;
 		case EXPERIMENTAL: return flux * (Math.sin(flux) + 1) * reactivity;
+		case SLOW_LINEAR: return Math.sqrt(2 * flux + 30) / 10 * reactivity / 2.5;
 		}
 		
 		return 0;
@@ -275,7 +278,7 @@ public class ItemRBMKRod extends Item {
 			break;
 		case ARCH: function = "(%1$s - %1$s² / 10000) / 100 * %2$s [0;∞]";
 			break;
-		case SIGMOID: function = "%2$s / (1 + e^(-(%1$s - 50) / 10)";
+		case SIGMOID: function = "%2$s / (1 + e^(-(%1$s - 50) / 10))";
 			break;
 		case SQUARE_ROOT: function = "sqrt(%1$s) * %2$s / 10";
 			break;
@@ -285,6 +288,8 @@ public class ItemRBMKRod extends Item {
 			break;
 		case EXPERIMENTAL: function = "%1$s * (sin(%1$s) + 1) * %2$s";
 			break;
+		case SLOW_LINEAR: function = "sqrt(2 * %1$s + 30) / 10 * %2$s / 2.5";
+		    break;
 		default: function = "ERROR";
 		}
 		
@@ -295,10 +300,10 @@ public class ItemRBMKRod extends Item {
 			String reactivity = EnumChatFormatting.YELLOW + "" + ((int)(this.reactivity * enrichment * 1000D) / 1000D) + EnumChatFormatting.WHITE;
 			String enrichmentPer = EnumChatFormatting.GOLD + " (" + ((int)(enrichment * 1000D) / 10D) + "%)";
 			
-			return String.format(function, selfRate > 0 ? "(x" + EnumChatFormatting.RED + " + " + selfRate + "" + EnumChatFormatting.WHITE + ")" : "x", reactivity).concat(enrichmentPer);
+			return String.format(Locale.US, function, selfRate > 0 ? "(x" + EnumChatFormatting.RED + " + " + selfRate + "" + EnumChatFormatting.WHITE + ")" : "x", reactivity).concat(enrichmentPer);
 		}
 		
-		return String.format(function, selfRate > 0 ? "(x" + EnumChatFormatting.RED + " + " + selfRate + "" + EnumChatFormatting.WHITE + ")" : "x", reactivity);
+		return String.format(Locale.US, function, selfRate > 0 ? "(x" + EnumChatFormatting.RED + " + " + selfRate + "" + EnumChatFormatting.WHITE + ")" : "x", reactivity);
 	}
 	
 	public static enum EnumDepleteFunc {
@@ -306,7 +311,8 @@ public class ItemRBMKRod extends Item {
 		RAISING_SLOPE,	//for breeding fuels such as MEU, maximum of 110% at 28% depletion
 		BOOSTED_SLOPE,	//for strong breeding fuels such Th232, maximum of 132% at 64% depletion
 		GENTLE_SLOPE,	//recommended for most fuels, maximum barely over the start, near the beginning
-		STATIC;			//for arcade-style neutron sources
+		STATIC, 		//for arcade-style neutron sources
+		CF_SLOPE;       //newguy thing, very strong and intended to simulate californium buildup in curium rods, caps at ~193% around 60% depletion
 	}
 	
 	public double reactivityModByEnrichment(double enrichment) {
@@ -318,6 +324,7 @@ public class ItemRBMKRod extends Item {
 		case BOOSTED_SLOPE: return enrichment + Math.sin((enrichment - 1) * (enrichment - 1) * Math.PI); //x + sin([x - 1]^2 * pi) works
 		case RAISING_SLOPE: return enrichment + (Math.sin(enrichment * Math.PI) / 2D); //x + (sin(x * pi) / 2) actually works
 		case GENTLE_SLOPE: return enrichment + (Math.sin(enrichment * Math.PI) / 3D); //x + (sin(x * pi) / 3) also works
+		case CF_SLOPE: return enrichment + (Math.sin(enrichment * Math.PI)) * 1.4;
 		}
 	}
 	
@@ -498,5 +505,10 @@ public class ItemRBMKRod extends Item {
 		setYield(stack, ((ItemRBMKRod)stack.getItem()).yield);
 		setCoreHeat(stack, 20.0D);
 		setHullHeat(stack, 20.0D);
+	}
+	
+	@Override
+	public void onCreated(ItemStack stack, World world, EntityPlayer player) {
+		setNBTDefaults(stack); //minimize the window where NBT screwups can happen
 	}
 }

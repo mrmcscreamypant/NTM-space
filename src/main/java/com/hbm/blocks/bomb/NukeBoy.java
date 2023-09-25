@@ -2,13 +2,17 @@ package com.hbm.blocks.bomb;
 
 import java.util.Random;
 
+import org.apache.logging.log4j.Level;
+
 import com.hbm.blocks.ModBlocks;
 import com.hbm.config.BombConfig;
-import com.hbm.entity.effect.EntityNukeCloudSmall;
+import com.hbm.config.GeneralConfig;
+import com.hbm.entity.effect.EntityNukeTorex;
 import com.hbm.entity.logic.EntityNukeExplosionMK5;
 import com.hbm.interfaces.IBomb;
 import com.hbm.main.MainRegistry;
 import com.hbm.tileentity.bomb.TileEntityNukeBoy;
+import com.hbm.util.TrackerUtil;
 
 import cpw.mods.fml.common.network.internal.FMLNetworkHandler;
 import net.minecraft.block.Block;
@@ -96,7 +100,7 @@ public class NukeBoy extends BlockContainer implements IBomb {
 		} else if(!player.isSneaking()) {
 			TileEntityNukeBoy entity = (TileEntityNukeBoy) world.getTileEntity(x, y, z);
 			if(entity != null) {
-				FMLNetworkHandler.openGui(player, MainRegistry.instance, ModBlocks.guiID_nuke_boy, world, x, y, z);
+				FMLNetworkHandler.openGui(player, MainRegistry.instance, 0, world, x, y, z);
 			}
 			return true;
 		} else {
@@ -124,7 +128,13 @@ public class NukeBoy extends BlockContainer implements IBomb {
 			world.playSoundEffect(x, y, z, "random.explode", 1.0f, world.rand.nextFloat() * 0.1F + 0.9F);
 
 			world.spawnEntityInWorld(EntityNukeExplosionMK5.statFac(world, BombConfig.boyRadius, x + 0.5, y + 0.5, z + 0.5));
-			world.spawnEntityInWorld(EntityNukeCloudSmall.statFac(world, x, y, z, BombConfig.boyRadius));
+			//world.spawnEntityInWorld(EntityNukeCloudSmall.statFac(world, x, y, z, BombConfig.boyRadius));
+			
+			EntityNukeTorex torex = new EntityNukeTorex(world);
+			torex.setPositionAndRotation(x + 0.5, y + 1, z + 0.5, 0, 0);
+			torex.getDataWatcher().updateObject(10, 1.5F);
+			world.spawnEntityInWorld(torex);
+			TrackerUtil.setTrackingRange(world, torex, 1000);
 		}
 		return false;
 	}
@@ -160,7 +170,12 @@ public class NukeBoy extends BlockContainer implements IBomb {
 		if(i == 3) {
 			world.setBlockMetadataWithNotify(x, y, z, 2, 2);
 		}
+		if(!world.isRemote) {
+			if(GeneralConfig.enableExtendedLogging) {
+				MainRegistry.logger.log(Level.INFO, "[BOMBPL]" + this.getLocalizedName() + " placed at " + x + " / " + y + " / " + z + "! " + "by "+ player.getCommandSenderName());
+		}	
 	}
+}
 
 	@Override
 	public BombReturnCode explode(World world, int x, int y, int z) {

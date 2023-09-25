@@ -11,7 +11,6 @@ import com.hbm.potion.HbmPotion;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
@@ -30,6 +29,8 @@ public class BlockSellafield extends BlockHazard {
 	public BlockSellafield(Material mat) {
 		super(mat);
 		this.setCreativeTab(MainRegistry.blockTab);
+		this.needsRandomTick = true;
+		this.rad = 0.5F;
 	}
 	
 	@Override
@@ -42,19 +43,20 @@ public class BlockSellafield extends BlockHazard {
 
 	@Override
 	public void updateTick(World world, int x, int y, int z, Random rand) {
-		
-		ChunkRadiationManager.proxy.incrementRad(world, x, y, z, this.rad);
-		
+
 		int meta = world.getBlockMetadata(x, y, z);
-		if(rand.nextInt(meta == 0 ? 30 * 60 : 15 * 60) == 0) {
+		ChunkRadiationManager.proxy.incrementRad(world, x, y, z, this.rad * (meta + 1));
+		
+		if(rand.nextInt(meta == 0 ? 25 : 15) == 0) {
 			if(meta > 0)
 				world.setBlockMetadataWithNotify(x, y, z, meta - 1, 2);
 			else
 				world.setBlock(x, y, z, ModBlocks.sellafield_slaked);
 		}
-		
-		world.scheduleBlockUpdate(x, y, z, this, this.tickRate(world));
 	}
+
+	@Override public void onBlockAdded(World world, int x, int y, int z) { }
+		
 	
 	@SideOnly(Side.CLIENT)
 	protected IIcon[] icons;
@@ -87,6 +89,4 @@ public class BlockSellafield extends BlockHazard {
 	public IIcon getIcon(int side, int meta) {
 		return this.icons[meta % this.icons.length];
 	}
-	
-	
 }

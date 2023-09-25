@@ -6,9 +6,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import com.hbm.packet.AuxParticlePacketNT;
+import com.hbm.packet.PacketDispatcher;
 import com.hbm.util.fauxpointtwelve.BlockPos;
 
+import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
+import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
@@ -75,6 +80,8 @@ public class ExplosionNukeRayBatched {
 	}
 
 	public void collectTip(int count) {
+		
+		//count = Math.min(count, 10);
 
 		int amountProcessed = 0;
 
@@ -103,20 +110,31 @@ public class ExplosionNukeRayBatched {
 
 				double fac = 100 - ((double) i) / ((double) length) * 100;
 				fac *= 0.07D;
+				
+				Block block = world.getBlock(iX, iY, iZ);
 
-				if(!world.getBlock(iX, iY, iZ).getMaterial().isLiquid())
-					res -= Math.pow(world.getBlock(iX, iY, iZ).getExplosionResistance(null), 7.5D - fac);
+				if(!block.getMaterial().isLiquid())
+					res -= Math.pow(masqueradeResistance(block), 7.5D - fac);
 				//else
 				//	res -= Math.pow(Blocks.air.getExplosionResistance(null), 7.5D - fac); // air is 0, might want to raise that is necessary
 
-				if(res > 0 && world.getBlock(iX, iY, iZ) != Blocks.air) {
+				if(res > 0 && block != Blocks.air) {
 					lastPos = new FloatTriplet(x0, y0, z0);
 					//all-air chunks don't need to be buffered at all
 					ChunkCoordIntPair chunkPos = new ChunkCoordIntPair(iX >> 4, iZ >> 4);
 					chunkCoords.add(chunkPos);
 				}
 
-				if(res <= 0 || i + 1 >= this.length) {
+				if(res <= 0 || i + 1 >= this.length || i == length - 1) {
+					
+					/*NBTTagCompound fx = new NBTTagCompound();
+					fx.setString("type", "debugline");
+					fx.setDouble("mX", vec.xCoord * i);
+					fx.setDouble("mY", vec.yCoord * i);
+					fx.setDouble("mZ", vec.zCoord * i);
+					fx.setInteger("color", 0xff0000);
+					PacketDispatcher.wrapper.sendToAllAround(new AuxParticlePacketNT(fx, posX, posY, posZ), new TargetPoint(world.provider.dimensionId, posX, posY, posZ, 200));*/
+					
 					break;
 				}
 			}
@@ -145,6 +163,13 @@ public class ExplosionNukeRayBatched {
 		orderedChunks.sort(comparator);
 		
 		isAusf3Complete = true;
+	}
+	
+	public static float masqueradeResistance(Block block) {
+
+		if(block == Blocks.sandstone) return Blocks.stone.getExplosionResistance(null);
+		if(block == Blocks.obsidian) return Blocks.stone.getExplosionResistance(null) * 3;
+		return block.getExplosionResistance(null);
 	}
 	
 	/** little comparator for roughly sorting chunks by distance to the center */
@@ -177,6 +202,8 @@ public class ExplosionNukeRayBatched {
 		int enter = (int) (Math.min(
 				Math.abs(posX - (chunkX << 4)),
 				Math.abs(posZ - (chunkZ << 4)))) - 16; //jump ahead to cut back on NOPs
+		
+		enter = Math.max(enter, 0);
 		
 		for(FloatTriplet triplet : list) {
 			float x = triplet.xCoord;

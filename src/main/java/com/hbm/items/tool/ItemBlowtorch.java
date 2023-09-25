@@ -1,6 +1,7 @@
 package com.hbm.items.tool;
 
 import java.util.List;
+import java.util.Locale;
 
 import com.hbm.inventory.fluid.FluidType;
 import com.hbm.inventory.fluid.Fluids;
@@ -28,8 +29,11 @@ import net.minecraft.world.World;
 public class ItemBlowtorch extends Item implements IFillableItem {
 
 	public ItemBlowtorch() {
+		this.setMaxStackSize(1);
 		this.setFull3D();
 		this.setCreativeTab(MainRegistry.controlTab);
+		
+		ToolType.TORCH.register(new ItemStack(this));
 	}
 	
 	@Override
@@ -134,7 +138,7 @@ public class ItemBlowtorch extends Item implements IFillableItem {
 				if(!world.isRemote) {
 					
 					if(this == ModItems.blowtorch) {
-						this.setFill(stack, Fluids.GAS, this.getFill(stack, Fluids.GAS) - 1000);
+						this.setFill(stack, Fluids.GAS, this.getFill(stack, Fluids.GAS) - 250);
 					}
 					
 					if(this == ModItems.acetylene_torch) {
@@ -196,7 +200,7 @@ public class ItemBlowtorch extends Item implements IFillableItem {
 
 	@SideOnly(Side.CLIENT)
 	private String getFillGauge(ItemStack stack, FluidType type) {
-		return I18nUtil.resolveKey(type.getUnlocalizedName()) + ": " + String.format("%,d", this.getFill(stack, type)) + " / " + String.format("%,d", this.getMaxFill(type));
+		return I18nUtil.resolveKey(type.getUnlocalizedName()) + ": " + String.format(Locale.US, "%,d", this.getFill(stack, type)) + " / " + String.format(Locale.US, "%,d", this.getMaxFill(type));
 	}
 
 	@Override public boolean providesFluid(FluidType type, ItemStack stack) { return false; }

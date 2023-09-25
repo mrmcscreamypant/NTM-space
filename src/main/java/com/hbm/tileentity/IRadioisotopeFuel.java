@@ -1,14 +1,13 @@
 package com.hbm.tileentity;
 
 import java.util.List;
+import java.util.Locale;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
-import com.hbm.config.MachineConfig;
 import com.hbm.config.VersatileConfig;
 import com.hbm.interfaces.ICustomWarhead.SaltedFuel.HalfLifeType;
-import com.hbm.lib.Library;
 import com.hbm.util.BobMathUtil;
 import com.hbm.util.I18nUtil;
 
@@ -141,11 +140,11 @@ public interface IRadioisotopeFuel
 			if (showAdv)
 			{
 				tooltip.add("EXTENDED INFO:");
-				tooltip.add(String.format("%s / %s ticks", instance.getLifespan(stack), instance.getMaxLifespan()));
+				tooltip.add(String.format(Locale.US, "%s / %s ticks", instance.getLifespan(stack), instance.getMaxLifespan()));
 				final String[] timeLeft = BobMathUtil.ticksToDate(instance.getLifespan(stack));
 				final String[] maxLife = BobMathUtil.ticksToDate(instance.getMaxLifespan());
-				tooltip.add(String.format("Time remaining: %s y, %s d, %s h", (Object[]) timeLeft));
-				tooltip.add(String.format("Maximum life: %s y, %s d, %s h", (Object[]) maxLife));
+				tooltip.add(String.format(Locale.US, "Time remaining: %s y, %s d, %s h", (Object[]) timeLeft));
+				tooltip.add(String.format(Locale.US, "Maximum life: %s y, %s d, %s h", (Object[]) maxLife));
 			}
 		}
 	}

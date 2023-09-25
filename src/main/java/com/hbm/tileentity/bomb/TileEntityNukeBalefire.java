@@ -1,18 +1,25 @@
 package com.hbm.tileentity.bomb;
 
-import com.hbm.entity.effect.EntityNukeCloudSmall;
+import com.hbm.entity.effect.EntityNukeTorex;
 import com.hbm.entity.logic.EntityBalefire;
+import com.hbm.inventory.container.ContainerNukeFstbmb;
+import com.hbm.inventory.gui.GUINukeFstbmb;
 import com.hbm.items.ModItems;
+import com.hbm.tileentity.IGUIProvider;
 import com.hbm.tileentity.TileEntityMachineBase;
 
 import api.hbm.energy.IBatteryItem;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.world.World;
 
-public class TileEntityNukeBalefire extends TileEntityMachineBase {
+public class TileEntityNukeBalefire extends TileEntityMachineBase implements IGUIProvider {
 
 	public boolean loaded;
 	public boolean started;
@@ -121,7 +128,7 @@ public class TileEntityNukeBalefire extends TileEntityMachineBase {
 		bf.posZ = zCoord + 0.5;
 		bf.destructionRange = (int) 250;
 		worldObj.spawnEntityInWorld(bf);
-		worldObj.spawnEntityInWorld(EntityNukeCloudSmall.statFacBale(worldObj, xCoord + 0.5, yCoord + 5, zCoord + 0.5, 250 * 1.5F, 1000));
+		EntityNukeTorex.statFacBale(worldObj, xCoord + 0.5, yCoord + 0.5, zCoord + 0.5, 250);
 	}
 	
 	public String getMinutes() {
@@ -170,5 +177,16 @@ public class TileEntityNukeBalefire extends TileEntityMachineBase {
 	public double getMaxRenderDistanceSquared()
 	{
 		return 65536.0D;
+	}
+
+	@Override
+	public Container provideContainer(int ID, EntityPlayer player, World world, int x, int y, int z) {
+		return new ContainerNukeFstbmb(player.inventory, this);
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public GuiScreen provideGUI(int ID, EntityPlayer player, World world, int x, int y, int z) {
+		return new GUINukeFstbmb(player.inventory, this);
 	}
 }

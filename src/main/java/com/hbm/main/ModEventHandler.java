@@ -6,8 +6,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.Level;
@@ -18,23 +20,31 @@ import com.hbm.blocks.ModBlocks;
 import com.hbm.blocks.generic.BlockAshes;
 import com.hbm.config.GeneralConfig;
 import com.hbm.config.MobConfig;
+import com.hbm.config.RadiationConfig;
 import com.hbm.entity.missile.EntityMissileBaseAdvanced;
 import com.hbm.entity.missile.EntityMissileCustom;
 import com.hbm.entity.mob.EntityCyberCrab;
 import com.hbm.entity.mob.EntityDuck;
-import com.hbm.entity.mob.EntityNuclearCreeper;
+import com.hbm.entity.mob.EntityCreeperNuclear;
 import com.hbm.entity.mob.EntityQuackos;
-import com.hbm.entity.mob.EntityTaintedCreeper;
+import com.hbm.entity.mob.EntityCreeperTainted;
+import com.hbm.entity.projectile.EntityBulletBaseNT;
 import com.hbm.entity.projectile.EntityBurningFOEQ;
+import com.hbm.entity.train.EntityRailCarBase;
 import com.hbm.extprop.HbmLivingProps;
 import com.hbm.extprop.HbmPlayerProps;
 import com.hbm.handler.ArmorModHandler;
 import com.hbm.handler.BobmazonOfferFactory;
 import com.hbm.handler.BossSpawnHandler;
+import com.hbm.handler.BulletConfigSyncingUtil;
+import com.hbm.handler.BulletConfiguration;
 import com.hbm.handler.EntityEffectHandler;
 import com.hbm.hazard.HazardSystem;
 import com.hbm.interfaces.IBomb;
 import com.hbm.handler.HTTPHandler;
+import com.hbm.handler.HbmKeybinds.EnumKeybind;
+import com.hbm.handler.pollution.PollutionHandler;
+import com.hbm.handler.pollution.PollutionHandler.PollutionType;
 import com.hbm.handler.SiegeOrchestrator;
 import com.hbm.items.IEquipReceiver;
 import com.hbm.items.ModItems;
@@ -44,8 +54,10 @@ import com.hbm.items.armor.IDamageHandler;
 import com.hbm.items.armor.ItemArmorMod;
 import com.hbm.items.armor.ItemModRevive;
 import com.hbm.items.armor.ItemModShackles;
+import com.hbm.items.food.ItemConserve.EnumFoodType;
 import com.hbm.items.tool.ItemGuideBook.BookType;
 import com.hbm.items.weapon.ItemGunBase;
+import com.hbm.lib.HbmCollection;
 import com.hbm.lib.Library;
 import com.hbm.lib.ModDamageSource;
 import com.hbm.lib.RefStrings;
@@ -55,22 +67,32 @@ import com.hbm.packet.PermaSyncPacket;
 import com.hbm.packet.PlayerInformPacket;
 import com.hbm.potion.HbmPotion;
 import com.hbm.saveddata.AuxSavedData;
+import com.hbm.saveddata.TomSaveData;
 import com.hbm.tileentity.network.RTTYSystem;
+import com.hbm.util.AchievementHandler;
+import com.hbm.util.ArmorRegistry;
 import com.hbm.util.ArmorUtil;
 import com.hbm.util.ContaminationUtil;
 import com.hbm.util.EnchantmentUtil;
 import com.hbm.util.EntityDamageUtil;
+import com.hbm.util.EnumUtil;
+import com.hbm.util.InventoryUtil;
+import com.hbm.util.ParticleUtil;
+import com.hbm.util.ArmorRegistry.HazardClass;
 import com.hbm.world.generator.TimedGenerator;
 
+import cpw.mods.fml.common.eventhandler.Event.Result;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.Phase;
 import cpw.mods.fml.common.gameevent.TickEvent.WorldTickEvent;
 import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 import cpw.mods.fml.relauncher.ReflectionHelper;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockLever;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
@@ -121,8 +143,10 @@ import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
+import net.minecraftforge.event.entity.living.LivingHealEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerFlyableFallEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerUseItemEvent;
@@ -158,14 +182,25 @@ public class ModEventHandler {
 			if(MobConfig.enableDucks && event.player instanceof EntityPlayerMP && !event.player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG).getBoolean("hasDucked"))
 				PacketDispatcher.wrapper.sendTo(new PlayerInformPacket("Press O to Duck!", MainRegistry.proxy.ID_DUCK, 30_000), (EntityPlayerMP) event.player);
 			
-			if(event.player instanceof EntityPlayerMP && !event.player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG).getBoolean("hasGuide")) {
+			
+			HbmPlayerProps props = HbmPlayerProps.getData(event.player);
+			
+			if(!props.hasReceivedBook) {
 				event.player.inventory.addItemStackToInventory(new ItemStack(ModItems.book_guide, 1, BookType.STARTER.ordinal()));
 				event.player.inventoryContainer.detectAndSendChanges();
-				event.player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG).setBoolean("hasGuide", true);
+				props.hasReceivedBook = true;
 			}
 		}
 	}
-	
+    @SubscribeEvent
+    public void preQuackosianDuckSpawn(LivingSpawnEvent.CheckSpawn event)
+    {
+        TomSaveData data = TomSaveData.forWorld(event.world);
+        if(event.entity instanceof EntityDuck && !data.impact)
+        {
+            event.setResult(Result.DENY);
+        }
+    }
 	@SubscribeEvent
 	public void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
 		
@@ -180,9 +215,10 @@ public class ModEventHandler {
 				player.inventory.addItemStackToInventory(new ItemStack(ModItems.beta));
 		}
 	}
+	
 
 	@SubscribeEvent
-	public void onEntityConstructing(EntityEvent.EntityConstructing event)  {
+	public void onEntityConstructing(EntityEvent.EntityConstructing event) {
 		
 		if(event.entity instanceof EntityPlayer) {
 			
@@ -198,6 +234,14 @@ public class ModEventHandler {
 			EntityLivingBase living = (EntityLivingBase) event.entity;
 			HbmLivingProps.getData(living); //ditto
 		}
+	}
+
+	@SubscribeEvent
+	public void onPlayerChangeDimension(PlayerChangedDimensionEvent event) {
+		EntityPlayer player = event.player;
+		HbmPlayerProps data = HbmPlayerProps.getData(player);
+		data.setKeyPressed(EnumKeybind.JETPACK, false);
+		data.setKeyPressed(EnumKeybind.DASH, false);
 	}
 	
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -264,10 +308,8 @@ public class ModEventHandler {
 		if(event.entity.getUniqueID().toString().equals(Library.HbMinecraft) || event.entity.getCommandSenderName().equals("HbMinecraft")) {
 			event.entity.dropItem(ModItems.book_of_, 1);
 		}
-		if(event.entityLiving instanceof EntityPlayer&& event.entityLiving.getRNG().nextInt(2) == 0) {
-			event.entityLiving.dropItem(ModItems.flesh, 10);
-	}
-		if(event.entity instanceof EntityTaintedCreeper && event.source == ModDamageSource.boxcar) {
+		
+		if(event.entity instanceof EntityCreeperTainted && event.source == ModDamageSource.boxcar) {
 			
 			for(Object o : event.entity.worldObj.getEntitiesWithinAABB(EntityPlayer.class, event.entity.boundingBox.expand(50, 50, 50))) {
 				EntityPlayer player = (EntityPlayer)o;
@@ -299,6 +341,7 @@ public class ModEventHandler {
 				if(event.entityLiving instanceof EntityCyberCrab && event.entityLiving.getRNG().nextInt(500) == 0) {
 					event.entityLiving.dropItem(ModItems.wd40, 1);
 				}
+				
 				if(event.entityLiving instanceof EntityVillager&& event.entityLiving.getRNG().nextInt(1) == 0) {
 					event.entityLiving.dropItem(ModItems.flesh, 5);
 			}
@@ -461,11 +504,7 @@ public class ModEventHandler {
 	@SubscribeEvent
 	public void onLivingUpdate(LivingUpdateEvent event) {
 		
-		ItemStack[] prevArmor = null;
-		
-		try {
-			prevArmor = (ItemStack[]) ReflectionHelper.findField(EntityLivingBase.class, "field_82180_bT", "previousEquipment").get(event.entityLiving);
-		} catch(Exception e) { }
+		ItemStack[] prevArmor = event.entityLiving.previousEquipment;
 
 		if(event.entityLiving instanceof EntityPlayer && prevArmor != null && event.entityLiving.getHeldItem() != null 
 				&& (prevArmor[0] == null || prevArmor[0].getItem() != event.entityLiving.getHeldItem().getItem())
@@ -560,10 +599,10 @@ public class ModEventHandler {
 						
 						float eRad = HbmLivingProps.getRadiation(entity);
 						
-						if(entity instanceof EntityCreeper && eRad >= 200 && entity.getHealth() > 0) {
+						if(entity.getClass().equals(EntityCreeper.class) && eRad >= 200 && entity.getHealth() > 0) {
 							
 							if(event.world.rand.nextInt(3) == 0 ) {
-								EntityNuclearCreeper creep = new EntityNuclearCreeper(event.world);
+								EntityCreeperNuclear creep = new EntityCreeperNuclear(event.world);
 								creep.setLocationAndAngles(entity.posX, entity.posY, entity.posZ, entity.rotationYaw, entity.rotationPitch);
 				        		
 				        		if(!entity.isDead)
@@ -664,6 +703,23 @@ public class ModEventHandler {
 				        	if(entity instanceof EntityPlayer)
 				        		((EntityPlayer)entity).triggerAchievement(MainRegistry.achRadPoison);
 						}
+						
+			        	if(entity instanceof EntityPlayer)
+			        	{
+			        		EntityPlayer player = (EntityPlayer) entity;
+							int randSlot = rand.nextInt(player.inventory.mainInventory.length);
+							ItemStack stack2 = player.inventory.getStackInSlot(randSlot);
+							if(stack2!=null)
+							{
+								if(stack2.hasTagCompound())
+								{
+									float activation = stack2.stackTagCompound.getFloat("ntmNeutron");
+									if(activation<1e-5)
+										stack2.stackTagCompound.removeTag("ntmNeutron");
+									stack2.stackTagCompound.setFloat("ntmNeutron",activation*0.999916f);		
+								}	
+							}
+			        	}
 					}
 					
 					if(e instanceof EntityItem) {
@@ -676,6 +732,11 @@ public class ModEventHandler {
 				 */
 			}
 			/// RADIATION STUFF END ///
+			
+			
+			if(event.phase == Phase.END) {
+				EntityRailCarBase.updateMotion(event.world);
+			}
 		}
 		
 		if(event.phase == Phase.START) {
@@ -720,9 +781,10 @@ public class ModEventHandler {
 			EntityPlayer player = (EntityPlayer) e;
 			
 			HbmPlayerProps props = HbmPlayerProps.getData(player);
-			if(props.shield > 0) {
-				float reduce = Math.min(props.shield, event.ammount);
+			if(props.shield > 0 |props.nitanHealth > 0) {
+				float reduce = Math.min(props.shield+props.nitanHealth, event.ammount);
 				props.shield -= reduce;
+				props.nitanHealth -= reduce;
 				event.ammount -= reduce;
 			}
 			props.lastDamage = player.ticksExisted;
@@ -788,6 +850,47 @@ public class ModEventHandler {
 		
 		if(e.inventory.armorInventory[2] != null && e.inventory.armorInventory[2].getItem() instanceof ArmorFSB)
 			((ArmorFSB)e.inventory.armorInventory[2].getItem()).handleFall(e);
+	}
+	
+	@SubscribeEvent
+	public void onPlayerPunch(AttackEntityEvent event) {
+		
+		EntityPlayer player = event.entityPlayer;
+		ItemStack chestplate = player.inventory.armorInventory[2];
+		
+		if(player.getHeldItem() == null && chestplate != null && ArmorModHandler.hasMods(chestplate)) {
+			ItemStack[] mods = ArmorModHandler.pryMods(chestplate);
+			ItemStack servo = mods[ArmorModHandler.servos];
+			
+			if(servo != null && servo.getItem() == ModItems.ballistic_gauntlet) {
+				
+				BulletConfiguration firedConfig = null;
+
+				for(Integer config : HbmCollection.g12) {
+					BulletConfiguration cfg = BulletConfigSyncingUtil.pullConfig(config);
+					
+					if(InventoryUtil.doesPlayerHaveAStack(player, cfg.ammo, true, true)) {
+						firedConfig = cfg;
+						break;
+					}
+				}
+				
+				if(firedConfig != null) {
+					int bullets = firedConfig.bulletsMin;
+					
+					if(firedConfig.bulletsMax > firedConfig.bulletsMin) {
+						bullets += player.getRNG().nextInt(firedConfig.bulletsMax - firedConfig.bulletsMin);
+					}
+					
+					for(int i = 0; i < bullets; i++) {
+						EntityBulletBaseNT bullet = new EntityBulletBaseNT(player.worldObj, BulletConfigSyncingUtil.getKey(firedConfig), player);
+						player.worldObj.spawnEntityInWorld(bullet);
+					}
+					
+					player.worldObj.playSoundAtEntity(player, "hbm:weapon.shotgunShoot", 1.0F, 1.0F);
+				}
+			}
+		}
 	}
 	
 	@SubscribeEvent
@@ -918,11 +1021,11 @@ public class ModEventHandler {
 		
 		if(event.phase == TickEvent.Phase.START) {
 			int x = MathHelper.floor_double(player.posX);
-			int y = MathHelper.floor_double(player.posY - player.yOffset - 0.5);
+			int y = MathHelper.floor_double(player.posY - player.yOffset - 0.01);
 			int z = MathHelper.floor_double(player.posZ);
 			Block b = player.worldObj.getBlock(x, y, z);
 			
-			if(b instanceof IStepTickReceiver) {
+			if(b instanceof IStepTickReceiver && !player.capabilities.isFlying) {
 				IStepTickReceiver step = (IStepTickReceiver) b;
 				step.onPlayerStep(player.worldObj, x, y, z, player);
 			}
@@ -971,6 +1074,30 @@ public class ModEventHandler {
 						e.addPotionEffect(new PotionEffect(HbmPotion.radiation.id, 300, 2));
 					}
 				}
+				int slot = new Random().nextInt(35);
+				if(player.experience >=1)
+				{
+				player.addExperience(-1);
+				}
+				//if (!(Library.checkForHazmat((EntityPlayer)player) || Library.checkForRads((EntityPlayer)player)))
+				//{
+				Random rand = new Random();
+				
+				if (Library.checkInventory(player, Items.experience_bottle, slot))
+				{
+					((EntityPlayer)player).inventory.mainInventory[slot] = new ItemStack(Items.glass_bottle);
+				}
+				if (HbmLivingProps.getRadiation(((EntityPlayer)player))>10 && ((EntityPlayer)player).ticksExisted %20 == 0)
+				{
+					((EntityPlayer)player).getFoodStats().addStats(1, 0);
+					HbmLivingProps.incrementRadiation(((EntityPlayer)player), -10);
+				}
+				if (HbmLivingProps.getRadiation(((EntityPlayer)player))>100 && ((EntityPlayer)player).ticksExisted %20 == 0)
+				{
+					((EntityPlayer)player).heal(1);
+					HbmLivingProps.incrementRadiation(((EntityPlayer)player), -100);
+				}
+
 			}
 			
 			/// PU RADIATION END ///
@@ -1022,6 +1149,18 @@ public class ModEventHandler {
 				
 				player.worldObj.spawnParticle("townaura", player.posX + vec.xCoord, player.posY + 1 + vec.yCoord, player.posZ + vec.zCoord, 0.0, 0.0, 0.0);
 			}
+			if(player.getUniqueID().toString().equals(Library.DUODEC_)) {
+				
+				Vec3 vec = Vec3.createVectorHelper(3 * rand.nextDouble(), 0, 0);
+				
+				vec.rotateAroundZ((float) (rand.nextDouble() * Math.PI));
+				vec.rotateAroundY((float) (rand.nextDouble() * Math.PI * 2));
+				
+				//player.worldObj.spawnParticle("magicCrit", player.posX + vec.xCoord, player.posY + 1 + vec.yCoord, player.posZ + vec.zCoord, 0.0, 0.0, 0.0);
+				ParticleUtil.spawnTuneFlame(player.worldObj, player.posX + vec.xCoord, player.posY + 1 + vec.yCoord, player.posZ + vec.zCoord);
+				ParticleUtil.spawnJesusFlame(player.worldObj, player.posX + vec.xCoord, player.posY + 1 + vec.yCoord, player.posZ + vec.zCoord);
+
+			}
 		}
 	}
 	
@@ -1055,31 +1194,12 @@ public class ModEventHandler {
 	
 	@SubscribeEvent
 	public void itemCrafted(PlayerEvent.ItemCraftedEvent e) {
-		
-		Item item = e.crafting.getItem();
-
-		if(item == ModItems.gun_mp40) {
-			e.player.addStat(MainRegistry.achFreytag, 1);
-		}
-		if(item == ModItems.piston_selenium || item == ModItems.gun_b92) {
-			e.player.addStat(MainRegistry.achSelenium, 1);
-		}
-		if(item == ModItems.battery_potatos) {
-			e.player.addStat(MainRegistry.achPotato, 1);
-		}
-		if(item == ModItems.gun_revolver_pip) {
-			e.player.addStat(MainRegistry.achC44, 1);
-		}
-		if(item == Item.getItemFromBlock(ModBlocks.machine_press)) {
-			e.player.triggerAchievement(MainRegistry.achBurnerPress);
-		}
-		if(item == ModItems.rbmk_fuel_empty) {
-			e.player.triggerAchievement(MainRegistry.achRBMK);
-		}
+		AchievementHandler.fire(e.player, e.crafting);
 	}
 	
 	@SubscribeEvent
 	public void itemSmelted(PlayerEvent.ItemSmeltedEvent e) {
+		AchievementHandler.fire(e.player, e.smelting);
 		
 		if(!e.player.worldObj.isRemote && e.smelting.getItem() == Items.iron_ingot && e.player.getRNG().nextInt(64) == 0) {
 			
@@ -1100,7 +1220,7 @@ public class ModEventHandler {
 	
 	@SubscribeEvent
 	public void onItemPickup(PlayerEvent.ItemPickupEvent event) {
-		if(event.pickedUp.getEntityItem().getItem() == ModItems.canned_jizz)
+		if(event.pickedUp.getEntityItem().getItem() == ModItems.canned_conserve && EnumUtil.grabEnumSafely((EnumFoodType.class), event.pickedUp.getEntityItem().getItemDamage())== EnumFoodType.JIZZ)
 			event.player.triggerAchievement(MainRegistry.achC20_5);
 		if(event.pickedUp.getEntityItem().getItem() == Items.slime_ball)
 			event.player.triggerAchievement(MainRegistry.achSlimeball);
@@ -1111,10 +1231,12 @@ public class ModEventHandler {
 	@SubscribeEvent
 	public void onBlockBreak(BreakEvent event) {
 		
-		if(!(event.getPlayer() instanceof EntityPlayerMP))
+		EntityPlayer player = event.getPlayer();
+		
+		if(!(player instanceof EntityPlayerMP))
 			return;
 		
-		if(event.block == ModBlocks.stone_gneiss && !((EntityPlayerMP) event.getPlayer()).func_147099_x().hasAchievementUnlocked(MainRegistry.achStratum)) {
+		if(event.block == ModBlocks.stone_gneiss && !((EntityPlayerMP) player).func_147099_x().hasAchievementUnlocked(MainRegistry.achStratum)) {
 			event.getPlayer().triggerAchievement(MainRegistry.achStratum);
 			event.setExpToDrop(500);
 		}
@@ -1131,9 +1253,26 @@ public class ModEventHandler {
 					event.world.setBlock(x, y, z, ModBlocks.gas_coal);
 			}
 		}
+		
+		if(RadiationConfig.enablePollution && RadiationConfig.enableLeadFromBlocks) {
+			if(!ArmorRegistry.hasProtection(player, 3, HazardClass.PARTICLE_FINE)) {
+				
+				float metal = PollutionHandler.getPollution(player.worldObj, event.x, event.y, event.z, PollutionType.HEAVYMETAL);
+				
+				if(metal < 5) return;
+				
+				if(metal < 10) {
+					player.addPotionEffect(new PotionEffect(HbmPotion.lead.id, 100, 0));
+				} else if(metal < 25) {
+					player.addPotionEffect(new PotionEffect(HbmPotion.lead.id, 100, 1));
+				} else {
+					player.addPotionEffect(new PotionEffect(HbmPotion.lead.id, 100, 2));
+				}
+			}
+		}
 	}
 	
-	//private static final String hash = "41eb77f138ce350932e33b6b26b233df9aad0c0c80c6a49cb9a54ddd8fae3f83";
+	private static final String hash = "cce6b36fbaa6ec2327c1af5cbcadc4e2d340738ab9328c459365838e79d12e5e";
 	
 	private static final String lol = "popbobisgod";
 	
@@ -1150,17 +1289,72 @@ public class ModEventHandler {
 			TileEntitySign sign = (TileEntitySign)world.getTileEntity(x, y, z);
 			
 			String result = smoosh(sign.signText[0], sign.signText[1], sign.signText[2], sign.signText[3]);
-			//System.out.println(result);
 			
-			if(result.equals(lol)) {
+			if(result.equals(hash)) {
 				world.func_147480_a(x, y, z, false);
 				EntityItem entityitem = new EntityItem(world, x, y, z, new ItemStack(ModItems.bobmazon_hidden));
 				entityitem.delayBeforeCanPickup = 1;
 				world.spawnEntityInWorld(entityitem);
+				MainRegistry.logger.log(Level.FATAL, "THE HIDDENCAT HAS BEEN OBTAINED " + " x: " + x + " / "	+ " y: " + + y + " / "+ "z: " + + z + " by " + event.entityPlayer.getDisplayName() + "!");
+
+			}
+		}		
+	}
+	
+    @SubscribeEvent
+    public void onEntityHeal(LivingHealEvent event)
+    {
+        if (!event.entity.worldObj.isRemote)
+        {
+            EntityLivingBase entity = event.entityLiving;
+
+            if (entity.isEntityAlive())
+            {
+            	if(entity instanceof EntityPlayer)
+            	{
+        			if (((EntityPlayer)entity).getUniqueID().toString().equals(Library.Pu_238))
+        			{
+        				return;
+        			}
+            	}
+            	double amount = event.amount;
+                double rad = HbmLivingProps.getRadiation(entity);
+                if (rad > 100 && rad < 800) ///TODO get per entity
+                {
+                	amount *=1-(((rad-100)*(1-0))/(800-100))+0;                	
+                }
+                if (rad > 800) ///TODO get per entity
+                {
+                	amount = 0;
+                	event.setCanceled(true);
+                }
+            }
+        }
+    }
+
+	
+	@SubscribeEvent
+	public void onPull(PlayerInteractEvent event) {
+		int x = event.x;
+		int y = event.y;
+		int z = event.z;
+		World world = event.world;
+		
+		if(!world.isRemote && event.action == Action.RIGHT_CLICK_BLOCK && world.getBlock(x, y, z) == Blocks.lever && GeneralConfig.enableExtendedLogging == true) {
+			
+			EntityPlayer player = event.entityPlayer;
+			BlockLever sign = (BlockLever)world.getBlock(x, y, z);
+			
+
+			MainRegistry.logger.log(Level.INFO, "[DET] pulled lever at " + x + " / " + y + " / " + z + " by " + player.getDisplayName() + "!");
+			
+			//System.out.println(result);
+		
 			}
 		}
+	
+	
 		
-	}
 	
 	private String smoosh(String s1, String s2, String s3, String s4) {
 		
@@ -1259,7 +1453,7 @@ public class ModEventHandler {
 			
 			String[] msg = message.split(" ");
 			
-			String m = msg[0].substring(1, msg[0].length()).toLowerCase();
+			String m = msg[0].substring(1, msg[0].length()).toLowerCase(Locale.US);
 			
 			if("gv".equals(m)) {
 				

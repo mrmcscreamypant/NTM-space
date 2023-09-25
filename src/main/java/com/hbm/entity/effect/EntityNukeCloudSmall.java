@@ -9,6 +9,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
+@Deprecated
 public class EntityNukeCloudSmall extends Entity {
 	
 	public int maxAge = 1000;
@@ -120,6 +121,17 @@ public class EntityNukeCloudSmall extends Entity {
 		cloud.posY = y;
 		cloud.posZ = z;
 		cloud.dataWatcher.updateObject(19, (byte)1);
+		
+		return cloud;
+	}
+	
+	public static EntityNukeCloudSmall statFacAnti(World world, double x, double y, double z, float radius, int maxAge) {
+		
+		EntityNukeCloudSmall cloud = new EntityNukeCloudSmall(world, (int)radius * 5, radius * 0.005F);
+		cloud.posX = x;
+		cloud.posY = y;
+		cloud.posZ = z;
+		cloud.dataWatcher.updateObject(19, (byte)2);
 		
 		return cloud;
 	}

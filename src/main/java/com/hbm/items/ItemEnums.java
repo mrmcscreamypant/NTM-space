@@ -18,7 +18,17 @@ public class ItemEnums {
 		CRUDE,
 		CRACK,
 		COAL,
-		WOOD
+		WOOD,
+		WAX,
+		PARAFFIN
+	}
+
+	public static enum EnumAshType {
+		WOOD,
+		COAL,
+		MISC,
+		FLY,
+		SOOT
 	}
 
 	public static enum EnumBriquetteType {
@@ -35,6 +45,19 @@ public class ItemEnums {
 
 	public static enum EnumPlantType {
 		TOBACCO,
-		ROPE
+		ROPE,
+		MUSTARDWILLOW
+	}
+
+	public static enum EnumAchievementType {
+		GOFISH,
+		ACID,
+		BALLS,
+		DIGAMMASEE,
+		DIGAMMAFEEL,
+		DIGAMMAKNOW,
+		DIGAMMAKAUAIMOHO,
+		DIGAMMAUPONTOP,
+		DIGAMMAFOROURRIGHT
 	}
 }

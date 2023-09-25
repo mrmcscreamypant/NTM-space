@@ -11,7 +11,8 @@ public class ItemAmmoEnums {
 	public enum AmmoLunaticSniper implements IAmmoItemEnum {
 		SABOT("ammo_luna"),
 		INCENDIARY("ammo_luna_incendiary"),
-		EXPLOSIVE("ammo_luna_explosive");
+		EXPLOSIVE("ammo_luna_explosive"),
+		DANGER("ammo_luna_danger");
 		
 		private final Set<AmmoItemTrait> traits;
 		private final String unloc;
@@ -186,7 +187,8 @@ public class ItemAmmoEnums {
 		FINNED("ammo_grenade_finned", AmmoItemTrait.PRO_GRAVITY, AmmoItemTrait.CON_RADIUS),
 		NUCLEAR("ammo_grenade_nuclear", AmmoItemTrait.PRO_NUCLEAR, AmmoItemTrait.PRO_RANGE, AmmoItemTrait.CON_HEAVY_WEAR),
 		TRACER("ammo_grenade_tracer", AmmoItemTrait.NEU_BLANK),
-		KAMPF("ammo_grenade_kampf", AmmoItemTrait.PRO_ROCKET_PROPELLED, AmmoItemTrait.PRO_RADIUS, AmmoItemTrait.PRO_ACCURATE1, AmmoItemTrait.CON_WEAR);
+		KAMPF("ammo_grenade_kampf", AmmoItemTrait.PRO_ROCKET_PROPELLED, AmmoItemTrait.PRO_RADIUS, AmmoItemTrait.PRO_ACCURATE1, AmmoItemTrait.CON_WEAR),
+		LEADBURSTER("ammo_grenade_leadburster", AmmoItemTrait.NEU_LEADBURSTER, AmmoItemTrait.CON_NO_EXPLODE1);
 		
 		private final Set<AmmoItemTrait> traits;
 		private final String unloc;
@@ -534,6 +536,8 @@ public class ItemAmmoEnums {
 		CLAW("ammo_4gauge_claw"),
 		VAMPIRE("ammo_4gauge_vampire"),
 		VOID("ammo_4gauge_void"),
+		LTBL("ammo_4gauge_flash1",AmmoItemTrait.PRO_FLASH, AmmoItemTrait.NEU_WARCRIME1, AmmoItemTrait.CON_WEAR, AmmoItemTrait.CON_SING_PROJECTILE),
+		LTBL_SUPER("ammo_4gauge_flash2", AmmoItemTrait.PRO_FLASH, AmmoItemTrait.PRO_RADIUS, AmmoItemTrait.PRO_STUNNING, AmmoItemTrait.NEU_WARCRIME2, AmmoItemTrait.CON_SUPER_WEAR, AmmoItemTrait.CON_SING_PROJECTILE),
 		QUACK("ammo_4gauge_titan", AmmoItemTrait.PRO_MARAUDER, AmmoItemTrait.NEU_NO_CON);
 		
 		private final Set<AmmoItemTrait> traits;
@@ -746,6 +750,23 @@ public class ItemAmmoEnums {
 		public String getInternalName() {
 			return unloc;
 		}
+	}
+
+	public enum AmmoCoilgun implements IAmmoItemEnum {
+		STOCK("ammo_coilgun"),
+		DU("ammo_coilgun_du", AmmoItemTrait.PRO_HEAVY_DAMAGE, AmmoItemTrait.CON_HEAVY_WEAR),
+		RUBBER("ammo_coilgun_rubber", AmmoItemTrait.NEU_MORE_BOUNCY, AmmoItemTrait.CON_DAMAGE);
+		
+		private final Set<AmmoItemTrait> traits;
+		private final String unloc;
+
+		private AmmoCoilgun(String unloc, AmmoItemTrait... traits) {
+			this.traits = safeAssign(traits);
+			this.unloc = unloc;
+		}
+
+		@Override public Set<AmmoItemTrait> getTraits() { return traits; }
+		@Override public String getInternalName() { return unloc; }
 	}
 
 	public interface IAmmoItemEnum {

@@ -2,9 +2,12 @@ package com.hbm.blocks.bomb;
 
 import java.util.Random;
 
+import org.apache.logging.log4j.Level;
+
 import com.hbm.blocks.ModBlocks;
 import com.hbm.config.BombConfig;
-import com.hbm.entity.effect.EntityNukeCloudSmall;
+import com.hbm.config.GeneralConfig;
+import com.hbm.entity.effect.EntityNukeTorex;
 import com.hbm.entity.logic.EntityNukeExplosionMK5;
 import com.hbm.interfaces.IBomb;
 import com.hbm.main.MainRegistry;
@@ -97,7 +100,7 @@ public class NukeMan extends BlockContainer implements IBomb {
 		} else if(!player.isSneaking()) {
 			TileEntityNukeMan entity = (TileEntityNukeMan) world.getTileEntity(x, y, z);
 			if(entity != null) {
-				FMLNetworkHandler.openGui(player, MainRegistry.instance, ModBlocks.guiID_nuke_man, world, x, y, z);
+				FMLNetworkHandler.openGui(player, MainRegistry.instance, 0, world, x, y, z);
 			}
 			return true;
 		} else {
@@ -124,12 +127,7 @@ public class NukeMan extends BlockContainer implements IBomb {
 			world.playSoundEffect(x, y, z, "random.explode", 1.0f, world.rand.nextFloat() * 0.1F + 0.9F);
 
 			world.spawnEntityInWorld(EntityNukeExplosionMK5.statFac(world, BombConfig.manRadius, x + 0.5, y + 0.5, z + 0.5));
-
-			EntityNukeCloudSmall entity2 = new EntityNukeCloudSmall(world, 1000, BombConfig.manRadius * 0.005F);
-			entity2.posX = x;
-			entity2.posY = y;
-			entity2.posZ = z;
-			world.spawnEntityInWorld(entity2);
+			EntityNukeTorex.statFac(world, x + 0.5, y + 0.5, z + 0.5, BombConfig.manRadius);
 		}
 
 		return false;
@@ -166,7 +164,12 @@ public class NukeMan extends BlockContainer implements IBomb {
 		if(i == 3) {
 			world.setBlockMetadataWithNotify(x, y, z, 2, 2);
 		}
+		if(!world.isRemote) {
+			if(GeneralConfig.enableExtendedLogging) {
+				MainRegistry.logger.log(Level.INFO, "[BOMBPL]" + this.getLocalizedName() + " placed at " + x + " / " + y + " / " + z + "! " + "by "+ player.getCommandSenderName());
+		}	
 	}
+}
 
 	@Override
 	public BombReturnCode explode(World world, int x, int y, int z) {

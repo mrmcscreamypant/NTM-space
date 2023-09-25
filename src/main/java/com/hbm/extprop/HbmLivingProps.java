@@ -17,6 +17,7 @@ import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
@@ -25,6 +26,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.IExtendedEntityProperties;
 
@@ -40,12 +42,16 @@ public class HbmLivingProps implements IExtendedEntityProperties {
 	private int asbestos;
 	public static final int maxAsbestos = 60 * 60 * 20;
 	private int blacklung;
-	public static final int maxBlacklung = 60 * 60 * 20;
+	public static final int maxBlacklung = 2 * 60 * 60 * 20;
 	private float radEnv;
 	private float radBuf;
 	private int bombTimer;
 	private int contagion;
 	private int oil;
+	private float activation;
+	private int temperature;
+	private boolean frozen = false;
+	private boolean burning = false;
 	private List<ContaminationEffect> contamination = new ArrayList();
 	
 	public HbmLivingProps(EntityLivingBase entity) {
@@ -82,6 +88,11 @@ public class HbmLivingProps implements IExtendedEntityProperties {
 		if(!RadiationConfig.enableContamination)
 			return;
 		
+		if (entity.getCreatureAttribute()==EnumCreatureAttribute.UNDEAD)
+		{
+			rad*=10;
+		}
+		
 		HbmLivingProps data = getData(entity);
 		float radiation = getData(entity).radiation + rad;
 		
@@ -91,6 +102,32 @@ public class HbmLivingProps implements IExtendedEntityProperties {
 			radiation = 0;
 		
 		data.setRadiation(entity, radiation);
+	}
+	
+	/// NEUTRON ACTIVATION ///
+	public static float getNeutronActivation(EntityLivingBase entity) {
+		if(RadiationConfig.disableNeutron)
+			return 0;
+
+		return getData(entity).activation;
+	}
+	
+	public static void setNeutronActivation(EntityLivingBase entity, float rad) {
+		if(!RadiationConfig.disableNeutron)
+			getData(entity).activation = rad;
+	}
+	
+	public static void incrementNeutronActivation(EntityLivingBase entity, float rad) {
+		if(RadiationConfig.disableNeutron)
+			return;
+		
+		HbmLivingProps data = getData(entity);
+		float neutrons = getData(entity).activation + rad;
+		
+		if(neutrons < 0)
+			neutrons = 0;
+		
+		data.setNeutronActivation(entity, neutrons);
 	}
 	
 	/// RAD ENV ///
@@ -270,6 +307,24 @@ public class HbmLivingProps implements IExtendedEntityProperties {
 	public static void setOil(EntityLivingBase entity, int oil) {
 		getData(entity).oil = oil;
 	}
+	
+	/// TEMPERATURE ///
+	public static int getTemperature(EntityLivingBase entity) {
+		return getData(entity).temperature;
+	}
+	
+	public static void setTemperature(EntityLivingBase entity, int temperature) {
+		HbmLivingProps data = getData(entity);
+		temperature = MathHelper.clamp_int(temperature, -2500, 2500);
+		data.temperature = temperature;
+		if(temperature > 1000)  data.burning = true;
+		if(temperature < 800)  data.burning = false;
+		if(temperature < -1000)  data.frozen = true;
+		if(temperature > -800)  data.frozen = false;
+	}
+
+	public static boolean isFrozen(EntityLivingBase entity) { return getData(entity).frozen; };
+	public static boolean isBurning(EntityLivingBase entity) { return getData(entity).burning; };
 
 	@Override
 	public void init(Entity entity, World world) { }
@@ -286,6 +341,7 @@ public class HbmLivingProps implements IExtendedEntityProperties {
 		props.setInteger("hfr_contagion", contagion);
 		props.setInteger("hfr_blacklung", blacklung);
 		props.setInteger("hfr_oil", oil);
+		props.setFloat("hfr_activation", activation);
 		
 		props.setInteger("hfr_cont_count", this.contamination.size());
 		
@@ -309,6 +365,7 @@ public class HbmLivingProps implements IExtendedEntityProperties {
 			contagion = props.getInteger("hfr_contagion");
 			blacklung = props.getInteger("hfr_blacklung");
 			oil = props.getInteger("hfr_oil");
+			activation = props.getFloat("hfr_activation");
 			
 			int cont = props.getInteger("hfr_cont_count");
 			

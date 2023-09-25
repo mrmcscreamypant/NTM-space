@@ -1,12 +1,13 @@
 package com.hbm.render.item.weapon;
 
+import com.hbm.items.ModItems;
+import net.minecraft.entity.player.EntityPlayer;
 import org.lwjgl.opengl.GL11;
 
 import com.hbm.items.ModItems;
 import com.hbm.render.anim.HbmAnimations;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.IItemRenderer;
@@ -46,6 +47,7 @@ public class ItemRenderWeaponFFBolt implements IItemRenderer {
 		GL11.glPushMatrix();
 		
 		GL11.glEnable(GL11.GL_CULL_FACE);
+		EntityPlayer player = Minecraft.getMinecraft().thePlayer;
 		GL11.glShadeModel(GL11.GL_SMOOTH);
 		boolean renderBolt = true;
 		Minecraft.getMinecraft().renderEngine.bindTexture(texture);
@@ -54,12 +56,27 @@ public class ItemRenderWeaponFFBolt implements IItemRenderer {
 		
 		case EQUIPPED_FIRST_PERSON:
 			
+			if(item.getItem() == ModItems.gun_bolt_action_saturnite && Minecraft.getMinecraft().thePlayer.isSneaking()) {
+				GL11.glPopMatrix();
+				return;
+			}
+			
 			double s0 = 0.5D;
 			GL11.glTranslated(0.5, 0.25, -0.2);
 			GL11.glScaled(s0, s0, s0);
 			GL11.glRotated(15, 0, 0, 1);
 			GL11.glRotated(20, 0, -1, 0);
-			
+			if(player.isSneaking()){
+			if (item.getItem() != ModItems.gun_bolt_action_saturnite) {
+				//GL11.glRotated(75, 0, -1, 0);
+				GL11.glTranslated(-1, 0.6, -1.26);
+				GL11.glRotated(10.5, 0, 0, 1);
+				GL11.glRotated(14.68, 0, 1, 0);
+			} else {
+				GL11.glPopMatrix();
+				return;
+			}
+		}
 			double[] recoil = HbmAnimations.getRelevantTransformation("RECOIL");
 			GL11.glTranslated(recoil[0] * -0.5, 0, 0);
 

@@ -375,6 +375,10 @@ public class InventoryUtil {
 			return stacks;
 		}
 		
+		if(o instanceof ItemStack[][]) {
+			return (ItemStack[][]) o;
+		}
+		
 		if(o instanceof AStack) {
 			AStack astack = (AStack) o;
 			ItemStack[] ext = astack.extractForNEI().toArray(new ItemStack[0]);
@@ -512,7 +516,7 @@ public class InventoryUtil {
 							slot.putStack(current);
 							success = true;
 						} else if(current.stackSize < max) {
-							stack.stackSize -= stack.getMaxStackSize() - current.stackSize;
+							stack.stackSize -= max - current.stackSize;
 							current.stackSize = max;
 							slot.putStack(current);
 							success = true;
@@ -601,7 +605,7 @@ public class InventoryUtil {
 				if(consumedStacks > requiredStacks)
 					break;
 				if(itemStack != null && stack.matchesRecipe(itemStack, true)) {
-					final int toConsume = Math.min(itemStack.stackSize, requiredStacks - consumedStacks);
+					int toConsume = Math.min(itemStack.stackSize, requiredStacks - consumedStacks);
 					itemStack.stackSize -= toConsume;
 					consumedStacks += toConsume;
 				}

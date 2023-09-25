@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonWriter;
+import com.hbm.blocks.ModBlocks;
 import com.hbm.inventory.FluidStack;
 import com.hbm.inventory.RecipesCommon.AStack;
 import com.hbm.inventory.RecipesCommon.ComparableStack;
@@ -22,6 +23,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.oredict.OreDictionary;
 
 public class LiquefactionRecipes extends SerializableRecipe {
 
@@ -39,7 +41,7 @@ public class LiquefactionRecipes extends SerializableRecipe {
 		recipes.put(KEY_CRACK_TAR,									new FluidStack(100, Fluids.BITUMEN));
 		recipes.put(KEY_COAL_TAR,									new FluidStack(50, Fluids.BITUMEN));
 		recipes.put(KEY_LOG,										new FluidStack(100, Fluids.MUG));
-		recipes.put(KNO.dust(),										new FluidStack(250, Fluids.NITRIC_ACID));
+		recipes.put(NA.dust(),										new FluidStack(100, Fluids.SODIUM));
 		//general utility recipes because why not
 		recipes.put(new ComparableStack(Blocks.netherrack),			new FluidStack(250, Fluids.LAVA));
 		recipes.put(new ComparableStack(Blocks.cobblestone),		new FluidStack(250, Fluids.LAVA));
@@ -50,16 +52,21 @@ public class LiquefactionRecipes extends SerializableRecipe {
 		recipes.put(new ComparableStack(Blocks.ice),				new FluidStack(1000, Fluids.WATER));
 		recipes.put(new ComparableStack(Blocks.packed_ice),			new FluidStack(1000, Fluids.WATER));
 		recipes.put(new ComparableStack(Items.ender_pearl),			new FluidStack(100, Fluids.ENDERJUICE));
+		recipes.put(new ComparableStack(ModItems.pellet_charged),	new FluidStack(4000, Fluids.HELIUM4));
 
 		recipes.put(new ComparableStack(Items.sugar),				new FluidStack(100, Fluids.ETHANOL));
+		recipes.put(new ComparableStack(ModBlocks.plant_flower, 1, 3), new FluidStack(150, Fluids.ETHANOL));
+		recipes.put(new ComparableStack(ModBlocks.plant_flower, 1, 4), new FluidStack(50, Fluids.ETHANOL));
 		recipes.put(new ComparableStack(ModItems.biomass),			new FluidStack(125, Fluids.BIOGAS));
+		recipes.put(new ComparableStack(Items.fish, 1, OreDictionary.WILDCARD_VALUE), new FluidStack(100, Fluids.FISHOIL));
+		recipes.put(new ComparableStack(Blocks.double_plant, 1, 0),	new FluidStack(100, Fluids.SUNFLOWEROIL));
 
 		recipes.put(new ComparableStack(Items.wheat_seeds),			new FluidStack(50, Fluids.SEEDSLURRY));
 		recipes.put(new ComparableStack(Blocks.tallgrass, 1, 1),	new FluidStack(100, Fluids.SEEDSLURRY));
 		recipes.put(new ComparableStack(Blocks.tallgrass, 1, 2),	new FluidStack(100, Fluids.SEEDSLURRY));
 		recipes.put(new ComparableStack(Blocks.vine),				new FluidStack(100, Fluids.SEEDSLURRY));
 		recipes.put(new ComparableStack(ModItems.flesh),			new FluidStack(100, Fluids.BLOOD));
-		
+		recipes.put(new ComparableStack(ModItems.ingot_osmiridium),	new FluidStack(24000, Fluids.ETHANOL));
 		//recipes.put(new ComparableStack(ModItems.solid_fuel_bf),	new FluidStack(250, Fluids.BALEFIRE));
 		
 		//TODO: more recipes as the crack oil derivatives are added
@@ -76,6 +83,10 @@ public class LiquefactionRecipes extends SerializableRecipe {
 			return recipes.get(comp);
 		
 		String[] dictKeys = comp.getDictKeys();
+		comp = new ComparableStack(stack.getItem(), 1, OreDictionary.WILDCARD_VALUE);
+		
+		if(recipes.containsKey(comp))
+			return recipes.get(comp);
 		
 		for(String key : dictKeys) {
 

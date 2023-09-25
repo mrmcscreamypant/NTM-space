@@ -8,20 +8,28 @@ import com.hbm.hazard.HazardRegistry;
 import com.hbm.hazard.HazardSystem;
 import com.hbm.interfaces.IFluidAcceptor;
 import com.hbm.interfaces.IFluidSource;
+import com.hbm.inventory.container.ContainerStorageDrum;
 import com.hbm.inventory.fluid.FluidType;
 import com.hbm.inventory.fluid.Fluids;
 import com.hbm.inventory.fluid.tank.FluidTank;
+import com.hbm.inventory.gui.GUIStorageDrum;
 import com.hbm.items.ModItems;
 import com.hbm.items.special.ItemWasteLong;
 import com.hbm.items.special.ItemWasteShort;
 import com.hbm.lib.Library;
+import com.hbm.tileentity.IGUIProvider;
 import com.hbm.tileentity.TileEntityMachineBase;
 import com.hbm.util.ContaminationUtil;
 import com.hbm.util.ContaminationUtil.ContaminationType;
 import com.hbm.util.ContaminationUtil.HazardType;
 
 import api.hbm.fluid.IFluidStandardSender;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -29,7 +37,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-public class TileEntityStorageDrum extends TileEntityMachineBase implements IFluidSource, IFluidStandardSender {
+public class TileEntityStorageDrum extends TileEntityMachineBase implements IFluidSource, IFluidStandardSender, IGUIProvider {
 
 	public FluidTank[] tanks;
 	private static final int[] slots_arr = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23 };
@@ -55,7 +63,7 @@ public class TileEntityStorageDrum extends TileEntityMachineBase implements IFlu
 		if(!worldObj.isRemote) {
 			
 			float rad = 0;
-			
+			float digamma = 0;
 			int liquid = 0;
 			int gas = 0;
 			
@@ -67,6 +75,11 @@ public class TileEntityStorageDrum extends TileEntityMachineBase implements IFlu
 					
 					if(worldObj.getTotalWorldTime() % 20 == 0) {
 						rad += HazardSystem.getHazardLevelFromStack(slots[i], HazardRegistry.RADIATION);
+						digamma += HazardSystem.getHazardLevelFromStack(slots[i], HazardRegistry.DIGAMMA);
+						if(item == ModItems.particle_digamma)
+						{
+							digamma+=0.333f;
+						}
 					}
 					
 					int meta = slots[i].getItemDamage();
@@ -99,21 +112,42 @@ public class TileEntityStorageDrum extends TileEntityMachineBase implements IFlu
 						slots[i] = new ItemStack(ModItems.nuclear_waste_short_depleted_tiny, 1, meta);
 					}
 					
-					if(item == ModItems.ingot_au198 && worldObj.rand.nextInt(VersatileConfig.getShortDecayChance() / 100) == 0) {
+					if(item == ModItems.ingot_au198 && worldObj.rand.nextInt(VersatileConfig.getShortDecayChance() / 20) == 0) {
 						slots[i] = new ItemStack(ModItems.ingot_mercury, 1, meta);
 					}
-					if(item == ModItems.ingot_au198 && worldObj.rand.nextInt(VersatileConfig.getShortDecayChance() / 20) == 0) {
+					if(item == ModItems.nugget_au198 && worldObj.rand.nextInt(VersatileConfig.getShortDecayChance() / 100) == 0) {
 						slots[i] = new ItemStack(ModItems.nugget_mercury, 1, meta);
 					}
 					
-					if(item == ModItems.ingot_pb209 && worldObj.rand.nextInt(VersatileConfig.getShortDecayChance() / 50) == 0) {
+					if(item == ModItems.ingot_pb209 && worldObj.rand.nextInt(VersatileConfig.getShortDecayChance() / 10) == 0) {
 						slots[i] = new ItemStack(ModItems.ingot_bismuth, 1, meta);
 					}
-					if(item == ModItems.nugget_pb209 && worldObj.rand.nextInt(VersatileConfig.getShortDecayChance() / 10) == 0) {
+					if(item == ModItems.nugget_pb209 && worldObj.rand.nextInt(VersatileConfig.getShortDecayChance() / 50) == 0) {
 						slots[i] = new ItemStack(ModItems.nugget_bismuth, 1, meta);
+					}
+					if(slots[i]!=null)
+					{
+						if(slots[i].hasTagCompound())
+						{
+							//NBTTagCompound itemNBT = slots[i].getTagCompound(); 
+							float activation = slots[i].stackTagCompound.getFloat("ntmNeutron");
+							slots[i].stackTagCompound.setFloat("ntmNeutron",activation*0.9899916f);
+							if(activation<1e-5)
+								slots[i].stackTagCompound.removeTag("ntmNeutron");
+							if (slots[i].stackTagCompound.hasNoTags()){ 
+							    slots[i].setTagCompound((NBTTagCompound)null); //fuck you nbt 
+							}
+						}
+
+					if(item == ModItems.powder_sr90 && worldObj.rand.nextInt(VersatileConfig.getShortDecayChance() / 10) == 0) {
+						slots[i] = new ItemStack(ModItems.powder_zirconium, 1, meta);
+					}
+					if(item == ModItems.nugget_sr90 && worldObj.rand.nextInt(VersatileConfig.getShortDecayChance() / 50) == 0) {
+						slots[i] = new ItemStack(ModItems.nugget_zirconium, 1, meta);
 					}
 				}
 			}
+		}
 
 			this.tanks[0].setFill(this.tanks[0].getFill() + liquid);
 			this.tanks[1].setFill(this.tanks[1].getFill() + gas);
@@ -140,19 +174,20 @@ public class TileEntityStorageDrum extends TileEntityMachineBase implements IFlu
 				fillFluidInit(tanks[1].getTankType());
 			}
 
-			this.sendFluidToAll(tanks[0].getTankType(), this);
-			this.sendFluidToAll(tanks[1].getTankType(), this);
+			this.sendFluidToAll(tanks[0], this);
+			this.sendFluidToAll(tanks[1], this);
 
 			tanks[0].updateTank(xCoord, yCoord, zCoord, worldObj.provider.dimensionId);
 			tanks[1].updateTank(xCoord, yCoord, zCoord, worldObj.provider.dimensionId);
 			
-			if(rad > 0) {
-				radiate(worldObj, xCoord, yCoord, zCoord, rad);
+			if(rad > 0 || digamma > 0) {
+				radiate(worldObj, xCoord, yCoord, zCoord, rad, digamma);
 			}
 		}
+		
 	}
 	
-	private void radiate(World world, int x, int y, int z, float rads) {
+	private void radiate(World world, int x, int y, int z, float rads, float digamma) {
 		
 		double range = 32D;
 		
@@ -321,5 +356,16 @@ public class TileEntityStorageDrum extends TileEntityMachineBase implements IFlu
 	@Override
 	public FluidTank[] getAllTanks() {
 		return tanks;
+	}
+
+	@Override
+	public Container provideContainer(int ID, EntityPlayer player, World world, int x, int y, int z) {
+		return new ContainerStorageDrum(player.inventory, this);
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public GuiScreen provideGUI(int ID, EntityPlayer player, World world, int x, int y, int z) {
+		return new GUIStorageDrum(player.inventory, this);
 	}
 }

@@ -6,10 +6,11 @@ import java.util.List;
 import com.hbm.blocks.ModBlocks;
 import com.hbm.blocks.bomb.BlockTaint;
 import com.hbm.entity.effect.EntityNukeCloudSmall;
+import com.hbm.entity.effect.EntityNukeTorex;
 import com.hbm.entity.logic.EntityBalefire;
 import com.hbm.entity.logic.EntityNukeExplosionMK5;
 import com.hbm.entity.logic.IChunkLoader;
-import com.hbm.entity.projectile.EntityBulletBase;
+import com.hbm.entity.projectile.EntityBulletBaseNT;
 import com.hbm.explosion.ExplosionChaos;
 import com.hbm.explosion.ExplosionLarge;
 import com.hbm.handler.BulletConfigSyncingUtil;
@@ -288,6 +289,9 @@ public class EntityMissileCustom extends Entity implements IChunkLoader, IRadarD
 				break;
 			case XENON:
 				break;
+			case HYDRAZINE:
+				smoke = "exHydrazine";
+			break;
 			}
 
 			for(int i = 0; i < velocity; i++)
@@ -327,11 +331,7 @@ public class EntityMissileCustom extends Entity implements IChunkLoader, IRadarD
 		case NUCLEAR:
 		case TX:
 			worldObj.spawnEntityInWorld(EntityNukeExplosionMK5.statFac(worldObj, (int) strength, posX, posY, posZ));
-			EntityNukeCloudSmall nuke = new EntityNukeCloudSmall(worldObj, 1000, strength * 0.005F);
-			nuke.posX = posX;
-			nuke.posY = posY;
-			nuke.posZ = posZ;
-			worldObj.spawnEntityInWorld(nuke);
+			EntityNukeTorex.statFac(worldObj, posX, posY, posZ, strength);
 			break;
 		case BALEFIRE:
 			EntityBalefire bf = new EntityBalefire(worldObj);
@@ -340,15 +340,11 @@ public class EntityMissileCustom extends Entity implements IChunkLoader, IRadarD
 			bf.posZ = this.posZ;
 			bf.destructionRange = (int) strength;
 			worldObj.spawnEntityInWorld(bf);
-			worldObj.spawnEntityInWorld(EntityNukeCloudSmall.statFacBale(worldObj, posX, posY + 5, posZ, strength * 1.5F, 1000));
+			EntityNukeTorex.statFacBale(worldObj, posX, posY, posZ, strength);
 			break;
 		case N2:
 			worldObj.spawnEntityInWorld(EntityNukeExplosionMK5.statFacNoRad(worldObj, (int) strength, posX, posY, posZ));
-			EntityNukeCloudSmall n2 = new EntityNukeCloudSmall(worldObj, 1000, strength * 0.005F);
-			n2.posX = posX;
-			n2.posY = posY;
-			n2.posZ = posZ;
-			worldObj.spawnEntityInWorld(n2);
+			EntityNukeTorex.statFac(worldObj, posX, posY, posZ, strength);
 			break;
 		case TAINT:
 			int r = (int) strength;
@@ -371,7 +367,7 @@ public class EntityMissileCustom extends Entity implements IChunkLoader, IRadarD
 			Vec3 vec = Vec3.createVectorHelper(0.5, 0, 0);
 
 			for(int i = 0; i < count; i++) {
-				EntityBulletBase blade = new EntityBulletBase(worldObj, BulletConfigSyncingUtil.TURBINE);
+				EntityBulletBaseNT blade = new EntityBulletBaseNT(worldObj, BulletConfigSyncingUtil.TURBINE);
 				blade.setPositionAndRotation(this.posX - this.motionX, this.posY - this.motionY + rand.nextGaussian(), this.posZ - this.motionZ, 0, 0);
 				blade.motionX = vec.xCoord;
 				blade.motionZ = vec.zCoord;

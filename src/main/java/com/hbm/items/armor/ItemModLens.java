@@ -84,7 +84,6 @@ public class ItemModLens extends ItemArmorMod implements ISatChip {
 						if(addIf(ModBlocks.ore_oil, b, 300, aX, seg, aZ, "Oil", 0xa0a0a0, player)) hits++;
 						if(addIf(ModBlocks.ore_bedrock_oil, b, 300, aX, seg, aZ, "Bedrock Oil", 0xa0a0a0, player)) hits++;
 						if(addIf(ModBlocks.ore_coltan, b, 5, aX, seg, aZ, "Coltan", 0xa0a000, player)) hits++;
-						if(addIf(ModBlocks.ore_bedrock_coltan, b, 1, aX, seg, aZ, "Bedrock Coltan", 0xa0a000, player)) hits++;
 						if(addIf(ModBlocks.stone_gneiss, b, 5000, aX, seg, aZ, "Schist", 0x8080ff, player)) hits++;
 						if(addIf(ModBlocks.ore_australium, b, 1000, aX, seg, aZ, "Australium", 0xffff00, player)) hits++;
 						if(addIf(Blocks.end_portal_frame, b, 1, aX, seg, aZ, "End Portal", 0x40b080, player)) hits++;
@@ -94,6 +93,7 @@ public class ItemModLens extends ItemArmorMod implements ISatChip {
 						if(addIf(ModBlocks.deco_loot, b, 1, aX, seg, aZ, null, 0x800000, player)) hits++;
 						if(addIf(ModBlocks.crate_ammo, b, 1, aX, seg, aZ, null, 0x800000, player)) hits++;
 						if(addIf(ModBlocks.crate_can, b, 1, aX, seg, aZ, null, 0x800000, player)) hits++;
+						if(addIf(ModBlocks.ore_bedrock, b, 1, aX, seg, aZ, "Bedrock Ore", 0xff0000, player)) hits++;
 						
 						if(hits > 100) return;
 					}

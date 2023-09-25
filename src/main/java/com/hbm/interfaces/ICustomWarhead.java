@@ -3,14 +3,12 @@ package com.hbm.interfaces;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.logging.log4j.Level;
 
 import com.google.common.annotations.Beta;
 import com.hbm.hazard.HazardRegistry;
-import com.hbm.interfaces.ICustomWarhead.EnumCustomWarhead.EnumBioType;
-import com.hbm.interfaces.ICustomWarhead.EnumCustomWarhead.EnumChemicalType;
-import com.hbm.items.ModItems;
 import com.hbm.main.MainRegistry;
 import com.hbm.util.BobMathUtil;
 import com.hbm.util.I18nUtil;
@@ -201,7 +199,7 @@ public interface ICustomWarhead
 	{
 		for (Enum<?> f : combinedFuels)
 			if (data.getFloat(f.toString()) > 0)
-				tooltip.add(String.format("%s: %skg (%s)", I18nUtil.resolveKey("warheadFuel.".concat(f.toString())), df.format(data.getFloat(f.toString())), BobMathUtil.toPercentage(data.getFloat(f.toString()), data.getFloat(NBT_MASS))));
+				tooltip.add(String.format(Locale.US, "%s: %skg (%s)", I18nUtil.resolveKey("warheadFuel.".concat(f.toString())), df.format(data.getFloat(f.toString())), BobMathUtil.toPercentage(data.getFloat(f.toString()), data.getFloat(NBT_MASS))));
 	}
 	
 	public default void addTooltip(ItemStack stack, List<String> tooltip)

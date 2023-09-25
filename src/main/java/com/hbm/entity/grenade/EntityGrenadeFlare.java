@@ -8,7 +8,6 @@ import net.minecraft.world.World;
 
 public class EntityGrenadeFlare extends EntityThrowable
 {
-    private static final String __OBFID = "CL_00001722";
     public Entity shooter;
 
     public EntityGrenadeFlare(World p_i1773_1_)
@@ -29,7 +28,7 @@ public class EntityGrenadeFlare extends EntityThrowable
     @Override
 	public void onUpdate() {
     	super.onUpdate();
-    	if(this.ticksExisted > 250)
+    	if(this.ticksExisted > 25)
     	{
     		this.setDead();
     	}

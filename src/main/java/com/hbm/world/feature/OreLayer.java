@@ -3,6 +3,7 @@ package com.hbm.world.feature;
 import java.util.Random;
 
 import com.hbm.inventory.RecipesCommon.MetaBlock;
+import com.hbm.world.generator.DungeonToolbox;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.block.Block;
@@ -26,6 +27,7 @@ public class OreLayer {
 	private int maxRange = 4;
 	/** The y-level around which the stratum is centered. */
 	private int yLevel = 30;
+	int dim = 0;
 	
 	public OreLayer(Block ore, float density) {
 		this(ore, 0, Blocks.stone, density);
@@ -57,18 +59,22 @@ public class OreLayer {
 		this.yLevel = yLevel;
 		return this;
 	}
+	
+	public OreLayer setDimension(int dim) {
+		this.dim = dim;
+		return this;
+	}
 
 	@SubscribeEvent
 	public void onDecorate(DecorateBiomeEvent.Pre event) {
 		
+		World world = event.world;
+		
+		if(world.provider == null || world.provider.dimensionId != this.dim) return;
+		
 		if(this.noise == null) {
 			this.noise = new NoiseGeneratorPerlin(new Random(event.world.getSeed() + (ore.getID() * 31) + yLevel), 4);
 		}
-		
-		World world = event.world;
-		
-		if(world.provider.dimensionId != 0)
-			return;
 		
 		int cX = event.chunkX;
 		int cZ = event.chunkZ;
@@ -94,7 +100,7 @@ public class OreLayer {
 						if(event.rand.nextFloat() < density) {
 							Block genTarget = world.getBlock(x, y, z);
 							
-							if(genTarget.isReplaceableOreGen(world, x, y, z, target)) {
+							if(genTarget.isReplaceableOreGen(world, x, y, z, target) && DungeonToolbox.allowedToReplace(genTarget)) {
 								world.setBlock(x, y, z, ore.block, ore.meta, 2);
 							}
 						}

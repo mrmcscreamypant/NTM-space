@@ -65,7 +65,7 @@ public interface IEnergyConnector extends ILoadedTile {
 		if(te instanceof IEnergyConductor) {
 			IEnergyConductor con = (IEnergyConductor) te;
 			
-			if(!con.canConnect(dir.getOpposite().getOpposite()))
+			if(!con.canConnect(dir.getOpposite()))
 				return;
 			
 			if(con.getPowerNet() != null && !con.getPowerNet().isSubscribed(this))
@@ -75,7 +75,7 @@ public interface IEnergyConnector extends ILoadedTile {
 				red = true;
 		}
 		
-		if(particleDebug) {//
+		if(particleDebug) {
 			NBTTagCompound data = new NBTTagCompound();
 			data.setString("type", "network");
 			data.setString("mode", "power");

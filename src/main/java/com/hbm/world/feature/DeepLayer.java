@@ -3,11 +3,11 @@ package com.hbm.world.feature;
 import java.util.Random;
 
 import com.hbm.blocks.ModBlocks;
+import com.hbm.world.generator.DungeonToolbox;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.NoiseGeneratorPerlin;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -19,15 +19,13 @@ public class DeepLayer {
 
 	@SubscribeEvent
 	public void onDecorate(DecorateBiomeEvent.Pre event) {
+
+		World world = event.world;
+		if(world.provider == null || world.provider.dimensionId != 0) return;
 		
 		if(this.noise == null) {
 			this.noise = new NoiseGeneratorPerlin(new Random(event.world.getSeed() + 19), 4);
 		}
-
-		World world = event.world;
-		
-		if(world.provider.dimensionId != 0)
-			return;
 		
 		int cX = event.chunkX;
 		int cZ = event.chunkZ;
@@ -53,7 +51,7 @@ public class DeepLayer {
 						
 						Block target = world.getBlock(x, y, z);
 						
-						if(target.isNormalCube() && target.getMaterial() == Material.rock && target != Blocks.bedrock) {
+						if(target.isNormalCube() && target.getMaterial() == Material.rock && DungeonToolbox.allowedToReplace(target)) {
 							
 							boolean lava = false;
 							
