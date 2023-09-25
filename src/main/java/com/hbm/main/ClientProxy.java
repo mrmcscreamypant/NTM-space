@@ -2069,6 +2069,7 @@ public class ClientProxy extends ServerProxy {
 	@Override
 	public boolean getRogue(World world) {
 		return RogueWorldHandler.getRogueWorldForClient(world);
+	}
 
 	@Override
 	public void playSoundClient(double x, double y, double z, String sound, float volume, float pitch) {
