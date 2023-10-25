@@ -271,7 +271,14 @@ public class ModEventHandlerRogue {
 					for(int x = 0; x < 16; ++x) {
 						for(int y = 0; y < 16; ++y) {
 							for(int z = 0; z < 16; ++z) {
-							
+								if(data.temperature <- 0) {
+									if(storage.getBlockByExtId(x, y, z) == Blocks.water) {
+									storage.func_150818_a(x, y, z, ModBlocks.cold_ice);
+								} else if(storage.getBlockByExtId(x, y, z) == Blocks.flowing_water) {
+									storage.func_150818_a(x, y, z, ModBlocks.cold_ice);
+								
+								}
+								}
 								if(data.temperature <- 50) {
 									if(storage.getBlockByExtId(x, y, z) == Blocks.grass) {
 										storage.func_150818_a(x, y, z, ModBlocks.frozen_grass);
@@ -285,10 +292,6 @@ public class ModEventHandlerRogue {
 										storage.func_150818_a(x, y, z, ModBlocks.frozen_leaves);
 									} else if(storage.getBlockByExtId(x, y, z) instanceof BlockDirt) {
 										storage.func_150818_a(x, y, z, ModBlocks.frozen_dirt);
-									} else if(storage.getBlockByExtId(x, y, z) == Blocks.water) {
-										storage.func_150818_a(x, y, z, ModBlocks.cold_ice);
-									} else if(storage.getBlockByExtId(x, y, z) == Blocks.flowing_water) {
-										storage.func_150818_a(x, y, z, ModBlocks.cold_ice);
 									} else if(storage.getBlockByExtId(x, y, z)== Blocks.gravel) {
 										storage.func_150818_a(x, y, z, ModBlocks.frozen_gravel);
 									} else if(storage.getBlockByExtId(x, y, z)== Blocks.sand) {
