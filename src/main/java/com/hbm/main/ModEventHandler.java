@@ -656,7 +656,7 @@ public class ModEventHandler {
 	@SubscribeEvent
 	public void worldTick(WorldTickEvent event) {
 		if(event.world.provider.dimensionId == SpaceConfig.moonDimension) {
-			if(chargetime <= 0 || chargetime <= 200) {
+			if(chargetime <= 0 || chargetime <= 600) {
 				chargetime += 1;
 				flashd = 0;
 				//System.out.println(chargetime);

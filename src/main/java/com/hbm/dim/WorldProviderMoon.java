@@ -79,7 +79,6 @@ public class WorldProviderMoon extends WorldProvider {
 	            if (tagger3.hasKey(traitKey)) {
 	                float f = 1.0F - this.getStarBrightness(1.0F);
 
-
 	                return SkyColorManager.currentSkyColor = Vec3.createVectorHelper(92D / 255 * f + alpha, 83.4D / 255* f + alpha, 217.7D/ 255 * f + alpha);
 	            }
 	        }

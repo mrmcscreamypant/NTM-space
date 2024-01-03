@@ -247,21 +247,23 @@ public class SkyProviderMoon extends IRenderHandler {
 		{	
 			GL11.glPushMatrix();
 			float var34 = ModEventHandler.flashd;
-
-			float var14 = 15;
+			float var14 = 1;
 			float var15 = Math.min(70, var14 * 2 );
-			float alpha = 1.0F - Math.min(1.0F, var34 /100 );
+            float alpha = (var34 <= 0) ? 0.0F : 1.0F - Math.min(1.0F, var34 / 100);
 			GL11.glRotated(79, 90, 0, 0);
-			GL11.glScaled(1.11, 0.11, 0.11);
+			GL11.glDisable(GL11.GL_CLIP_PLANE0);
+			GL11.glTranslated(-0.6, 0, 0);
 			mc.renderEngine.bindTexture(this.ntex);
-			GL11.glRotated(25, 00, 80, 0);
-			GL11.glColor4f(1, 1, 1, 1);
+			GL11.glRotated(27, 00, 80, 0);
+			
+			GL11.glColor4f(1, 1, 1, alpha);
 			tessellator.startDrawingQuads();
 			tessellator.addVertexWithUV(-var14, 100.0D, -var14, 0.0D, 0.0D);
-			tessellator.addVertexWithUV(var34 *8 + 25, 100.0D, -var14, 1.0D, 0.0D);
-			tessellator.addVertexWithUV(var34 *8 + 25, 100.0D, var14, 1.0D, 1.0D);
+			tessellator.addVertexWithUV(var34 * 8, 100.0D, -var14, 1.0D, 0.0D);
+			tessellator.addVertexWithUV(var34 * 8, 100.0D, var14, 1.0D, 1.0D);
 			tessellator.addVertexWithUV(-var14, 100.0D, var14, 0.0D, 1.0D);
 			tessellator.draw();
+			GL11.glEnable(GL11.GL_CLIP_PLANE0);
 
 			GL11.glPopMatrix();
 
