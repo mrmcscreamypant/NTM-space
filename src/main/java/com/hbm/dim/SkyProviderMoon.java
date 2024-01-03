@@ -15,6 +15,8 @@ import org.lwjgl.opengl.GL11;
 
 import com.hbm.extprop.HbmLivingProps;
 import com.hbm.handler.ImpactWorldHandler;
+import com.hbm.lib.RefStrings;
+import com.hbm.main.ModEventHandler;
 import com.hbm.main.ResourceManager;
 import com.hbm.tileentity.machine.TileEntityAtmoExtractor;
 import com.hbm.util.AstronomyUtil;
@@ -34,6 +36,8 @@ public class SkyProviderMoon extends IRenderHandler {
 	private static final ResourceLocation flash2 = new ResourceLocation("hbm:textures/misc/space/sunspike.png");
 	private static final ResourceLocation night = new ResourceLocation("hbm:textures/misc/space/night.png");
 	private static final ResourceLocation digammaStar = new ResourceLocation("hbm:textures/misc/space/star_digamma.png");
+	private static final ResourceLocation texture = new ResourceLocation(RefStrings.MODID + ":textures/particle/shockwave.png");
+	private static final ResourceLocation ntex = new ResourceLocation("hbm:textures/misc/line.png");
 
 	public static boolean displayListsInitialized = false;
 	public static int starGLCallList;
@@ -192,12 +196,77 @@ public class SkyProviderMoon extends IRenderHandler {
 			GL11.glPopMatrix();*/
 		}
 
-		
+
 		GL11.glShadeModel(GL11.GL_FLAT);
 
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 
 		OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ONE, GL11.GL_ZERO);
+		
+		{	
+			GL11.glPushMatrix();
+			float asize = 14;
+			float var14 = ModEventHandler.flashd;
+			float alpha = 1.0F - Math.min(1.0F, var14 / 100);
+			GL11.glRotated(180.0, 0.0, 5.0, 0.0);
+			GL11.glRotated(90.0, -12.0, 7.3F, -4.0);
+			mc.renderEngine.bindTexture(this.flash);
+
+			GL11.glColor4f(1, 1, 1, alpha);
+			tessellator.startDrawingQuads();
+			tessellator.addVertexWithUV(-var14, 100.0D, -var14, 0.0D, 0.0D);
+			tessellator.addVertexWithUV(var14, 100.0D, -var14, 1.0D, 0.0D);
+			tessellator.addVertexWithUV(var14, 100.0D, var14, 1.0D, 1.0D);
+			tessellator.addVertexWithUV(-var14, 100.0D, var14, 0.0D, 1.0D);
+			tessellator.draw();
+			GL11.glPopMatrix();
+
+		}
+		{	
+			GL11.glPushMatrix();
+			float var34 = ModEventHandler.flashd;
+
+			float var14 = ModEventHandler.flashd * 2;
+			float var15 = Math.min(70, var14 * 2 );
+			float alpha = 1.0F - Math.min(1.0F, var34 /100 );
+			GL11.glRotated(180.0, 0.0, 5.0, 0.0);
+			GL11.glRotated(90.0, -12.0, 7.3F, -4.0);
+
+			mc.renderEngine.bindTexture(this.texture);
+
+			GL11.glColor4f(1, 1, 1, alpha);
+			tessellator.startDrawingQuads();
+			tessellator.addVertexWithUV(-var14, 100.0D, -var14, 0.0D, 0.0D);
+			tessellator.addVertexWithUV(var14, 100.0D, -var14, 1.0D, 0.0D);
+			tessellator.addVertexWithUV(var14, 100.0D, var14, 1.0D, 1.0D);
+			tessellator.addVertexWithUV(-var14, 100.0D, var14, 0.0D, 1.0D);
+			tessellator.draw();
+			GL11.glPopMatrix();
+
+		}
+		{	
+			GL11.glPushMatrix();
+			float var34 = ModEventHandler.flashd;
+
+			float var14 = 15;
+			float var15 = Math.min(70, var14 * 2 );
+			float alpha = 1.0F - Math.min(1.0F, var34 /100 );
+			GL11.glRotated(79, 90, 0, 0);
+			GL11.glScaled(1.11, 0.11, 0.11);
+			mc.renderEngine.bindTexture(this.ntex);
+			GL11.glRotated(25, 00, 80, 0);
+			GL11.glColor4f(1, 1, 1, 1);
+			tessellator.startDrawingQuads();
+			tessellator.addVertexWithUV(-var14, 100.0D, -var14, 0.0D, 0.0D);
+			tessellator.addVertexWithUV(var34 *8 + 25, 100.0D, -var14, 1.0D, 0.0D);
+			tessellator.addVertexWithUV(var34 *8 + 25, 100.0D, var14, 1.0D, 1.0D);
+			tessellator.addVertexWithUV(-var14, 100.0D, var14, 0.0D, 1.0D);
+			tessellator.draw();
+
+			GL11.glPopMatrix();
+
+		}
+		
 		GL11.glPushMatrix();
 		f7 = 0.0F;
 		f8 = 0.0F;
@@ -230,6 +299,7 @@ public class SkyProviderMoon extends IRenderHandler {
 			tessellator.addVertexWithUV(-f10, 100.0D, f10, 0.0D, 1.0D);
 			tessellator.draw();
 		}
+
 		{
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
 			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1f);
@@ -245,6 +315,7 @@ public class SkyProviderMoon extends IRenderHandler {
 			tessellator.addVertexWithUV(-f11, 100.0D, f11, 0.0D, 1.0D);
 			tessellator.draw();
 		}
+
 		{
 			GL11.glPushMatrix();
 			GL11.glDisable(GL11.GL_BLEND);
@@ -344,6 +415,8 @@ public class SkyProviderMoon extends IRenderHandler {
 		} else {
 			GL11.glColor3f(f1, f2, f3);
 		}
+		
+
 		GL11.glPushMatrix();
 		GL11.glTranslatef(0.0F, -((float) (d0 - 16.0D)), 0.0F);
 		GL11.glCallList(this.glSkyList2);
@@ -353,9 +426,10 @@ public class SkyProviderMoon extends IRenderHandler {
 
 		
 		GL11.glPushMatrix();
-		GL11.glTranslated(1, 60, 200); 
-		GL11.glScaled(4, 4, 4);
-		GL11.glRotatef(90.0F, -90.0F, 0.0F, -60.0F);
+		GL11.glTranslated(-35, 45, 300); 
+		GL11.glScaled(15, 15, 15);
+		GL11.glRotated(180.0, 0.0, 5.0, 0.0);
+		GL11.glRotated(90.0, -12.0, 5.0, 0.0);
 
 		OpenGlHelper.glBlendFunc(770, 771, 1, 0);
 		GL11.glEnable(GL11.GL_BLEND);
