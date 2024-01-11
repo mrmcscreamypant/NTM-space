@@ -69,7 +69,7 @@ public class WorldProviderMoon extends WorldProvider {
 	                return Vec3.createVectorHelper(148.3D / 255 * f +  alpha , 144.4D / 255* f + alpha, 242.7D/ 255 * f + alpha);
 	            }
 	        }
-	      return Vec3.createVectorHelper(0.0D  , 0.0D  , 0.0D );
+	      return Vec3.createVectorHelper(0.0D + alpha , 0.0D + alpha , 0.0D + alpha );
 	    }
 
 	    public Vec3 getSkyColor(Entity camera, float partialTicks) {
