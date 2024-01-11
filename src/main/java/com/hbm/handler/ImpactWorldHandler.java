@@ -130,4 +130,32 @@ public class ImpactWorldHandler {
 		if(world != lastSyncWorld) return 0;
 		return time;
 	}
+	public static int chargetime = 0;
+	public static float flashd = 0;
+	public static float altitude = 0;
+	public static float toy = 0;
+	
+	@SideOnly(Side.CLIENT)
+	public static float getAltitude(World world) {
+		if(world != lastSyncWorld) return 0F;
+		return altitude;
+	}
+
+	@SideOnly(Side.CLIENT)
+	public static float GetFlash(World world) {
+		if(world != lastSyncWorld) return 0F;
+		return flashd;
+	}
+
+	@SideOnly(Side.CLIENT)
+	public static float GetRand(World world) {
+		if(world != lastSyncWorld) return 0F;
+		return toy;
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public static int GetCharge(World world) {
+		if(world != lastSyncWorld) return 0;
+		return chargetime;
+	}
 }

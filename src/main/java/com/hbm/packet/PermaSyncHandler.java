@@ -10,6 +10,7 @@ import com.hbm.handler.ImpactWorldHandler;
 import com.hbm.handler.pollution.PollutionHandler;
 import com.hbm.handler.pollution.PollutionHandler.PollutionData;
 import com.hbm.handler.pollution.PollutionHandler.PollutionType;
+import com.hbm.main.ModEventHandler;
 import com.hbm.potion.HbmPotion;
 import com.hbm.saveddata.TomSaveData;
 import com.hbm.util.PlanetaryTraitUtil;
@@ -37,13 +38,20 @@ public class PermaSyncHandler {
 		
 		/// TOM IMPACT DATA ///
 		TomSaveData data = TomSaveData.forWorld(world);
+		
 		buf.writeFloat(data.fire);
 		buf.writeFloat(data.dust);
 		buf.writeBoolean(data.impact);
 		buf.writeLong(data.time);
 		/// TOM IMPACT DATA ///
 
-		
+		buf.writeFloat(ModEventHandler.flashd);
+
+		buf.writeFloat(ModEventHandler.toy);
+		buf.writeFloat(ModEventHandler.altitude);
+
+		buf.writeInt(ModEventHandler.chargetime);
+
 		/// SHITTY MEMES ///
 		List<Integer> ids = new ArrayList();
 		for(Object o : world.playerEntities) {
@@ -78,6 +86,7 @@ public class PermaSyncHandler {
 			buf.writeFloat(pollution.pollution[i]);
 		}
 		/// POLLUTION ///
+		
 	}
 	
 	public static void readPacket(ByteBuf buf, World world, EntityPlayer player) {
@@ -90,22 +99,38 @@ public class PermaSyncHandler {
 		ImpactWorldHandler.time = buf.readLong();
 		/// TOM IMPACT DATA ///
 
-        PlanetaryTraitUtil.lastSyncWorld = player.worldObj;
+		//WAR//
 
 		
+		ImpactWorldHandler.flashd = buf.readFloat();
+
+		ImpactWorldHandler.toy = buf.readFloat();
+		ImpactWorldHandler.altitude = buf.readFloat();
+
+		ImpactWorldHandler.chargetime = buf.readInt();
+
+		//WAR//		
+	
+		
+        PlanetaryTraitUtil.lastSyncWorld = player.worldObj;
+
+		//grabs the dimension, then grabs the traits it has along with it.
+     
         int dimensionId = buf.readInt();
         int traitCount = buf.readShort();
 
         PlanetaryTraitWorldSavedData traitsData = PlanetaryTraitWorldSavedData.get(world);
         Set<PlanetaryTraitUtil.Hospitality> traits = traitsData.getTraits(dimensionId);
-        
+        //then it writes all the traits in both the static class and the save file into one file.
+        //obviously once thats done the game then reads the traits from the file
         for (int i = 0; i < traitCount; i++) {
             int traitOrdinal = buf.readInt();
             PlanetaryTraitUtil.Hospitality trait = PlanetaryTraitUtil.Hospitality.values()[traitOrdinal];
             traits.add(trait);
         }
 
-
+        //i genuinley dont know what the fuck this is for, it must have been when i was hammering the class down trying to get it to work on servers
+        // i will leave it in because im not going through that shit again.
         // Convert the set to an NBTTagCompound
         NBTTagCompound tag = new NBTTagCompound();
         for (PlanetaryTraitUtil.Hospitality trait : traits) {

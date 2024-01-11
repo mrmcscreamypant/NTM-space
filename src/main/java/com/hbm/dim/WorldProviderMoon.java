@@ -1,6 +1,7 @@
 package com.hbm.dim;
 
 import com.hbm.config.SpaceConfig;
+import com.hbm.handler.ImpactWorldHandler;
 import com.hbm.main.MainRegistry;
 import com.hbm.main.ModEventHandler;
 import com.hbm.util.AstronomyUtil;
@@ -57,8 +58,9 @@ public class WorldProviderMoon extends WorldProvider {
     
 	   @SideOnly(Side.CLIENT)
 	    public Vec3 getFogColor(float x, float y) {
-           float ne = ModEventHandler.flashd;
+	        float ne = MainRegistry.proxy.getFlash(worldObj);
            float alpha = (ne <= 0) ? 0.0F : 1.0F - Math.min(1.0F, ne / 100);
+	           
 	    	NBTTagCompound tagger3 = MainRegistry.proxy.getPlanetaryTags(worldObj);
 	        if (tagger3 != null) {
 	            String traitKey = Hospitality.BREATHEABLE.toString();
@@ -67,12 +69,13 @@ public class WorldProviderMoon extends WorldProvider {
 	                return Vec3.createVectorHelper(148.3D / 255 * f +  alpha , 144.4D / 255* f + alpha, 242.7D/ 255 * f + alpha);
 	            }
 	        }
-	      return Vec3.createVectorHelper(0.0D + alpha , 0.0D + alpha , 0.0D + alpha);
+	      return Vec3.createVectorHelper(0.0D  , 0.0D  , 0.0D );
 	    }
 
 	    public Vec3 getSkyColor(Entity camera, float partialTicks) {
-            float ne = ModEventHandler.flashd;
+	        float ne = ImpactWorldHandler.GetFlash(worldObj);
             float alpha = (ne <= 0) ? 0.0F : 1.0F - Math.min(1.0F, ne / 100);
+
 	    	NBTTagCompound tagger3 = MainRegistry.proxy.getPlanetaryTags(worldObj);
 	        if (tagger3 != null) {
 	            String traitKey = Hospitality.BREATHEABLE.toString();
@@ -83,7 +86,7 @@ public class WorldProviderMoon extends WorldProvider {
 	            }
 	        }
 		      return Vec3.createVectorHelper(0.0D + alpha , 0.0D + alpha , 0.0D + alpha);
-		      }
+		 }
 	    
 	    @SideOnly(Side.CLIENT)
 	    public float[] calcSunriseSunsetColors(float p_76560_1_, float p_76560_2_) {
@@ -192,5 +195,24 @@ public class WorldProviderMoon extends WorldProvider {
         return f2 + (f1 - f2) / 3.0F;
     }
 
+    @Override
+    @SideOnly(Side.CLIENT)
+    public float getSunBrightness(float par1)
+    {
+        float ne = MainRegistry.proxy.getFlash(worldObj);
+        float alpha = (ne <= 0) ? 0.0F : 1.0F - Math.min(1.0F, ne / 100);
+        float f1 = this.worldObj.getCelestialAngle(1.0F);
+        float f2 = 1.0F - (MathHelper.cos(f1 * (float) Math.PI * 2.0F) * 2.0F + 0.2F);
 
+        if (f2 < 0.0F)
+        {
+            f2 = 0.0F;
+        }
+        if (f2 > 1.0F)
+        {
+            f2 = 1.0F;
+        }
+        f2 = 0.95F - f2;
+        return (float) (f2 * 0.1 + alpha);
+    }
 }

@@ -3,6 +3,7 @@ package com.hbm.main;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.hbm.handler.ImpactWorldHandler;
 import com.hbm.handler.HbmKeybinds.EnumKeybind;
 import com.hbm.saveddata.TomSaveData;
 import com.hbm.sound.AudioWrapper;
@@ -90,6 +91,20 @@ public class ServerProxy {
 	public boolean getImpact(World world) {
 		return TomSaveData.forWorld(world).impact;
 	}
+	
+	public float getRand(World world) {
+		return ModEventHandler.toy;
+	}
+	public float getFlash(World world) {
+		return ModEventHandler.flashd;
+	}
+	public int getCharge(World world) {
+		return ModEventHandler.chargetime;
+	}
+	public float getAltitude(World world) {
+		return ModEventHandler.altitude;
+	}
+	
 	
 	public void playSoundClient(double x, double y, double z, String sound, float volume, float pitch) { }
 }

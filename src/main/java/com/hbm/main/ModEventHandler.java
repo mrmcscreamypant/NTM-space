@@ -105,6 +105,8 @@ import cpw.mods.fml.common.gameevent.TickEvent.Phase;
 import cpw.mods.fml.common.gameevent.TickEvent.WorldTickEvent;
 import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 import cpw.mods.fml.relauncher.ReflectionHelper;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockIce;
 import net.minecraft.block.BlockLever;
@@ -653,6 +655,9 @@ public class ModEventHandler {
 	}
 	public static int chargetime;
 	public static float flashd;
+	public static float altitude;
+	public static float toy;
+
 	@SubscribeEvent
 	public void worldTick(WorldTickEvent event) {
 		if(event.world.provider.dimensionId == SpaceConfig.moonDimension) {
@@ -675,9 +680,13 @@ public class ModEventHandler {
 
 			}
 		}
-
-		
-
+		if(altitude <= 400) {
+			altitude += 0.2;
+		}
+		if(altitude >= 400) {
+			altitude = 0;
+			toy = rand.nextFloat();
+		}
 		/// RADIATION STUFF START ///
 		if(event.world != null && !event.world.isRemote) {
 			
@@ -1793,4 +1802,5 @@ public class ModEventHandler {
 			}
 		}
 	}
+
 }

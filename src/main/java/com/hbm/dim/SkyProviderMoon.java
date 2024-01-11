@@ -16,8 +16,12 @@ import org.lwjgl.opengl.GL11;
 import com.hbm.extprop.HbmLivingProps;
 import com.hbm.handler.ImpactWorldHandler;
 import com.hbm.lib.RefStrings;
+import com.hbm.main.MainRegistry;
 import com.hbm.main.ModEventHandler;
 import com.hbm.main.ResourceManager;
+import com.hbm.render.util.BeamPronter;
+import com.hbm.render.util.BeamPronter.EnumBeamType;
+import com.hbm.render.util.BeamPronter.EnumWaveType;
 import com.hbm.tileentity.machine.TileEntityAtmoExtractor;
 import com.hbm.util.AstronomyUtil;
 import com.hbm.util.PlanetaryTraitUtil;
@@ -34,10 +38,11 @@ public class SkyProviderMoon extends IRenderHandler {
 	private static final ResourceLocation planet = new ResourceLocation("hbm:textures/misc/space/planet.png");
 	private static final ResourceLocation flash = new ResourceLocation("hbm:textures/misc/space/flare.png");
 	private static final ResourceLocation flash2 = new ResourceLocation("hbm:textures/misc/space/sunspike.png");
-	private static final ResourceLocation night = new ResourceLocation("hbm:textures/misc/space/night.png");
+	private static final ResourceLocation night = new ResourceLocation("hbm:textures/misc/space/nightw.png");
 	private static final ResourceLocation digammaStar = new ResourceLocation("hbm:textures/misc/space/star_digamma.png");
 	private static final ResourceLocation texture = new ResourceLocation(RefStrings.MODID + ":textures/particle/shockwave.png");
 	private static final ResourceLocation ntex = new ResourceLocation("hbm:textures/misc/line.png");
+	Random random = new Random(42);
 
 	public static boolean displayListsInitialized = false;
 	public static int starGLCallList;
@@ -103,6 +108,7 @@ public class SkyProviderMoon extends IRenderHandler {
 	@Override
 	public void render(float partialTicks, WorldClient world, Minecraft mc) {
         float solar = (AstronomyUtil.KerbolRadius*4/(AstronomyUtil.KerbinAU*AstronomyUtil.AUToKm))*360;
+        //this is beyond overengineered
         double MohoKerbin = AstronomyUtil.getInterplanetaryDistance(world, AstronomyUtil.MohoAU, AstronomyUtil.MohoP, AstronomyUtil.KerbinAU, AstronomyUtil.KerbinP);
         double EveKerbin = AstronomyUtil.getInterplanetaryDistance(world, AstronomyUtil.EveAU, AstronomyUtil.EveP, AstronomyUtil.KerbinAU, AstronomyUtil.KerbinP);
         double KerbinDuna = AstronomyUtil.getInterplanetaryDistance(world, AstronomyUtil.KerbinAU, AstronomyUtil.KerbinP, AstronomyUtil.DunaAU, AstronomyUtil.DunaP);
@@ -202,33 +208,31 @@ public class SkyProviderMoon extends IRenderHandler {
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 
 		OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ONE, GL11.GL_ZERO);
-		
+		float flash = ImpactWorldHandler.GetFlash(world);
 		{	
 			GL11.glPushMatrix();
 			float asize = 14;
-			float var14 = ModEventHandler.flashd;
-			float alpha = 1.0F - Math.min(1.0F, var14 / 100);
+			float alpha = 1.0F - Math.min(1.0F, flash / 100);
 			GL11.glRotated(180.0, 0.0, 5.0, 0.0);
 			GL11.glRotated(90.0, -12.0, 7.3F, -4.0);
 			mc.renderEngine.bindTexture(this.flash);
 
 			GL11.glColor4f(1, 1, 1, alpha);
 			tessellator.startDrawingQuads();
-			tessellator.addVertexWithUV(-var14, 100.0D, -var14, 0.0D, 0.0D);
-			tessellator.addVertexWithUV(var14, 100.0D, -var14, 1.0D, 0.0D);
-			tessellator.addVertexWithUV(var14, 100.0D, var14, 1.0D, 1.0D);
-			tessellator.addVertexWithUV(-var14, 100.0D, var14, 0.0D, 1.0D);
+			tessellator.addVertexWithUV(-flash, 100.0D, -flash, 0.0D, 0.0D);
+			tessellator.addVertexWithUV(flash, 100.0D, -flash, 1.0D, 0.0D);
+			tessellator.addVertexWithUV(flash, 100.0D, flash, 1.0D, 1.0D);
+			tessellator.addVertexWithUV(-flash, 100.0D, flash, 0.0D, 1.0D);
 			tessellator.draw();
 			GL11.glPopMatrix();
 
 		}
 		{	
 			GL11.glPushMatrix();
-			float var34 = ModEventHandler.flashd;
 
-			float var14 = ModEventHandler.flashd * 2;
+			float var14 = flash * 2;
 			float var15 = Math.min(70, var14 * 2 );
-			float alpha = 1.0F - Math.min(1.0F, var34 /100 );
+			float alpha = 1.0F - Math.min(1.0F, flash /100 );
 			GL11.glRotated(180.0, 0.0, 5.0, 0.0);
 			GL11.glRotated(90.0, -12.0, 7.3F, -4.0);
 
@@ -246,10 +250,10 @@ public class SkyProviderMoon extends IRenderHandler {
 		}
 		{	
 			GL11.glPushMatrix();
-			float var34 = ModEventHandler.flashd;
+			
 			float var14 = 1;
 			float var15 = Math.min(70, var14 * 2 );
-            float alpha = (var34 <= 0) ? 0.0F : 1.0F - Math.min(1.0F, var34 / 100);
+            float alpha = (flash <= 0) ? 0.0F : 1.0F - Math.min(1.0F, flash / 100);
 			GL11.glRotated(79, 90, 0, 0);
 			GL11.glDisable(GL11.GL_CLIP_PLANE0);
 			GL11.glTranslated(-0.6, 0, 0);
@@ -259,8 +263,8 @@ public class SkyProviderMoon extends IRenderHandler {
 			GL11.glColor4f(1, 1, 1, alpha);
 			tessellator.startDrawingQuads();
 			tessellator.addVertexWithUV(-var14, 100.0D, -var14, 0.0D, 0.0D);
-			tessellator.addVertexWithUV(var34 * 8, 100.0D, -var14, 1.0D, 0.0D);
-			tessellator.addVertexWithUV(var34 * 8, 100.0D, var14, 1.0D, 1.0D);
+			tessellator.addVertexWithUV(flash * 8, 100.0D, -var14, 1.0D, 0.0D);
+			tessellator.addVertexWithUV(flash * 8, 100.0D, var14, 1.0D, 1.0D);
 			tessellator.addVertexWithUV(-var14, 100.0D, var14, 0.0D, 1.0D);
 			tessellator.draw();
 			GL11.glEnable(GL11.GL_CLIP_PLANE0);
@@ -418,15 +422,59 @@ public class SkyProviderMoon extends IRenderHandler {
 			GL11.glColor3f(f1, f2, f3);
 		}
 		
-
+		float alt = MainRegistry.proxy.getAltitude(world);
+		float rnd = MainRegistry.proxy.getRand(world);
 		GL11.glPushMatrix();
 		GL11.glTranslatef(0.0F, -((float) (d0 - 16.0D)), 0.0F);
 		GL11.glCallList(this.glSkyList2);
 		GL11.glPopMatrix();
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glDepthMask(true);
+		
+		GL11.glPushMatrix();
+		GL11.glRotated(-45.0 * rnd, -12.0, 5.0, 0.0);
+
+		GL11.glTranslated(50 - rnd, alt - rnd * rnd, 2 * rnd);
+		for (int i = 0; i < 17; i++) {
+		GL11.glTranslated( - rnd, 0 - random.nextInt(20) , rnd);
+		BeamPronter.prontBeam(Vec3.createVectorHelper(0, 3, 0), EnumWaveType.SPIRAL, EnumBeamType.SOLID, 0x101020, 0x101020, 0, 1, 0F, 6, (float)0.2 * 0.2F);
+		}
+
+		GL11.glPopMatrix();
+		
+		GL11.glPushMatrix();
+		GL11.glRotated(45.0 * rnd, -12.0, 5.0, 0.0);
+
+		GL11.glTranslated(-50 * rnd,alt - 50 * rnd, -80 * rnd);
+
+		for (int i = 0; i < 17; i++) {
+			GL11.glTranslated( - rnd, 0 - random.nextInt(20) , rnd);
+		BeamPronter.prontBeam(Vec3.createVectorHelper(0, 3, 0), EnumWaveType.SPIRAL, EnumBeamType.SOLID, 0x101020, 0x101020, 0, 1, 0F, 6, (float)0.2 * 0.2F);
+		}
+		GL11.glPopMatrix();
+		
 
 		
+		GL11.glPushMatrix();
+		GL11.glRotated(-25.0 - rnd, -12.0, 5.0, 0.0);
+		GL11.glTranslated(-60 - rnd, alt - 150 * rnd, 20 * rnd);
+
+		for (int i = 0; i < 17; i++) {
+			GL11.glTranslated( - rnd, 0 - random.nextInt(15) , rnd);
+		BeamPronter.prontBeam(Vec3.createVectorHelper(0, 3, 0), EnumWaveType.SPIRAL, EnumBeamType.SOLID, 0x101020, 0x101020, 0, 1, 0F, 6, (float)0.2 * 0.2F);
+		}
+		GL11.glPopMatrix();
+		
+		GL11.glPushMatrix();
+		GL11.glRotated(-65.0 - rnd, -12.0, 5.0, 0.0);
+
+		GL11.glTranslated(20 + rnd, alt - 150 * rnd, -80 * rnd);
+
+		for (int i = 0; i < 17; i++) {
+			GL11.glTranslated( rnd, 0 - random.nextInt(15) ,- rnd);
+		BeamPronter.prontBeam(Vec3.createVectorHelper(0, 3, 0), EnumWaveType.SPIRAL, EnumBeamType.SOLID, 0x101020, 0x101020, 0, 1, 0F, 6, (float)0.2 * 0.2F);
+		}
+		GL11.glPopMatrix();
 		GL11.glPushMatrix();
 		GL11.glTranslated(-35, 45, 300); 
 		GL11.glScaled(15, 15, 15);
@@ -438,13 +486,23 @@ public class SkyProviderMoon extends IRenderHandler {
 		GL11.glDisable(GL11.GL_FOG);
 		GL11.glEnable(GL11.GL_DEPTH_TEST); 
 
-		GL11.glColor4f(1, 1, 1, 1);
+		GL11.glColor4f(0, 0, 0, 1);
 		GL11.glDepthRange(0.0, 0.1);
 
 		//GL11.glDepthMask(false);
 		mc.renderEngine.bindTexture(ResourceManager.sat_rail_tex);
 		ResourceManager.sat_rail.renderAll();
+		
+		GL11.glPushMatrix();
+		GL11.glTranslated(2,alt - 170, 1);
+		GL11.glTranslated(2,50, 1);
 
+		for (int i = 0; i < 17; i++) {
+		GL11.glTranslated( - rnd, 0 - random.nextInt(20) , rnd);
+		BeamPronter.prontBeam(Vec3.createVectorHelper(0, 3, 0), EnumWaveType.SPIRAL, EnumBeamType.SOLID, 0x101020, 0x101020, 0, 1, 0F, 6, (float)0.1 * 0.2F);
+		}
+
+		GL11.glPopMatrix();
 		GL11.glPopMatrix();
 		GL11.glDepthMask(true);
 
