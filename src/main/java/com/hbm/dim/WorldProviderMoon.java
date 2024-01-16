@@ -213,6 +213,6 @@ public class WorldProviderMoon extends WorldProvider {
             f2 = 1.0F;
         }
         f2 = 0.95F - f2;
-        return (float) (f2 * 0.1 + alpha);
+        return (float) (f2 * 0 + alpha);
     }
 }
