@@ -26,6 +26,7 @@ import com.hbm.config.WorldConfig;
 import com.hbm.dim.WorldProviderMoon;
 import com.hbm.config.RadiationConfig;
 import com.hbm.config.SpaceConfig;
+import com.hbm.entity.logic.EntityBomber;
 import com.hbm.entity.missile.EntityMissileCustom;
 import com.hbm.entity.mob.EntityCyberCrab;
 import com.hbm.entity.mob.EntityDuck;
@@ -90,9 +91,11 @@ import com.hbm.util.ContaminationUtil.ContaminationType;
 import com.hbm.util.ContaminationUtil.HazardType;
 import com.hbm.util.PlanetaryTraitUtil.Hospitality;
 import com.hbm.util.PlanetaryTraitWorldSavedData;
+import com.hbm.util.fauxpointtwelve.BlockPos;
 import com.hbm.util.ParticleUtil;
 import com.hbm.util.PlanetaryTraitUtil;
 import com.hbm.util.ArmorRegistry.HazardClass;
+import com.hbm.world.WorldUtil;
 import com.hbm.world.generator.TimedGenerator;
 
 import cpw.mods.fml.common.eventhandler.Event.Result;
@@ -657,8 +660,40 @@ public class ModEventHandler {
 	public void onLoad(WorldEvent.Load event) {
 		BobmazonOfferFactory.init();
 	}
+	int radius = 50; // Your desired radius;
+	public static int cooldown;
+
 	@SubscribeEvent
 	public void worldTick(WorldTickEvent event) {
+	    // Get the player
+		if(cooldown <= 0 || cooldown <= 400) {
+			cooldown += 1;
+			//System.out.println(chargetime);
+		}else if(cooldown >= 100){
+		
+		
+		if(event.world.provider.dimensionId == SpaceConfig.moonDimension) {
+	    // Define the radius around the player
+
+	    // Get the player's position
+			for (Object p : event.world.playerEntities) {
+	    BlockPos playerPos = new BlockPos(((EntityPlayer)p).posX, ((EntityPlayer)p).posY, ((EntityPlayer)p).posZ);
+
+	    // Generate a random position within the specified radius
+	    Random rand = event.world.rand;
+	    int offsetX = rand.nextInt(radius * 2 + 1) - radius;
+	    int offsetY = 60 + rand.nextInt(9); 
+	    int offsetZ = rand.nextInt(radius * 2 + 1) - radius;
+
+	    // Calculate the target position
+	    BlockPos targetPos = playerPos.add(offsetX, 0, offsetZ);
+		EntityBomber bomber = EntityBomber.statFacCarpet(event.world, targetPos.getX(), targetPos.getY(), targetPos.getZ());
+
+		WorldUtil.loadAndSpawnEntityInWorld(bomber);
+			}
+		}
+		cooldown = 0;
+	}
 		/// RADIATION STUFF START ///
 		if(event.world != null && !event.world.isRemote) {
 			
