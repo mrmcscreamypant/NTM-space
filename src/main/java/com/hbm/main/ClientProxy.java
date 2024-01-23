@@ -2096,25 +2096,7 @@ public class ClientProxy extends ServerProxy {
 	public NBTTagCompound getPlanetaryTags(World world) {
 		return PlanetaryTraitUtil.getTagsForClient(world);
 	}
-	
-	@Override
-	public int getCharge(World world) {
-		return ImpactWorldHandler.GetCharge(world);
-	}
 
-	@Override
-	public float getFlash(World world) {
-		return ImpactWorldHandler.GetFlash(world);
-	}
-
-	@Override
-	public float getRand(World world) {
-		return ImpactWorldHandler.GetRand(world);
-	}
-	@Override
-	public float getAltitude(World world) {
-		return ImpactWorldHandler.getAltitude(world);
-	}
 	@Override
 	public void playSoundClient(double x, double y, double z, String sound, float volume, float pitch) {
 		Minecraft.getMinecraft().getSoundHandler().playSound(new PositionedSoundRecord(new ResourceLocation(sound), volume, pitch, (float) x, (float) y, (float) z));

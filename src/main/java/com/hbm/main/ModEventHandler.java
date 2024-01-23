@@ -101,6 +101,7 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
+import cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.Phase;
 import cpw.mods.fml.common.gameevent.TickEvent.WorldTickEvent;
 import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
@@ -110,6 +111,8 @@ import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockIce;
 import net.minecraft.block.BlockLever;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
@@ -648,45 +651,14 @@ public class ModEventHandler {
 			HazardSystem.updateLivingInventory(event.entityLiving);
 		}
 	}
-	
+
+
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onLoad(WorldEvent.Load event) {
 		BobmazonOfferFactory.init();
 	}
-	public static int chargetime;
-	public static float flashd;
-	public static float altitude;
-	public static float toy;
-
 	@SubscribeEvent
 	public void worldTick(WorldTickEvent event) {
-		if(event.world.provider.dimensionId == SpaceConfig.moonDimension) {
-			if(chargetime <= 0 || chargetime <= 600) {
-				chargetime += 1;
-				flashd = 0;
-				//System.out.println(chargetime);
-			}else if(chargetime >= 100){
-				flashd += 0.2f;
-				flashd = Math.min(100.0f, flashd + 0.2f * (100.0f - flashd) * 0.15f);
-			    if (flashd <= 4) {
-			        for (Object p : event.world.playerEntities) {
-			            ((EntityPlayer)p).worldObj.playSoundEffect(((EntityPlayer)p).posX, ((EntityPlayer)p).posY, ((EntityPlayer)p).posZ, "hbm:misc.fireflash", 10F, 1F);
-			        }
-
-			    }
-			    if(flashd >= 100) {
-			    	chargetime = 0;
-			    }
-
-			}
-		}
-		if(altitude <= 400) {
-			altitude += 0.2;
-		}
-		if(altitude >= 400) {
-			altitude = 0;
-			toy = rand.nextFloat();
-		}
 		/// RADIATION STUFF START ///
 		if(event.world != null && !event.world.isRemote) {
 			

@@ -92,18 +92,6 @@ public class ServerProxy {
 		return TomSaveData.forWorld(world).impact;
 	}
 	
-	public float getRand(World world) {
-		return ModEventHandler.toy;
-	}
-	public float getFlash(World world) {
-		return ModEventHandler.flashd;
-	}
-	public int getCharge(World world) {
-		return ModEventHandler.chargetime;
-	}
-	public float getAltitude(World world) {
-		return ModEventHandler.altitude;
-	}
 	
 	
 	public void playSoundClient(double x, double y, double z, String sound, float volume, float pitch) { }

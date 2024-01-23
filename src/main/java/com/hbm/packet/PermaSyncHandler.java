@@ -45,12 +45,6 @@ public class PermaSyncHandler {
 		buf.writeLong(data.time);
 		/// TOM IMPACT DATA ///
 
-		buf.writeFloat(ModEventHandler.flashd);
-
-		buf.writeFloat(ModEventHandler.toy);
-		buf.writeFloat(ModEventHandler.altitude);
-
-		buf.writeInt(ModEventHandler.chargetime);
 
 		/// SHITTY MEMES ///
 		List<Integer> ids = new ArrayList();

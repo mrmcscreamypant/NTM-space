@@ -18,6 +18,7 @@ import com.hbm.handler.ImpactWorldHandler;
 import com.hbm.lib.RefStrings;
 import com.hbm.main.MainRegistry;
 import com.hbm.main.ModEventHandler;
+import com.hbm.main.ModEventHandlerClient;
 import com.hbm.main.ResourceManager;
 import com.hbm.render.util.BeamPronter;
 import com.hbm.render.util.BeamPronter.EnumBeamType;
@@ -208,7 +209,7 @@ public class SkyProviderMoon extends IRenderHandler {
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 
 		OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ONE, GL11.GL_ZERO);
-		float flash = ImpactWorldHandler.GetFlash(world);
+		float flash = ModEventHandlerClient.flashd;
 		{	
 			GL11.glPushMatrix();
 			float asize = 14;
@@ -422,8 +423,8 @@ public class SkyProviderMoon extends IRenderHandler {
 			GL11.glColor3f(f1, f2, f3);
 		}
 		
-		float alt = MainRegistry.proxy.getAltitude(world);
-		float rnd = MainRegistry.proxy.getRand(world);
+		float alt = ModEventHandlerClient.altitude;
+		float rnd = ModEventHandlerClient.toy;
 		GL11.glPushMatrix();
 		GL11.glTranslatef(0.0F, -((float) (d0 - 16.0D)), 0.0F);
 		GL11.glCallList(this.glSkyList2);

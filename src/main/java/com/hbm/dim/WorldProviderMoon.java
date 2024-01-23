@@ -4,6 +4,7 @@ import com.hbm.config.SpaceConfig;
 import com.hbm.handler.ImpactWorldHandler;
 import com.hbm.main.MainRegistry;
 import com.hbm.main.ModEventHandler;
+import com.hbm.main.ModEventHandlerClient;
 import com.hbm.util.AstronomyUtil;
 import com.hbm.util.SkyColorManager;
 import com.hbm.util.PlanetaryTraitUtil.Hospitality;
@@ -58,7 +59,7 @@ public class WorldProviderMoon extends WorldProvider {
     
 	   @SideOnly(Side.CLIENT)
 	    public Vec3 getFogColor(float x, float y) {
-	        float ne = MainRegistry.proxy.getFlash(worldObj);
+	        float ne = ModEventHandlerClient.flashd;
            float alpha = (ne <= 0) ? 0.0F : 1.0F - Math.min(1.0F, ne / 100);
 	           
 	    	NBTTagCompound tagger3 = MainRegistry.proxy.getPlanetaryTags(worldObj);
@@ -73,7 +74,7 @@ public class WorldProviderMoon extends WorldProvider {
 	    }
 
 	    public Vec3 getSkyColor(Entity camera, float partialTicks) {
-	        float ne = ImpactWorldHandler.GetFlash(worldObj);
+	        float ne = ModEventHandlerClient.flashd;
             float alpha = (ne <= 0) ? 0.0F : 1.0F - Math.min(1.0F, ne / 100);
 
 	    	NBTTagCompound tagger3 = MainRegistry.proxy.getPlanetaryTags(worldObj);
@@ -199,7 +200,7 @@ public class WorldProviderMoon extends WorldProvider {
     @SideOnly(Side.CLIENT)
     public float getSunBrightness(float par1)
     {
-        float ne = MainRegistry.proxy.getFlash(worldObj);
+        float ne = ModEventHandlerClient.flashd;
         float alpha = (ne <= 0) ? 0.0F : 1.0F - Math.min(1.0F, ne / 100);
         float f1 = this.worldObj.getCelestialAngle(1.0F);
         float f2 = 1.0F - (MathHelper.cos(f1 * (float) Math.PI * 2.0F) * 2.0F + 0.2F);

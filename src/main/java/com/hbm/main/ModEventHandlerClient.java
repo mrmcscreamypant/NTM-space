@@ -976,7 +976,11 @@ public class ModEventHandlerClient {
 
 	public static int currentBrightness = 0;
 	public static int lastBrightness = 0;
-	
+	public static int chargetime;
+	public static float flashd;
+	public static float altitude;
+	public static float toy;
+
 	@SubscribeEvent
 	public void clentTick(ClientTickEvent event) {
 		
@@ -1046,7 +1050,43 @@ public class ModEventHandlerClient {
 				}
 			}
 		}
-		
+
+	        if (event.phase == Phase.START && !Minecraft.getMinecraft().isGamePaused()) {
+	            // Check if the player is in the specified dimension
+	            EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+	            WorldClient world = Minecraft.getMinecraft().theWorld;
+
+	            if (player != null && world != null && world.provider.dimensionId == SpaceConfig.moonDimension) {
+	                // Your existing logic here
+	                if (chargetime <= 0 || chargetime <= 600) {
+	                    chargetime += 1;
+	                    flashd = 0;
+	                    //System.out.println(chargetime);
+	                } else if (chargetime >= 100) {
+	                    flashd += 0.3f;
+	                    flashd = Math.min(100.0f, flashd + 0.3f * (100.0f - flashd) * 0.15f);
+
+	                    if (flashd <= 5) {
+	                        // Your sound logic here
+	                        Minecraft.getMinecraft().thePlayer.playSound("hbm:misc.fireflash", 10F, 1F);
+	                    }
+
+	                    if (flashd >= 100) {
+	                        chargetime = 0;
+	                    }
+	                }
+	            }
+
+	            // Altitude logic
+	            if (altitude <= 400) {
+	                altitude += 5;
+	            }
+	            if (altitude >= 400) {
+	                altitude = 0;
+	                toy = Minecraft.getMinecraft().theWorld.rand.nextFloat();
+	            }
+	        }
+	        
 		if(event.phase == Phase.START) {
 			EntityPlayer player = mc.thePlayer;
 			
