@@ -1,6 +1,7 @@
 package com.hbm.main;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -27,7 +28,11 @@ import com.hbm.dim.WorldProviderMoon;
 import com.hbm.config.RadiationConfig;
 import com.hbm.config.SpaceConfig;
 import com.hbm.entity.logic.EntityBomber;
+import com.hbm.entity.missile.EntityMissileBaseNT;
 import com.hbm.entity.missile.EntityMissileCustom;
+import com.hbm.entity.missile.EntityMissileTier1.EntityMissileGeneric;
+import com.hbm.entity.missile.EntityMissileTier2.EntityMissileStrong;
+import com.hbm.entity.missile.EntityMissileTier3.EntityMissileInferno;
 import com.hbm.entity.mob.EntityCyberCrab;
 import com.hbm.entity.mob.EntityDuck;
 import com.hbm.entity.mob.EntityGlyphid;
@@ -690,6 +695,20 @@ public class ModEventHandler {
 		EntityBomber bomber = EntityBomber.statFacCarpet(event.world, targetPos.getX(), targetPos.getY(), targetPos.getZ());
 
 		WorldUtil.loadAndSpawnEntityInWorld(bomber);
+		
+		Class<EntityMissileGeneric> infer = EntityMissileGeneric.class;
+		
+		EntityMissileBaseNT newZealandBaseNT;
+		try {
+			newZealandBaseNT = infer.getConstructor(World.class, float.class, float.class, float.class, int.class, int.class).newInstance(event.world, targetPos.getX() + 0.5F, targetPos.getY() + 40, targetPos.getX() + 0.5F, targetPos.getX(), targetPos.getZ());
+			event.world.spawnEntityInWorld(newZealandBaseNT);
+
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 			}
 		}
 		cooldown = 0;
