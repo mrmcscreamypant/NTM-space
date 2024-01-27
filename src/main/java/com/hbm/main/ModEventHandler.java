@@ -33,6 +33,7 @@ import com.hbm.entity.missile.EntityMissileCustom;
 import com.hbm.entity.missile.EntityMissileTier1.EntityMissileGeneric;
 import com.hbm.entity.missile.EntityMissileTier2.EntityMissileStrong;
 import com.hbm.entity.missile.EntityMissileTier3.EntityMissileInferno;
+import com.hbm.entity.missile.EntityMissileTier4.EntityMissileNuclear;
 import com.hbm.entity.mob.EntityCyberCrab;
 import com.hbm.entity.mob.EntityDuck;
 import com.hbm.entity.mob.EntityGlyphid;
@@ -678,19 +679,15 @@ public class ModEventHandler {
 		
 		
 		if(event.world.provider.dimensionId == SpaceConfig.moonDimension) {
-	    // Define the radius around the player
 
-	    // Get the player's position
 			for (Object p : event.world.playerEntities) {
 	    BlockPos playerPos = new BlockPos(((EntityPlayer)p).posX, ((EntityPlayer)p).posY, ((EntityPlayer)p).posZ);
 
-	    // Generate a random position within the specified radius
 	    Random rand = event.world.rand;
 	    int offsetX = rand.nextInt(radius * 2 + 1) - radius;
 	    int offsetY = 60 + rand.nextInt(9); 
 	    int offsetZ = rand.nextInt(radius * 2 + 1) - radius;
 
-	    // Calculate the target position
 	    BlockPos targetPos = playerPos.add(offsetX, 0, offsetZ);
 		EntityBomber bomber = EntityBomber.statFacCarpet(event.world, targetPos.getX(), targetPos.getY(), targetPos.getZ());
 
@@ -700,7 +697,7 @@ public class ModEventHandler {
 		
 		EntityMissileBaseNT newZealandBaseNT;
 		try {
-			newZealandBaseNT = infer.getConstructor(World.class, float.class, float.class, float.class, int.class, int.class).newInstance(event.world, targetPos.getX() + 0.5F, targetPos.getY() + 40, targetPos.getX() + 0.5F, targetPos.getX(), targetPos.getZ());
+			newZealandBaseNT = infer.getConstructor(World.class, float.class, float.class, float.class, int.class, int.class).newInstance(event.world, targetPos.getX(), targetPos.getY() + 40, targetPos.getX(), targetPos.getX(), targetPos.getZ());
 			event.world.spawnEntityInWorld(newZealandBaseNT);
 
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
