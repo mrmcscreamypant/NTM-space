@@ -672,7 +672,7 @@ public class ModEventHandler {
 	@SubscribeEvent
 	public void worldTick(WorldTickEvent event) {
 	    // Get the player
-		if(cooldown <= 0 || cooldown <= 400) {
+		if(cooldown <= 0 || cooldown <= 700) {
 			cooldown += 1;
 			//System.out.println(chargetime);
 		}else if(cooldown >= 100){
