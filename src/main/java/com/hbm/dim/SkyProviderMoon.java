@@ -477,25 +477,28 @@ public class SkyProviderMoon extends IRenderHandler {
 			GL11.glTranslated( rnd, 0 - random.nextInt(15) ,- rnd);
 		BeamPronter.prontBeam(Vec3.createVectorHelper(0, 5, 0), EnumWaveType.SPIRAL, EnumBeamType.SOLID, 0xFF9000, 0xFF9000, 0, 1, 0F, 6, (float)0.2 * 0.2F);
 		}
+		
 		GL11.glPopMatrix();
 		GL11.glPushMatrix();
-		GL11.glTranslated(-35, 45, 300); 
-		GL11.glScaled(15, 15, 15);
+		GL11.glEnable(GL11.GL_DEPTH_TEST); 
+
+		GL11.glTranslated(-35, 4.5, 100); 
+		GL11.glScaled(10, 10, 10);
 		GL11.glRotated(180.0, 0.0, 5.0, 0.0);
 		GL11.glRotated(90.0, -12.0, 5.0, 0.0);
 
 		OpenGlHelper.glBlendFunc(770, 771, 1, 0);
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glDisable(GL11.GL_FOG);
-		GL11.glEnable(GL11.GL_DEPTH_TEST); 
 
 		GL11.glColor4f(0, 0, 0, 1);
-		GL11.glDepthRange(0.0, 0.1);
+		GL11.glDepthRange(0.0, 1.0);
 
 		//GL11.glDepthMask(false);
+		
 		mc.renderEngine.bindTexture(ResourceManager.sat_rail_tex);
 		ResourceManager.sat_rail.renderAll();
-		
+		GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 		GL11.glPushMatrix();
 		GL11.glTranslated(2,alt - 170, 1);
 		GL11.glTranslated(2,50, 1);
