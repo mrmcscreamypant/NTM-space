@@ -91,7 +91,7 @@ public class ItemWandD extends Item {
 					//thePlayer.mcServer.getConfigurationManager().transferPlayerToDimension(thePlayer, WorldConfig.dunaDimension, new DebugTeleporter(thePlayer.getServerForPlayer()));
 					break;
 				case 7:
-					DebugTeleporter.teleport(player, SpaceConfig.minmusDimension, player.posX, 300, player.posZ);
+					DebugTeleporter.teleport(player, 24, player.posX, 300, player.posZ);
 					break;
 				case 8:
 					DebugTeleporter.teleport(player, SpaceConfig.laytheDimension, player.posX, 300, player.posZ);
@@ -138,7 +138,7 @@ public class ItemWandD extends Item {
 							player.addChatMessage(new ChatComponentText("Dim: Moho"));
 							break;
 						case 7:
-							player.addChatMessage(new ChatComponentText("Dim: Minmus"));
+							player.addChatMessage(new ChatComponentText("Dim: TrashLand"));
 							break;
 						case 8:
 							player.addChatMessage(new ChatComponentText("Dim: Laythe"));

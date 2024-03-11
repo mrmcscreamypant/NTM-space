@@ -17,6 +17,8 @@ import com.hbm.dim.minmus.WorldGeneratorMinmus;
 import com.hbm.dim.minmus.WorldProviderMinmus;
 import com.hbm.dim.moho.WorldGeneratorMoho;
 import com.hbm.dim.moho.WorldProviderMoho;
+import com.hbm.dim.trashland.biome.WorldGeneratorTrash;
+import com.hbm.dim.trashland.biome.WorldProviderTrash;
 
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraftforge.common.BiomeDictionary;
@@ -30,6 +32,7 @@ public class PlanetGen {
 	public static WorldGeneratorDres worldGenDres = new WorldGeneratorDres(); //eventually i will need to rewrite this shit.
 	public static WorldGeneratorMinmus WorldGenMinmus = new WorldGeneratorMinmus(); 
 	public static WorldGeneratorEve WorldGenEve = new WorldGeneratorEve(); 
+	public static WorldGeneratorTrash worldgenTrash = new WorldGeneratorTrash(); 
 
 	public static WorldGeneratorMoho worldGenMoho = new WorldGeneratorMoho(); 
     public static void init()
@@ -42,7 +45,10 @@ public class PlanetGen {
 		DimensionManager.registerProviderType(SpaceConfig.dunaDimension, WorldProviderDuna.class, false);
 	    DimensionManager.registerDimension(SpaceConfig.dunaDimension, SpaceConfig.dunaDimension);
 	    
-
+		GameRegistry.registerWorldGenerator(worldgenTrash, 1);
+		DimensionManager.registerProviderType(24, WorldProviderTrash.class, false);
+	    DimensionManager.registerDimension(24, 24);
+	    
 		GameRegistry.registerWorldGenerator(worldGenIke, 1);
 		DimensionManager.registerProviderType(SpaceConfig.ikeDimension, WorldProviderIke.class, false);
 	    DimensionManager.registerDimension(SpaceConfig.ikeDimension, SpaceConfig.ikeDimension);
