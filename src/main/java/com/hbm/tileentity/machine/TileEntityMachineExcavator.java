@@ -29,6 +29,7 @@ import com.hbm.tileentity.TileEntityMachineBase;
 import com.hbm.util.Compat;
 import com.hbm.util.EnumUtil;
 import com.hbm.util.I18nUtil;
+import com.hbm.util.InventoryUtil;
 import com.hbm.util.ItemStackUtil;
 import com.hbm.util.fauxpointtwelve.BlockPos;
 import com.hbm.util.fauxpointtwelve.DirPos;
@@ -214,6 +215,8 @@ public class TileEntityMachineExcavator extends TileEntityMachineBase implements
 	}
 	
 	public void networkUnpack(NBTTagCompound nbt) {
+		super.networkUnpack(nbt);
+		
 		this.enableDrill = nbt.getBoolean("d");
 		this.enableCrusher = nbt.getBoolean("c");
 		this.enableWalling = nbt.getBoolean("w");
@@ -671,7 +674,7 @@ public class TileEntityMachineExcavator extends TileEntityMachineBase implements
 		
 		if(inv instanceof ISidedInventory) {
 			ISidedInventory sided = (ISidedInventory) inv;
-			access = CraneInserter.masquerade(sided, dir.ordinal());
+			access = InventoryUtil.masquerade(sided, dir.ordinal());
 		}
 		
 		for(ItemStack item : items) {
@@ -852,7 +855,7 @@ public class TileEntityMachineExcavator extends TileEntityMachineBase implements
 	public void provideInfo(UpgradeType type, int level, List<String> info, boolean extendedInfo) {
 		info.add(IUpgradeInfoProvider.getStandardLabel(ModBlocks.machine_excavator));
 		if(type == UpgradeType.SPEED) {
-			info.add(EnumChatFormatting.GREEN + I18nUtil.resolveKey(this.KEY_DELAY, "-" + (100 - 100 / (level / 2 + 1)) + "%"));
+			info.add(EnumChatFormatting.GREEN + I18nUtil.resolveKey(this.KEY_DELAY, "-" + (100 - 200 / (level + 2)) + "%"));
 			info.add(EnumChatFormatting.RED + I18nUtil.resolveKey(this.KEY_CONSUMPTION, "+" + (level * 100) + "%"));
 		}
 		if(type == UpgradeType.POWER) {

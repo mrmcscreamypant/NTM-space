@@ -55,7 +55,7 @@ public class TileEntityMachineCatalyticReformer extends TileEntityMachineBase im
 		
 		if(!worldObj.isRemote) {
 			
-			this.updateConnections();
+			if(this.worldObj.getTotalWorldTime() % 20 == 0) this.updateConnections();
 			power = Library.chargeTEFromItems(slots, 0, power, maxPower);
 			tanks[0].setType(9, slots);
 			tanks[0].loadTank(1, 2, slots);
@@ -83,6 +83,8 @@ public class TileEntityMachineCatalyticReformer extends TileEntityMachineBase im
 	
 	@Override
 	public void networkUnpack(NBTTagCompound nbt) {
+		super.networkUnpack(nbt);
+		
 		this.power = nbt.getLong("power");
 		for(int i = 0; i < 4; i++) tanks[i].readFromNBT(nbt, "" + i);
 	}

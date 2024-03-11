@@ -24,10 +24,12 @@ import com.hbm.lib.Library;
 import com.hbm.tileentity.IConfigurableMachine;
 import com.hbm.tileentity.IGUIProvider;
 import com.hbm.tileentity.TileEntityMachinePolluting;
+import com.hbm.util.CompatEnergyControl;
 
 import api.hbm.energy.IBatteryItem;
 import api.hbm.energy.IEnergyGenerator;
 import api.hbm.fluid.IFluidStandardTransceiver;
+import api.hbm.tile.IInfoProviderEC;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.gui.GuiScreen;
@@ -38,7 +40,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
-public class TileEntityMachineDiesel extends TileEntityMachinePolluting implements IEnergyGenerator, IFluidContainer, IFluidAcceptor, IFluidStandardTransceiver, IConfigurableMachine, IGUIProvider {
+public class TileEntityMachineDiesel extends TileEntityMachinePolluting implements IEnergyGenerator, IFluidContainer, IFluidAcceptor, IFluidStandardTransceiver, IConfigurableMachine, IGUIProvider, IInfoProviderEC {
 
 	public long power;
 	public int soundCycle = 0;
@@ -162,6 +164,7 @@ public class TileEntityMachineDiesel extends TileEntityMachinePolluting implemen
 	}
 	
 	public void networkUnpack(NBTTagCompound data) {
+		super.networkUnpack(data);
 
 		power = data.getInteger("power");
 		powerCap = data.getInteger("powerCap");
@@ -197,7 +200,7 @@ public class TileEntityMachineDiesel extends TileEntityMachinePolluting implemen
 				
 				if(!shutUp) {
 					if (soundCycle == 0) {
-						this.worldObj.playSoundEffect(this.xCoord, this.yCoord, this.zCoord, "fireworks.blast", 0.75F * this.getVolume(3), 0.5F);
+						this.worldObj.playSoundEffect(this.xCoord, this.yCoord, this.zCoord, "fireworks.blast", this.getVolume(0.75F), 0.5F);
 					}
 					soundCycle++;
 				}
@@ -324,5 +327,14 @@ public class TileEntityMachineDiesel extends TileEntityMachinePolluting implemen
 	@Override
 	public FluidTank[] getSendingTanks() {
 		return this.getSmokeTanks();
+	}
+
+	@Override
+	public void provideExtraInfo(NBTTagCompound data) {
+		long he = getHEFromFuel(tank.getTankType());
+		boolean active = tank.getFill() > 0 && he > 0;
+		data.setBoolean(CompatEnergyControl.B_ACTIVE, active);
+		data.setDouble(CompatEnergyControl.D_CONSUMPTION_MB, active ? 1D : 0D);
+		data.setDouble(CompatEnergyControl.D_OUTPUT_HE, he);
 	}
 }

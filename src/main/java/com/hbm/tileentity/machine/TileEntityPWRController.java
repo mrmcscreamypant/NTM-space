@@ -144,14 +144,6 @@ public class TileEntityPWRController extends TileEntityMachineBase implements IG
 
 		connections = connectionsDouble / 2;
 		connectionsControlled = connectionsControlledDouble / 2;
-
-		/*System.out.println("Finalized nuclear reactor!");
-		System.out.println("Rods: " + rodCount);
-		System.out.println("Connections: " + connections);
-		System.out.println("Controlled connections: " + connectionsControlled);
-		System.out.println("Heatex: " + heatexCount);
-		System.out.println("Channels: " + channelCount);
-		System.out.println("Sources: " + sourceCount);*/
 	}
 
 	@Override
@@ -178,7 +170,7 @@ public class TileEntityPWRController extends TileEntityMachineBase implements IG
 					!worldObj.getChunkProvider().chunkExists(chunkX + 2, chunkZ - 2) ||
 					!worldObj.getChunkProvider().chunkExists(chunkX - 2, chunkZ + 2) ||
 					!worldObj.getChunkProvider().chunkExists(chunkX - 2, chunkZ - 2)) {
-				this.unloadDelay = 40;
+				this.unloadDelay = 60;
 			}
 			
 			if(this.assembled) {
@@ -265,6 +257,9 @@ public class TileEntityPWRController extends TileEntityMachineBase implements IG
 					if(this.coreHeat > this.coreHeatCapacity) {
 						meltDown();
 					}
+				} else {
+					this.hullHeat = 0;
+					this.coreHeat = 0;
 				}
 			}
 			
@@ -292,7 +287,8 @@ public class TileEntityPWRController extends TileEntityMachineBase implements IG
 				} else if(!audio.isPlaying()) {
 					audio = rebootAudio(audio);
 				}
-				
+
+				audio.updateVolume(getVolume(1F));
 				audio.keepAlive();
 				
 			} else {
@@ -376,6 +372,8 @@ public class TileEntityPWRController extends TileEntityMachineBase implements IG
 	}
 	
 	public void networkUnpack(NBTTagCompound nbt) {
+		super.networkUnpack(nbt);
+		
 		tanks[0].readFromNBT(nbt, "t0");
 		tanks[1].readFromNBT(nbt, "t1");
 		rodCount = nbt.getInteger("rodCount");
@@ -528,6 +526,8 @@ public class TileEntityPWRController extends TileEntityMachineBase implements IG
 	}
 
 
+	// do some opencomputer stuff
+	@Override
 	public String getComponentName() {
 		return "ntm_pwr_control";
 	}
@@ -547,13 +547,25 @@ public class TileEntityPWRController extends TileEntityMachineBase implements IG
 	@Callback(direct = true)
 	@Optional.Method(modid = "OpenComputers")
 	public Object[] getLevel(Context context, Arguments args) {
-		return new Object[] {rodTarget};
+		return new Object[] {rodTarget, rodLevel};
+	}
+	
+	@Callback(direct = true)
+	@Optional.Method(modid = "OpenComputers")
+	public Object[] getCoolantInfo(Context context, Arguments args) {
+		return new Object[] {tanks[0].getFill(), tanks[0].getMaxFill(), tanks[1].getFill(), tanks[1].getMaxFill()};
+	}
+	
+	@Callback(direct = true)
+	@Optional.Method(modid = "OpenComputers")
+	public Object[] getFuelInfo(Context context, Arguments args) {
+		return new Object[] {amountLoaded, progress, processTime};
 	}
 
 	@Callback(direct = true)
 	@Optional.Method(modid = "OpenComputers")
 	public Object[] getInfo(Context context, Arguments args) {
-		return new Object[] {coreHeat, hullHeat, flux, rodTarget};
+		return new Object[] {coreHeat, hullHeat, flux, rodTarget, rodLevel, amountLoaded, progress, processTime, tanks[0].getFill(), tanks[0].getMaxFill(), tanks[1].getFill(), tanks[1].getMaxFill()};
 	}
 
 	@Callback(direct = true, limit = 4)

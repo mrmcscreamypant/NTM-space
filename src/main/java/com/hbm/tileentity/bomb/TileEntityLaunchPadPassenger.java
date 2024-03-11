@@ -2,9 +2,7 @@ package com.hbm.tileentity.bomb;
 
 import com.hbm.blocks.ModBlocks;
 import com.hbm.blocks.bomb.LaunchPad;
-import com.hbm.inventory.container.ContainerLaunchPadTier1;
 import com.hbm.inventory.container.ContainerLaunchPadTier2;
-import com.hbm.inventory.gui.GUILaunchPadTier1;
 import com.hbm.inventory.gui.GUILaunchPadTier2;
 import com.hbm.lib.Library;
 import com.hbm.packet.AuxElectricityPacket;
@@ -211,8 +209,6 @@ public class TileEntityLaunchPadPassenger extends TileEntityLoadedBase implement
 			power = Library.chargeTEFromItems(slots, 2, power, maxPower);
 			this.updateConnections();
 			
-			PacketDispatcher.wrapper.sendToAllAround(new TEPassengerPacket(xCoord, yCoord, zCoord, slots[0]), new TargetPoint(worldObj.provider.dimensionId, xCoord, yCoord, zCoord, 250));
-			PacketDispatcher.wrapper.sendToAllAround(new AuxElectricityPacket(xCoord, yCoord, zCoord, power), new TargetPoint(worldObj.provider.dimensionId, xCoord, yCoord, zCoord, 50));
 		}
 	}
 	

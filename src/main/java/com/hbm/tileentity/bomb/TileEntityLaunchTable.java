@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.hbm.blocks.ModBlocks;
 import com.hbm.blocks.bomb.LaunchPad;
+import com.hbm.config.SpaceConfig;
+import com.hbm.dim.DebugTeleporter;
 import com.hbm.entity.missile.EntityMissileCustom;
 import com.hbm.handler.MissileStruct;
 import com.hbm.interfaces.IFluidAcceptor;
@@ -12,14 +14,16 @@ import com.hbm.inventory.container.ContainerLaunchTable;
 import com.hbm.inventory.fluid.FluidType;
 import com.hbm.inventory.fluid.Fluids;
 import com.hbm.inventory.fluid.tank.FluidTank;
+import com.hbm.inventory.fluid.trait.FT_Combustible;
+import com.hbm.inventory.fluid.trait.FT_Flammable;
 import com.hbm.inventory.gui.GUIMachineLaunchTable;
 import com.hbm.items.ItemVOTVdrive;
 import com.hbm.items.ItemVOTVdrive.DestinationType;
 import com.hbm.items.ModItems;
 import com.hbm.items.weapon.ItemCustomMissile;
-import com.hbm.items.weapon.ItemMissile;
-import com.hbm.items.weapon.ItemMissile.FuelType;
-import com.hbm.items.weapon.ItemMissile.PartSize;
+import com.hbm.items.weapon.ItemCustomMissilePart;
+import com.hbm.items.weapon.ItemCustomMissilePart.FuelType;
+import com.hbm.items.weapon.ItemCustomMissilePart.PartSize;
 import com.hbm.lib.Library;
 import com.hbm.main.MainRegistry;
 import com.hbm.packet.AuxElectricityPacket;
@@ -27,8 +31,11 @@ import com.hbm.packet.AuxGaugePacket;
 import com.hbm.packet.PacketDispatcher;
 import com.hbm.packet.TEMissileMultipartPacket;
 import com.hbm.tileentity.IGUIProvider;
+import com.hbm.tileentity.INBTPacketReceiver;
 import com.hbm.tileentity.IRadarCommandReceiver;
 import com.hbm.tileentity.TileEntityLoadedBase;
+import com.hbm.util.AstronomyUtil;
+import com.hbm.util.PlanetaryTraitUtil;
 
 import api.hbm.energy.IEnergyUser;
 import api.hbm.fluid.IFluidStandardReceiver;
@@ -57,9 +64,10 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
 @Optional.InterfaceList({@Optional.Interface(iface = "li.cil.oc.api.network.SimpleComponent", modid = "OpenComputers")})
-public class TileEntityLaunchTable extends TileEntityLoadedBase implements ISidedInventory, IEnergyUser, IFluidContainer, IFluidAcceptor, IFluidStandardReceiver, IGUIProvider, SimpleComponent, IRadarCommandReceiver {
+public class TileEntityLaunchTable extends TileEntityLoadedBase implements ISidedInventory, IEnergyUser, IFluidContainer, IFluidAcceptor, IFluidStandardReceiver, IGUIProvider, SimpleComponent, IRadarCommandReceiver, INBTPacketReceiver {
 
 	public ItemStack slots[];
+	public ItemStack syncStack;
 
 	public long power;
 	public static final long maxPower = 100000;
@@ -188,7 +196,7 @@ public class TileEntityLaunchTable extends TileEntityLoadedBase implements ISide
 		if (!worldObj.isRemote) {
 			
 			updateTypes();
-			
+			calFuel();
 			if(worldObj.getTotalWorldTime() % 20 == 0)
 				this.updateConnections();
 
@@ -205,7 +213,8 @@ public class TileEntityLaunchTable extends TileEntityLoadedBase implements ISide
 				this.decrStackSize(4, 1);
 				solid += 250;
 			}
-			
+
+
 			PacketDispatcher.wrapper.sendToAllAround(new AuxElectricityPacket(xCoord, yCoord, zCoord, power), new TargetPoint(worldObj.provider.dimensionId, xCoord, yCoord, zCoord, 50));
 			PacketDispatcher.wrapper.sendToAllAround(new AuxGaugePacket(xCoord, yCoord, zCoord, solid, 0), new TargetPoint(worldObj.provider.dimensionId, xCoord, yCoord, zCoord, 50));
 			PacketDispatcher.wrapper.sendToAllAround(new AuxGaugePacket(xCoord, yCoord, zCoord, padSize.ordinal(), 1), new TargetPoint(worldObj.provider.dimensionId, xCoord, yCoord, zCoord, 250));
@@ -243,6 +252,15 @@ public class TileEntityLaunchTable extends TileEntityLoadedBase implements ISide
 				}
 			}
 		}
+		NBTTagCompound data = new NBTTagCompound();
+		NBTTagList list = new NBTTagList();
+
+		tanks[0].writeToNBT(data, "fuel");
+		tanks[1].writeToNBT(data, "oxidizer");
+		data.setInteger("solidfuel", solid);
+		data.setLong("power", power);
+		data.setInteger("padSize", padSize.ordinal());
+		INBTPacketReceiver.networkPack(this, data, 150);
 	}
 	
 	private void updateConnections() {
@@ -264,7 +282,7 @@ public class TileEntityLaunchTable extends TileEntityLoadedBase implements ISide
 	
 	public boolean canLaunch() {
 		
-		if(power >= maxPower * 0.75 && isMissileValid() && hasDesignator() && hasFuel())
+		if(power >= maxPower * 0.75 && isMissileValid() && hasFuel())
 			return true;
 		
 		return false;
@@ -294,12 +312,12 @@ public class TileEntityLaunchTable extends TileEntityLoadedBase implements ISide
 
 		worldObj.playSoundEffect(xCoord, yCoord, zCoord, "hbm:weapon.missileTakeOff", 10.0F, 1.0F);
 		
-		ItemMissile chip = (ItemMissile) Item.getItemById(ItemCustomMissile.readFromNBT(slots[0], "chip"));
+		ItemCustomMissilePart chip = (ItemCustomMissilePart) Item.getItemById(ItemCustomMissile.readFromNBT(slots[0], "chip"));
 		float c = (Float)chip.attributes[0];
 		float f = 1.0F;
 		
 		if(getStruct(slots[0]).fins != null) {
-			ItemMissile fins = (ItemMissile) Item.getItemById(ItemCustomMissile.readFromNBT(slots[0], "stability"));
+			ItemCustomMissilePart fins = (ItemCustomMissilePart) Item.getItemById(ItemCustomMissile.readFromNBT(slots[0], "stability"));
 			f = (Float) fins.attributes[0];
 		}
 		
@@ -335,7 +353,7 @@ public class TileEntityLaunchTable extends TileEntityLoadedBase implements ISide
 		if(multipart == null || multipart.fuselage == null)
 			return;
 		
-		ItemMissile fuselage = (ItemMissile)multipart.fuselage;
+		ItemCustomMissilePart fuselage = (ItemCustomMissilePart)multipart.fuselage;
 		
 		float f = (Float)fuselage.attributes[1];
 		int fuel = (int)f;
@@ -379,7 +397,7 @@ public class TileEntityLaunchTable extends TileEntityLoadedBase implements ISide
 		if(multipart == null || multipart.fuselage == null)
 			return false;
 		
-		ItemMissile fuselage = (ItemMissile)multipart.fuselage;
+		ItemCustomMissilePart fuselage = (ItemCustomMissilePart)multipart.fuselage;
 		
 		return fuselage.top == padSize;
 	}
@@ -390,7 +408,7 @@ public class TileEntityLaunchTable extends TileEntityLoadedBase implements ISide
 			return true;
 		}
 		else {
-			if (slots[1] != null && slots[1].getItem() instanceof ItemVOTVdrive && slots[1].getItemDamage() != DestinationType.BLANK.ordinal() && slots[1].stackTagCompound.getBoolean("Processed") == true) {
+			if (slots[1] != null && slots[1].getItem() instanceof ItemVOTVdrive && slots[1].getItemDamage() != DestinationType.BLANK.ordinal() && slots[1].stackTagCompound.getBoolean("Processed") == true && sizeUp()) {
 				return true;
 			}
 		}
@@ -405,7 +423,7 @@ public class TileEntityLaunchTable extends TileEntityLoadedBase implements ISide
 		if(multipart == null || multipart.fuselage == null)
 			return -1;
 		
-		ItemMissile fuselage = (ItemMissile)multipart.fuselage;
+		ItemCustomMissilePart fuselage = (ItemCustomMissilePart)multipart.fuselage;
 		
 		if((FuelType)fuselage.attributes[0] == FuelType.SOLID) {
 			
@@ -417,6 +435,66 @@ public class TileEntityLaunchTable extends TileEntityLoadedBase implements ISide
 		
 		return -1;
 	}
+	public boolean sizeUp() {
+		
+		MissileStruct multipart = getStruct(slots[0]);
+		
+		if(multipart == null || multipart.fuselage == null)
+			return false;
+		
+		ItemCustomMissilePart fuselage = (ItemCustomMissilePart)multipart.fuselage;
+		
+		if( fuselage.top == padSize.SIZE_20) {
+			return true;
+		}
+		
+		return false;
+	}
+	public void calFuel() {
+		if (slots[1] != null && slots[1].getItem() instanceof ItemVOTVdrive && slots[1].getItemDamage() != DestinationType.BLANK.ordinal() && slots[1].stackTagCompound.getBoolean("Processed") == true) {
+			switch (DestinationType.values()[slots[1].getItemDamage()]) {
+			case MOHO:
+				float theWorldLooksRed = calfuelV2(AstronomyUtil.MohoAU, AstronomyUtil.MohoP);
+				tanks[0].changeTankSize((int) theWorldLooksRed);
+			    FT_Combustible trait = tanks[0].getTankType().getTrait(FT_Combustible.class);
+			    long fuelPower = trait.getCombustionEnergy();
+			   // System.out.println(theWorldLooksRed);
+				break;
+			case LAYTHE:
+				tanks[0].changeTankSize(230000);
+				tanks[1].changeTankSize(230000);
+				break;
+			case DUNA:
+				tanks[0].changeTankSize(230000);
+				tanks[1].changeTankSize(150300);
+				break;
+			case DRES:
+				tanks[0].changeTankSize(290000);
+				tanks[1].changeTankSize(230000);
+				break;
+			case MINMUS:
+				tanks[0].changeTankSize(90000);
+				tanks[1].changeTankSize(90000);
+				break;
+			case EVE:
+				tanks[0].changeTankSize(230000);
+				tanks[1].changeTankSize(230000);
+				break;
+			case IKE:
+				tanks[0].changeTankSize(930000);
+				tanks[1].changeTankSize(1230000);
+				break;
+			case TEKTO:
+				tanks[0].changeTankSize(430000);
+				tanks[1].changeTankSize(200000);
+				break;
+			default: 
+				break;
+			}
+		}
+		
+		
+	}
 	
 	public int liquidState() {
 		
@@ -425,7 +503,7 @@ public class TileEntityLaunchTable extends TileEntityLoadedBase implements ISide
 		if(multipart == null || multipart.fuselage == null)
 			return -1;
 		
-		ItemMissile fuselage = (ItemMissile)multipart.fuselage;
+		ItemCustomMissilePart fuselage = (ItemCustomMissilePart)multipart.fuselage;
 		
 		switch((FuelType)fuselage.attributes[0]) {
 			case KEROSENE:
@@ -436,6 +514,9 @@ public class TileEntityLaunchTable extends TileEntityLoadedBase implements ISide
 				
 				if(tanks[0].getFill() >= (Float)fuselage.attributes[1])
 					return 1;
+				else if (tanks[1].getFill() >= tanks[0].getMaxFill()) {
+					return 1;
+				}
 				else
 					return 0;
 			default: break;
@@ -451,7 +532,7 @@ public class TileEntityLaunchTable extends TileEntityLoadedBase implements ISide
 		if(multipart == null || multipart.fuselage == null)
 			return -1;
 		
-		ItemMissile fuselage = (ItemMissile)multipart.fuselage;
+		ItemCustomMissilePart fuselage = (ItemCustomMissilePart)multipart.fuselage;
 		
 		switch((FuelType)fuselage.attributes[0]) {
 			case KEROSENE:
@@ -475,7 +556,7 @@ public class TileEntityLaunchTable extends TileEntityLoadedBase implements ISide
 		if(multipart == null || multipart.fuselage == null)
 			return;
 		
-		ItemMissile fuselage = (ItemMissile)multipart.fuselage;
+		ItemCustomMissilePart fuselage = (ItemCustomMissilePart)multipart.fuselage;
 		
 		switch((FuelType)fuselage.attributes[0]) {
 			case KEROSENE:
@@ -500,6 +581,58 @@ public class TileEntityLaunchTable extends TileEntityLoadedBase implements ISide
 		}
 	}
 
+	public float calfuelV2(double au, float p) {
+	   		float grav = PlanetaryTraitUtil.getGravityForDimension(worldObj.provider.dimensionId);
+	    	FT_Combustible trait = tanks[0].getTankType().getTrait(FT_Combustible.class);
+	    	long fuelPower = trait.getCombustionEnergy();	       
+	    	double aue = au * 100000; 
+	    	float autwo = PlanetaryTraitUtil.getDistanceForDimension(worldObj.provider.dimensionId) * 100000;
+	    	
+	    	double finalvar = Math.abs(autwo - aue);
+	    	
+	    	finalvar = Math.floor(finalvar);
+	        //0.45972245832
+	        //0.035181876 
+	        double adjustedFuelRatio = calculateAdjustedFuelRatio(fuelPower, finalvar);
+
+	        float totalDistance = (float) (100000 / adjustedFuelRatio);
+
+	        int roundedDistance = (int) (Math.round(totalDistance / 100.0) * 100);
+
+	        return (float) (roundedDistance);
+	    }
+
+	    private static double calculateAdjustedFuelRatio(long fuelPower, double aue) {
+	        double nnass = fuelPower / (aue * getScalingFactor(fuelPower)); // Divide by aue and apply scaling factor
+	        return Math.log(nnass + 1);
+	    }
+
+	    private static double getScalingFactor(long fuelPower) {
+	        return Math.sqrt(fuelPower) / 24;
+	    }
+	@Override
+	public void networkUnpack(NBTTagCompound nbt) {
+
+		tanks[0].readFromNBT(nbt, "fuel");
+		tanks[1].readFromNBT(nbt, "oxidizer");
+		solid = nbt.getInteger("solidfuel");
+		power = nbt.getLong("power");
+		padSize = PartSize.values()[nbt.getInteger("padSize")];
+
+		/*
+		NBTTagList list = nbt.getTagList("items", 10);
+
+		slots = new ItemStack[getSizeInventory()];
+		
+		for (int i = 0; i < list.tagCount(); i++) {
+			NBTTagCompound nbt1 = list.getCompoundTagAt(i);
+			byte b0 = nbt1.getByte("slot");
+			if (b0 >= 0 && b0 < slots.length) {
+				slots[b0] = ItemStack.loadItemStackFromNBT(nbt1);
+			}
+		}
+		*/
+	}
 	@Override
 	public void readFromNBT(NBTTagCompound nbt) {
 		super.readFromNBT(nbt);
@@ -510,7 +643,7 @@ public class TileEntityLaunchTable extends TileEntityLoadedBase implements ISide
 		solid = nbt.getInteger("solidfuel");
 		power = nbt.getLong("power");
 		padSize = PartSize.values()[nbt.getInteger("padSize")];
-
+		
 		slots = new ItemStack[getSizeInventory()];
 
 		for (int i = 0; i < list.tagCount(); i++) {
@@ -520,6 +653,7 @@ public class TileEntityLaunchTable extends TileEntityLoadedBase implements ISide
 				slots[b0] = ItemStack.loadItemStackFromNBT(nbt1);
 			}
 		}
+		
 	}
 
 	@Override
@@ -533,7 +667,7 @@ public class TileEntityLaunchTable extends TileEntityLoadedBase implements ISide
 		nbt.setInteger("solidfuel", solid);
 		nbt.setLong("power", power);
 		nbt.setInteger("padSize", padSize.ordinal());
-
+		
 		for (int i = 0; i < slots.length; i++) {
 			if (slots[i] != null) {
 				NBTTagCompound nbt1 = new NBTTagCompound();
@@ -543,6 +677,7 @@ public class TileEntityLaunchTable extends TileEntityLoadedBase implements ISide
 			}
 		}
 		nbt.setTag("items", list);
+		
 	}
 
 	@Override
@@ -725,9 +860,11 @@ public class TileEntityLaunchTable extends TileEntityLoadedBase implements ISide
 	@Callback
 	@Optional.Method(modid = "OpenComputers")
 	public Object[] launch(Context context, Arguments args) {
-		//worldObj.getBlock(xCoord, yCoord, zCoord).explode(worldObj, xCoord, yCoord, zCoord);
-		((LaunchPad) ModBlocks.launch_pad).explode(worldObj, xCoord, yCoord, zCoord);
-		return new Object[] {};
+		if(this.canLaunch()) {
+			this.launchFromDesignator();
+			return new Object[] {true};
+		}
+		return new Object[] {false};
 	}
 
 	@Override

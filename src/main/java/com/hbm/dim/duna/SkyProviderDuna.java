@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.client.IRenderHandler;
@@ -130,7 +131,93 @@ public class SkyProviderDuna extends IRenderHandler {
 		float f9;
 		float f10;
 		float f18 = world.getStarBrightness(partialTicks);
+	        Tessellator tessellator1 = Tessellator.instance;
 
+	        float[] afloat = mc.theWorld.provider.calcSunriseSunsetColors(mc.theWorld.getCelestialAngle(partialTicks), partialTicks);
+
+
+	        if (afloat != null)
+	        {
+	    		OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_CONSTANT_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
+
+	            GL11.glDisable(GL11.GL_TEXTURE_2D);
+	            GL11.glShadeModel(GL11.GL_SMOOTH);
+	            GL11.glPushMatrix();
+	            GL11.glRotatef(90.0F, 1.0F, 0.0F, 0.0F);
+	            GL11.glRotatef(MathHelper.sin(mc.theWorld.getCelestialAngleRadians(partialTicks)) < 0.0F ? 180.0F : 0.0F, 0.0F, 0.0F, 1.0F);
+	            GL11.glRotatef(90.0F, 0.0F, 0.0F, 1.0F);
+	            f6 = afloat[0];
+	            f7 = afloat[1];
+	            f8 = afloat[2];
+	            float f11;
+
+	            if (mc.gameSettings.anaglyph)
+	            {
+	                f9 = (f6 * 30.0F + f7 * 59.0F + f8 * 11.0F) / 100.0F;
+	                f10 = (f6 * 30.0F + f7 * 70.0F) / 100.0F;
+	                f11 = (f6 * 30.0F + f8 * 70.0F) / 100.0F;
+	                f6 = f9;
+	                f7 = f10;
+	                f8 = f11;
+	            }
+
+	            tessellator1.startDrawing(6);
+	            tessellator1.setColorRGBA_F(f6, f7, f8, afloat[3]);
+	            tessellator1.addVertex(0.0D, 200.0D, 0.0D);
+	            byte b0 = 16;
+	            tessellator1.setColorRGBA_F(afloat[0], afloat[1], afloat[2], 0.0F);
+
+	            for (int j = 0; j <= b0; ++j)
+	            {
+	                f11 = (float)j * (float)Math.PI * 2.0F / (float)b0;
+	                float f12 = MathHelper.sin(f11);
+	                float f13 = MathHelper.cos(f11);
+	                tessellator1.addVertex((double)(f12 * 160.0F), (double)(f13 * 160.0F), (double)(-f13 * 60.0F * afloat[3]));
+	            }
+
+	            tessellator1.draw();
+	            GL11.glPopMatrix();
+	            GL11.glShadeModel(GL11.GL_FLAT);
+	            
+	            GL11.glDisable(GL11.GL_TEXTURE_2D);
+	            GL11.glShadeModel(GL11.GL_SMOOTH);
+	            GL11.glPushMatrix();
+	            GL11.glRotatef(120.0F, 1.0F, 0.0F, 0.0F);
+	            GL11.glTranslatef(0, -70, 0);
+	            f6 = afloat[0];
+	            f7 = afloat[1];
+	            f8 = afloat[2];
+	            if (mc.gameSettings.anaglyph)
+	            {
+	                f9 = (f6 * 30.0F + f7 * 59.0F + f8 * 11.0F) / 100.0F;
+	                f10 = (f6 * 30.0F + f7 * 70.0F) / 100.0F;
+	                f11 = (f6 * 30.0F + f8 * 70.0F) / 100.0F;
+	                f6 = f9;
+	                f7 = f10;
+	                f8 = f11;
+	            }
+
+	            tessellator1.startDrawing(6);
+	            tessellator1.setColorRGBA_F(f6, f7, f8, afloat[3]);
+	            tessellator1.addVertex(0.0D, 300.0D, 0.0D);
+
+	            tessellator1.setColorRGBA_F(afloat[0], afloat[1], afloat[2], 0.0F);
+
+	            for (int j = 0; j <= b0; ++j)
+	            {
+	                f11 = (float)j * (float)Math.PI * 2.0F / (float)b0;
+	                float f12 = MathHelper.sin(f11);
+	                float f13 = MathHelper.cos(f11);
+	                
+	                tessellator1.addVertex((double)(f12 * 120.0F), (double)(f13 * 120.0F), (double)(-f13 * 60.0F));
+	            }
+
+	            tessellator1.draw();
+	            GL11.glPopMatrix();
+	            GL11.glShadeModel(GL11.GL_FLAT);
+	            
+	            
+	        }
 		if(f18 > 0.0F) {
 			GL11.glPushMatrix();
 	        mc.renderEngine.bindTexture(this.night);
@@ -186,7 +273,9 @@ public class SkyProviderDuna extends IRenderHandler {
 		GL11.glShadeModel(GL11.GL_FLAT);
 
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		
 		OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ONE, GL11.GL_ZERO);
+
 		GL11.glPushMatrix();
 		f7 = 0.0F;
 		f8 = 0.0F;
@@ -194,11 +283,19 @@ public class SkyProviderDuna extends IRenderHandler {
 		GL11.glTranslatef(f7, f8, f9);
 		GL11.glRotatef(-90.0F, 0.0F, 1.0F, 0.0F);
 		GL11.glRotatef(world.getCelestialAngle(partialTicks) * 360.0F, 1.0F, 0.0F, 0.0F);
+		float brightness = (float) Math.sin(world.getCelestialAngle(partialTicks) * Math.PI);
+
+
+		
+		{
+		GL11.glPushMatrix();
 
 		// Render sun
+		
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		GL11.glColor4f(0.0F, 0.0F, 0.0F, 1.0F);
 		// Some blanking to conceal the stars
+		
 		f10 = (AstronomyUtil.KerbolRadius/(AstronomyUtil.KerbinAU*AstronomyUtil.AUToKm))*360;
 		tessellator.startDrawingQuads();
 		tessellator.addVertex(-f10, 99.9D, -f10);
@@ -206,129 +303,50 @@ public class SkyProviderDuna extends IRenderHandler {
 		tessellator.addVertex(f10, 99.9D, f10);
 		tessellator.addVertex(-f10, 99.9D, f10);
 		tessellator.draw();
-		{
-			GL11.glEnable(GL11.GL_TEXTURE_2D);
-			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1);
-			mc.renderEngine.bindTexture(this.sunTexture);
-			tessellator.startDrawingQuads();
-			tessellator.addVertexWithUV(-f10, 100.0D, -f10, 0.0D, 0.0D);
-			tessellator.addVertexWithUV(f10, 100.0D, -f10, 1.0D, 0.0D);
-			tessellator.addVertexWithUV(f10, 100.0D, f10, 1.0D, 1.0D);
-			tessellator.addVertexWithUV(-f10, 100.0D, f10, 0.0D, 1.0D);
-			tessellator.draw();
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		GL11.glColor4d(1.0D, 1.0D, 1.0D, 1);
+		mc.renderEngine.bindTexture(this.sunTexture);
+		tessellator.startDrawingQuads();
+		tessellator.addVertexWithUV(-f10, 100.0D, -f10, 0.0D, 0.0D);
+		tessellator.addVertexWithUV(f10, 100.0D, -f10, 1.0D, 0.0D);
+		tessellator.addVertexWithUV(f10, 100.0D, f10, 1.0D, 1.0D);
+		tessellator.addVertexWithUV(-f10, 100.0D, f10, 0.0D, 1.0D);
+		tessellator.draw();
+
+		GL11.glPopMatrix();
+
 		}
-		{
-    		GL11.glPushMatrix();
-    		//GL11.glDisable(GL11.GL_BLEND);
-    		f10 = (float) (0.15F/DunaJool);
-    		GL11.glColor4d(0.4588f, 0.6784f, 0.3059f, 1/DunaJool);
-    		GL11.glRotatef(AstronomyUtil.calculatePlanetAngle(world.getWorldTime(), partialTicks, AstronomyUtil.KerbinP, AstronomyUtil.JoolP) * -360.0F, 1.0F, 0.0F, 0.0F);        		
-    		GL11.glRotatef(280F, 1.0F, 0.0F, 0.0F);
-    		mc.renderEngine.bindTexture(this.planet);
-    		tessellator.startDrawingQuads();
-    		tessellator.addVertexWithUV(-f10, -100.0D, f10, 0.0D, 0.0D);
-    		tessellator.addVertexWithUV(f10, -100.0D, f10, 1.0D, 0.0D);
-    		tessellator.addVertexWithUV(f10, -100.0D, -f10, 1.0D, 1.0D);
-    		tessellator.addVertexWithUV(-f10, -100.0D, -f10, 0.0D, 1.0D);
-    		tessellator.draw();
-    		//GL11.glEnable(GL11.GL_BLEND);
-    		GL11.glPopMatrix();
-    	}
-		{
-        	GL11.glPushMatrix();        	
-        	float KerbinRad = 0.15F;
-        	float KerbinSyn = AstronomyUtil.calculateSynodicPeriod(AstronomyUtil.KerbinP, AstronomyUtil.DunaP);
-        		//System.out.println("Venus-Earth distance: "+VenusEarth);
-        	float sine = (float) Math.sin(((Math.PI/2)/(KerbinSyn/4))*(world.getWorldTime()+AstronomyUtil.offset));
-        	double elong = AstronomyUtil.getMaxPlanetaryElongation(FMLClientHandler.instance().getClient().theWorld, AstronomyUtil.KerbinAU, AstronomyUtil.DunaAU);
-        	GL11.glRotatef((float) (sine*elong), 1.0F, 0.0F, 0.0F);
-        	GL11.glRotatef(90F, 0.0F, 1.0F, 0.0F);
-        	GL11.glEnable(GL11.GL_TEXTURE_2D);
-        	GL11.glColor4d(0.2863F, 0.3882F, 0.4745F, 1/KerbinDuna);
-        	f10 = (float) (KerbinRad/KerbinDuna);
-        	mc.renderEngine.bindTexture(this.planet);
-        	tessellator.startDrawingQuads();
-        	tessellator.addVertexWithUV(-f10, 100.0D, -f10, 0.0D, 0.0D);
-        	tessellator.addVertexWithUV(f10, 100.0D, -f10, 1.0D, 0.0D);
-        	tessellator.addVertexWithUV(f10, 100.0D, f10, 1.0D, 1.0D);
-        	tessellator.addVertexWithUV(-f10, 100.0D, f10, 0.0D, 1.0D);
-        	tessellator.draw();
-    		GL11.glPopMatrix();
-    	}
-        {
-        	GL11.glPushMatrix();        	
-        	float EveRad = 0.15F;
-        	float EveSyn = AstronomyUtil.calculateSynodicPeriod(AstronomyUtil.EveP, AstronomyUtil.DunaP);
-        		//System.out.println("Venus-Earth distance: "+VenusEarth);
-        	float sine = (float) Math.sin(((Math.PI/2)/(EveSyn/4))*(world.getWorldTime()+AstronomyUtil.offset));
-        	double elong = AstronomyUtil.getMaxPlanetaryElongation(FMLClientHandler.instance().getClient().theWorld, AstronomyUtil.EveAU, AstronomyUtil.DunaAU);
-        	GL11.glRotatef((float) (sine*elong), 1.0F, 0.0F, 0.0F);
-        	GL11.glRotatef(90F, 0.0F, 1.0F, 0.0F);
-        	GL11.glEnable(GL11.GL_TEXTURE_2D);
-        	GL11.glColor4d(0.408F, 0.298F, 0.553F, 1/EveDuna);
-        	f10 = (float) (EveRad/EveDuna);
-        	mc.renderEngine.bindTexture(this.planet);
-        	tessellator.startDrawingQuads();
-        	tessellator.addVertexWithUV(-f10, 100.0D, -f10, 0.0D, 0.0D);
-        	tessellator.addVertexWithUV(f10, 100.0D, -f10, 1.0D, 0.0D);
-        	tessellator.addVertexWithUV(f10, 100.0D, f10, 1.0D, 1.0D);
-        	tessellator.addVertexWithUV(-f10, 100.0D, f10, 0.0D, 1.0D);
-        	tessellator.draw();
-    		GL11.glPopMatrix();
-        }
-    	{
-    		GL11.glPushMatrix();
-        	float MohoRad = 0.15F;
-        	float MohoSyn = AstronomyUtil.calculateSynodicPeriod(AstronomyUtil.MohoP, AstronomyUtil.DunaP);
-        	float sine = (float) Math.sin(((Math.PI/2)/(MohoSyn/4))*(world.getWorldTime()+AstronomyUtil.offset));
-        	double elong = AstronomyUtil.getMaxPlanetaryElongation(FMLClientHandler.instance().getClient().theWorld, AstronomyUtil.MohoAU, AstronomyUtil.DunaAU);
-        	GL11.glRotatef((float) (sine*elong), 1.0F, 0.0F, 0.0F);
-        	GL11.glRotatef(90F, 0.0F, 1.0F, 0.0F);
-        	GL11.glEnable(GL11.GL_TEXTURE_2D);
-        	GL11.glColor4d(0.4863F, 0.4F, 0.3456, 1/MohoDuna);
-        	f10 = Math.max(0.1F, (float) (MohoRad/MohoDuna));
-        	mc.renderEngine.bindTexture(this.planet);
-        	tessellator.startDrawingQuads();
-        	tessellator.addVertexWithUV(-f10, 100.0D, -f10, 0.0D, 0.0D);
-        	tessellator.addVertexWithUV(f10, 100.0D, -f10, 1.0D, 0.0D);
-        	tessellator.addVertexWithUV(f10, 100.0D, f10, 1.0D, 1.0D);
-        	tessellator.addVertexWithUV(-f10, 100.0D, f10, 0.0D, 1.0D);
-        	tessellator.draw();
-        	GL11.glPopMatrix();
-        }
+		
+		GL11.glPushMatrix();
+		if (brightness > 0.60) {
+		    GL11.glDisable(GL11.GL_BLEND);
+		    OpenGlHelper.glBlendFunc(770, 1, 1, 0);
+			GL11.glColor4f(brightness, brightness, brightness, brightness);
 
-		{
-			float brightness = (float) Math.sin(world.getCelestialAngle(partialTicks) * Math.PI);
-
-			GL11.glPushMatrix();
-			if (brightness > 0.60) {
-			    GL11.glDisable(GL11.GL_BLEND);
-			    OpenGlHelper.glBlendFunc(770, 1, 1, 0);
-				GL11.glColor4d(brightness, brightness, brightness, brightness);
-			} else {
-			    GL11.glEnable(GL11.GL_BLEND);
-			}
-			//GL11.glDisable(GL11.GL_BLEND);
-			OpenGlHelper.glBlendFunc(770, 1, 1, 0);
-			GL11.glRotatef(world.getCelestialAngle(partialTicks) * -360.0F, 1.0F, 0.0F, 0.0F);
-			GL11.glRotatef(-80.0F, 1.0F, 0.0F, 0.0F);
-			GL11.glRotatef(0.0F, 0.0F, 1.0F, 0.0F);
-
-			f10 = (AstronomyUtil.IkeRadius/AstronomyUtil.IkeDunaKm)*470;
-			FMLClientHandler.instance().getClient().renderEngine.bindTexture(this.ike);
-			tessellator.startDrawingQuads();
-			tessellator.addVertexWithUV(-f10, 100.0D, -f10, 0.0D, 0.0D);
-			tessellator.addVertexWithUV(f10, 100.0D, -f10, 1.0D, 0.0D);
-			tessellator.addVertexWithUV(f10, 100.0D, f10, 1.0D, 1.0D);
-			tessellator.addVertexWithUV(-f10, 100.0D, f10, 0.0D, 1.0D);
-			tessellator.draw();
-			GL11.glEnable(GL11.GL_BLEND);
-			GL11.glPopMatrix();
+		} else {
+		    GL11.glEnable(GL11.GL_BLEND);
 		}
+
+		//GL11.glDisable(GL11.GL_BLEND);
+		OpenGlHelper.glBlendFunc(770, 1, 1, 0);
+		GL11.glRotatef(world.getCelestialAngle(partialTicks) * -360.0F, 1.0F, 0.0F, 0.0F);
+		GL11.glRotatef(-80.0F, 1.0F, 0.0F, 0.0F);
+		GL11.glRotatef(0.0F, 0.0F, 1.0F, 0.0F);
+
+		f10 = (AstronomyUtil.IkeRadius/AstronomyUtil.IkeDunaKm)*470;
+		FMLClientHandler.instance().getClient().renderEngine.bindTexture(this.ike);
+		tessellator.startDrawingQuads();
+		tessellator.addVertexWithUV(-f10, 100.0D, -f10, 0.0D, 0.0D);
+		tessellator.addVertexWithUV(f10, 100.0D, -f10, 1.0D, 0.0D);
+		tessellator.addVertexWithUV(f10, 100.0D, f10, 1.0D, 1.0D);
+		tessellator.addVertexWithUV(-f10, 100.0D, f10, 0.0D, 1.0D);
+		tessellator.draw();
+		GL11.glEnable(GL11.GL_BLEND);
+		GL11.glPopMatrix();
+	
 		{
 			OpenGlHelper.glBlendFunc(770, 1, 1, 0);
 
-			float brightness = (float) Math.sin(world.getCelestialAngle(partialTicks) * Math.PI);
 			brightness *= brightness;
 
 			GL11.glPushMatrix();

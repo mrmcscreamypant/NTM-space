@@ -8,15 +8,18 @@ import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+import com.hbm.config.MobConfig;
 import com.hbm.config.RadiationConfig;
-
-import com.hbm.config.RadiationConfig;
+import com.hbm.entity.mob.glyphid.EntityGlyphid;
+import com.hbm.entity.mob.glyphid.EntityGlyphidDigger;
+import com.hbm.entity.mob.glyphid.EntityGlyphidScout;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.Phase;
 import cpw.mods.fml.relauncher.Side;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.monster.IMob;
@@ -24,10 +27,12 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
+import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.world.WorldEvent;
 
 public class PollutionHandler {
@@ -39,7 +44,10 @@ public class PollutionHandler {
 	public static final float SOOT_PER_SECOND = 1F / 25F;
 	/** Baserate of heavy metal generation, balanced around the soot values of combustion engines */
 	public static final float HEAVY_METAL_PER_SECOND = 1F / 50F;
-	
+	/** Baserate for poison when spilled */
+	public static final float POISON_PER_SECOND = 1F / 50F;
+	public static Vec3 targetCoords;
+
 	///////////////////////
 	/// UTILITY METHODS ///
 	///////////////////////
@@ -55,7 +63,7 @@ public class PollutionHandler {
 			data = new PollutionData();
 			ppw.pollution.put(pos, data);
 		}
-		data.pollution[type.ordinal()] = MathHelper.clamp_float(data.pollution[type.ordinal()] + amount, 0F, 10_000F);
+		data.pollution[type.ordinal()] = MathHelper.clamp_float((float) (data.pollution[type.ordinal()] + amount * MobConfig.pollutionMult), 0F, 10_000F);
 	}
 	
 	public static void decrementPollution(World world, int x, int y, int z, PollutionType type, float amount) {
@@ -175,7 +183,7 @@ public class PollutionHandler {
 	public void updateSystem(TickEvent.ServerTickEvent event) {
 		
 		if(event.side == Side.SERVER && event.phase == Phase.END) {
-			
+
 			eggTimer++;
 			if(eggTimer < 60) return;
 			eggTimer = 0;
@@ -195,7 +203,7 @@ public class PollutionHandler {
 					
 					/* CALCULATION */
 					if(data.pollution[S] > 15) {
-						pollutionForNeightbors[S] = data.pollution[S] * 0.05F;
+						pollutionForNeightbors[S] = (float) (data.pollution[S] * 0.05F);
 						data.pollution[S] *= 0.8F;
 					} else {
 						data.pollution[S] *= 0.99F;
@@ -327,7 +335,7 @@ public class PollutionHandler {
 		PollutionData data = getPollutionData(world, (int) Math.floor(event.x), (int) Math.floor(event.y), (int) Math.floor(event.z));
 		if(data == null) return;
 		
-		if(living instanceof IMob) {
+		if(living instanceof IMob && !(living instanceof EntityGlyphid)) {
 			
 			if(data.pollution[PollutionType.SOOT.ordinal()] > RadiationConfig.buffMobThreshold) {
 				if(living.getEntityAttribute(SharedMonsterAttributes.maxHealth) != null && living.getEntityAttribute(SharedMonsterAttributes.maxHealth).getModifier(maxHealth) == null) living.getEntityAttribute(SharedMonsterAttributes.maxHealth).applyModifier(new AttributeModifier(maxHealth, "Soot Anger Health Increase", 1D, 1));
@@ -336,4 +344,37 @@ public class PollutionHandler {
 			}
 		}
 	}
+	///RAMPANT MODE STUFFS///
+
+	@SubscribeEvent
+	public void rampantTargetSetter(PlayerSleepInBedEvent event){
+		if (MobConfig.rampantGlyphidGuidance) targetCoords = Vec3.createVectorHelper(event.x, event.y, event.z);
+	}
+
+	@SubscribeEvent
+	public void rampantScoutPopulator(WorldEvent.PotentialSpawns event){
+		
+		if(MobConfig.rampantNaturalScoutSpawn && !event.world.isRemote && event.world.provider.dimensionId == 0 && event.type == EnumCreatureType.monster
+				&& event.world.canBlockSeeTheSky(event.x, event.y, event.z) && !event.isCanceled()) {
+
+					if (event.world.rand.nextInt(MobConfig.rampantScoutSpawnChance) == 0) {
+
+						float soot = PollutionHandler.getPollution(event.world, event.x, event.y, event.z, PollutionType.SOOT);
+
+						if (soot >= MobConfig.rampantScoutSpawnThresh) {
+							EntityGlyphidScout scout = new EntityGlyphidScout(event.world);
+							if(scout.isValidLightLevel()) {
+								//escort for the scout, which can also deal with obstacles
+								EntityGlyphidDigger digger = new EntityGlyphidDigger(event.world);
+								scout.setLocationAndAngles(event.x, event.y, event.z, event.world.rand.nextFloat() * 360.0F, 0.0F);
+								digger.setLocationAndAngles(event.x, event.y, event.z, event.world.rand.nextFloat() * 360.0F, 0.0F);
+								if(scout.getCanSpawnHere()) event.world.spawnEntityInWorld(scout);
+								if(digger.getCanSpawnHere()) event.world.spawnEntityInWorld(digger);
+							}
+						}
+					}
+				}
+
+	}
+
 }

@@ -18,11 +18,13 @@ import com.hbm.lib.Library;
 import com.hbm.tileentity.IConfigurableMachine;
 import com.hbm.tileentity.IGUIProvider;
 import com.hbm.tileentity.TileEntityMachineBase;
+import com.hbm.util.CompatEnergyControl;
 import com.hbm.util.RTGUtil;
 import com.hbm.util.fauxpointtwelve.DirPos;
 
 import api.hbm.energy.IEnergyGenerator;
 import api.hbm.fluid.IFluidStandardReceiver;
+import api.hbm.tile.IInfoProviderEC;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.gui.GuiScreen;
@@ -37,7 +39,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
-public class TileEntityMachineIGenerator extends TileEntityMachineBase implements IFluidAcceptor, IEnergyGenerator, IFluidStandardReceiver, IConfigurableMachine, IGUIProvider {
+public class TileEntityMachineIGenerator extends TileEntityMachineBase implements IFluidAcceptor, IEnergyGenerator, IFluidStandardReceiver, IConfigurableMachine, IGUIProvider, IInfoProviderEC {
 	
 	public long power;
 	public int spin;
@@ -61,14 +63,13 @@ public class TileEntityMachineIGenerator extends TileEntityMachineBase implement
 	public static int waterCap = 16000;
 	public static int oilCap = 16000;
 	public static int lubeCap = 4000;
-	public static int coalGenRate = 20;
+	public static int coalGenRate = 100;
 	public static double rtgHeatMult = 0.15D;
-	public static double waterPowerMult = 1.0D;
-	public static double lubePowerMult = 1.5D;
-	public static double heatExponent = 1.15D;
 	public static int waterRate = 10;
 	public static int lubeRate = 1;
 	public static long fluidHeatDiv = 1_000L;
+	
+	protected long output;
 
 	@Override
 	public String getConfigName() {
@@ -81,11 +82,8 @@ public class TileEntityMachineIGenerator extends TileEntityMachineBase implement
 		waterCap = IConfigurableMachine.grab(obj, "I:waterCap", waterCap);
 		oilCap = IConfigurableMachine.grab(obj, "I:oilCap", oilCap);
 		lubeCap = IConfigurableMachine.grab(obj, "I:lubeCap", lubeCap);
-		coalGenRate = IConfigurableMachine.grab(obj, "I:solidFuelRate", coalGenRate);
+		coalGenRate = IConfigurableMachine.grab(obj, "I:solidFuelRate2", coalGenRate);
 		rtgHeatMult = IConfigurableMachine.grab(obj, "D:rtgHeatMult", rtgHeatMult);
-		waterPowerMult = IConfigurableMachine.grab(obj, "D:waterPowerMult", waterPowerMult);
-		lubePowerMult = IConfigurableMachine.grab(obj, "D:lubePowerMult", lubePowerMult);
-		heatExponent = IConfigurableMachine.grab(obj, "D:heatExponent", heatExponent);
 		waterRate = IConfigurableMachine.grab(obj, "I:waterRate", waterRate);
 		lubeRate = IConfigurableMachine.grab(obj, "I:lubeRate", lubeRate);
 		fluidHeatDiv = IConfigurableMachine.grab(obj, "D:fluidHeatDiv", fluidHeatDiv);
@@ -97,11 +95,8 @@ public class TileEntityMachineIGenerator extends TileEntityMachineBase implement
 		writer.name("I:waterCap").value(waterCap);
 		writer.name("I:oilCap").value(oilCap);
 		writer.name("I:lubeCap").value(lubeCap);
-		writer.name("I:solidFuelRate").value(coalGenRate);
+		writer.name("I:solidFuelRate2").value(coalGenRate);
 		writer.name("D:rtgHeatMult").value(rtgHeatMult);
-		writer.name("D:waterPowerMult").value(waterPowerMult);
-		writer.name("D:lubePowerMult").value(lubePowerMult);
-		writer.name("D:heatExponent").value(heatExponent);
 		writer.name("I:waterRate").value(waterRate);
 		writer.name("I:lubeRate").value(lubeRate);
 		writer.name("D:fluidHeatDiv").value(fluidHeatDiv);
@@ -215,19 +210,21 @@ public class TileEntityMachineIGenerator extends TileEntityMachineBase implement
 			
 			if(this.spin > 0) {
 				
-				int powerGen = this.spin;
+				double genMult = 0.5D;
+				
 				
 				if(this.tanks[0].getFill() >= 10) {
-					powerGen += this.spin * waterPowerMult;
+					genMult += 0.5D;
 					this.tanks[0].setFill(this.tanks[0].getFill() - waterRate);
 				}
 				
 				if(this.tanks[2].getFill() >= 1) {
-					powerGen += this.spin * lubePowerMult;
+					genMult += 0.25D;
 					this.tanks[2].setFill(this.tanks[2].getFill() - lubeRate);
 				}
 				
-				this.power += Math.pow(powerGen, heatExponent);
+				this.output = (long) (this.spin * genMult);
+				this.power += this.output;
 				
 				if(this.power > this.maxPower)
 					this.power = this.maxPower;
@@ -270,6 +267,8 @@ public class TileEntityMachineIGenerator extends TileEntityMachineBase implement
 
 	@Override
 	public void networkUnpack(NBTTagCompound nbt) {
+		super.networkUnpack(nbt);
+		
 		this.power = nbt.getLong("power");
 		this.spin = nbt.getInteger("spin");
 		this.burn = nbt.getIntArray("burn");
@@ -390,5 +389,11 @@ public class TileEntityMachineIGenerator extends TileEntityMachineBase implement
 	@SideOnly(Side.CLIENT)
 	public GuiScreen provideGUI(int ID, EntityPlayer player, World world, int x, int y, int z) {
 		return new GUIIGenerator(player.inventory, this);
+	}
+
+	@Override
+	public void provideExtraInfo(NBTTagCompound data) {
+		data.setBoolean(CompatEnergyControl.B_ACTIVE, this.output > 0);
+		data.setDouble(CompatEnergyControl.D_OUTPUT_HE, this.output);
 	}
 }

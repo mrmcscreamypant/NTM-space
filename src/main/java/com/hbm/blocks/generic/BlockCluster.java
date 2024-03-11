@@ -62,13 +62,13 @@ public class BlockCluster extends Block implements IDrillInteraction, ITooltipPr
 		if(this == ModBlocks.cluster_titanium)	return ModItems.crystal_titanium;
 		if(this == ModBlocks.cluster_aluminium)	return ModItems.crystal_aluminium;
 		if(this == ModBlocks.cluster_copper)	return ModItems.crystal_copper;
-		if(this == ModBlocks.basalt_gem)		return ModItems.gem_volcanic;
 		if(this == ModBlocks.dres_cobalt)	return ModItems.crystal_cobalt;
 		if(this == ModBlocks.moho_niobium_cluster)	return ModItems.powder_niobium;
 		if(this == ModBlocks.moho_starmetal_cluster)	return ModItems.crystal_starmetal;
 		if(this == ModBlocks.moho_copper_cluster)	return ModItems.crystal_copper;
 		if(this == ModBlocks.moho_iron_cluster)	return ModItems.crystal_iron;
 
+		
 		return null;
 	}
 

@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.client.IRenderHandler;
@@ -116,7 +117,7 @@ public class SkyProviderLaythe extends IRenderHandler {
 			f2 = f5;
 			f3 = f6;
 		}
-
+ 
 		GL11.glColor3f(f1, f2, f3);
 		Tessellator tessellator = Tessellator.instance;
 		GL11.glDepthMask(false);
@@ -133,9 +134,138 @@ public class SkyProviderLaythe extends IRenderHandler {
 		float f9;
 		float f10;
 		float f18 = world.getStarBrightness(partialTicks);
+		
 
+	        float[] afloat = mc.theWorld.provider.calcSunriseSunsetColors(mc.theWorld.getCelestialAngle(partialTicks), partialTicks);
+
+
+	        if (afloat != null)
+	        {
+	    		OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_CONSTANT_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
+
+
+	            GL11.glDisable(GL11.GL_TEXTURE_2D);
+	            GL11.glShadeModel(GL11.GL_SMOOTH);
+	            
+	            GL11.glPushMatrix();
+	            GL11.glRotatef(90.0F, 1.0F, 0.0F, 0.0F);
+	            GL11.glRotatef(MathHelper.sin(mc.theWorld.getCelestialAngleRadians(partialTicks)) < 0.0F ? 180.0F : 0.0F, 0.0F, 0.0F, 1.0F);
+	            GL11.glRotatef(90.0F, 0.0F, 0.0F, 1.0F);
+	            f6 = afloat[0];
+	            f7 = afloat[1];
+	            f8 = afloat[2];
+	            float f11;
+
+	            if (mc.gameSettings.anaglyph)
+	            {
+	                f9 = (f6 * 30.0F + f7 * 59.0F + f8 * 11.0F) / 100.0F;
+	                f10 = (f6 * 30.0F + f7 * 70.0F) / 100.0F;
+	                f11 = (f6 * 30.0F + f8 * 70.0F) / 100.0F;
+	                f6 = f9;
+	                f7 = f10;
+	                f8 = f11;
+	            }
+
+	            tessellator.startDrawing(6);
+	            tessellator.setColorRGBA_F(f6, f7, f8, afloat[3]);
+	            tessellator.addVertex(0.0D, 150.0D, 0.0D);
+	            byte b0 = 16;
+	            tessellator.setColorRGBA_F(afloat[0], afloat[1], afloat[2], 0.0F);
+
+	            for (int j = 0; j <= b0; ++j)
+	            {
+	                f11 = (float)j * (float)Math.PI * 2.0F / (float)b0;
+	                float f12 = MathHelper.sin(f11);
+	                float f13 = MathHelper.cos(f11);
+	                tessellator.addVertex((double)(f12 * 160.0F), (double)(f13 * 160.0F), (double)(-f13 * 90.0F * afloat[3]));
+	            }
+
+	            tessellator.draw();
+	            GL11.glPopMatrix();
+	            GL11.glShadeModel(GL11.GL_FLAT);
+	            
+	            GL11.glDisable(GL11.GL_TEXTURE_2D);
+	            GL11.glShadeModel(GL11.GL_SMOOTH);
+
+	            GL11.glPushMatrix();
+	            GL11.glRotatef(135.0F, 1.0F, 0.0F, 0.0F);
+	            GL11.glTranslatef(0, -60, 0);
+	            f6 = afloat[0];
+	            f7 = afloat[1];
+	            f8 = afloat[2];
+	            if (mc.gameSettings.anaglyph)
+	            {
+	                f9 = (f6 * 30.0F + f7 * 59.0F + f8 * 11.0F) / 100.0F;
+	                f10 = (f6 * 30.0F + f7 * 70.0F) / 100.0F;
+	                f11 = (f6 * 30.0F + f8 * 70.0F) / 100.0F;
+	                f6 = f9;
+	                f7 = f10;
+	                f8 = f11;
+	            }
+
+	            tessellator.startDrawing(6);
+	            tessellator.setColorRGBA_F(f6, f7, f8, afloat[3]);
+	            tessellator.addVertex(0.0D, 100.0D, 0.0D);
+
+	            tessellator.setColorRGBA_F(afloat[0], afloat[1], afloat[2], 0.0F);
+
+	            for (int j = 0; j <= b0; ++j)
+	            {
+	                f11 = (float)j * (float)Math.PI * 2.0F / (float)b0;
+	                float f12 = MathHelper.sin(f11);
+	                float f13 = MathHelper.cos(f11);
+	                
+	                tessellator.addVertex((double)(f12 * 100.0F), (double)(f13 * 100.0F), (double)(-f13 * 90.0F));
+	            }
+
+	            tessellator.draw();
+	            GL11.glPopMatrix();
+	            GL11.glShadeModel(GL11.GL_FLAT);
+	            
+	            GL11.glDisable(GL11.GL_TEXTURE_2D);
+	            GL11.glShadeModel(GL11.GL_SMOOTH);
+	            GL11.glPushMatrix();
+
+	            GL11.glRotatef(135.0F, 1.0F, 0.0F, 0.0F);
+	            GL11.glTranslatef(0, -30, 0);
+	            f6 = afloat[0];
+	            f7 = afloat[1];
+	            f8 = afloat[2];
+	            if (mc.gameSettings.anaglyph)
+	            {
+	                f9 = (f6 * 30.0F + f7 * 59.0F + f8 * 11.0F) / 100.0F;
+	                f10 = (f6 * 30.0F + f7 * 70.0F) / 100.0F;
+	                f11 = (f6 * 30.0F + f8 * 70.0F) / 100.0F;
+	                f6 = f9;
+	                f7 = f10;
+	                f8 = f11;
+	            }
+
+	            tessellator.startDrawing(6);
+	            tessellator.setColorRGBA_F(f6, f7, f8, afloat[3]);
+	            tessellator.addVertex(0.0D, 80.0D, 0.0D);
+
+	            tessellator.setColorRGBA_F(afloat[0], afloat[1] * 0.2F, afloat[2], 0.0F);
+
+	            for (int j = 0; j <= b0; ++j)
+	            {
+	                f11 = (float)j * (float)Math.PI * 2.0F / (float)b0;
+	                float f12 = MathHelper.sin(f11);
+	                float f13 = MathHelper.cos(f11);
+	                
+	                tessellator.addVertex((double)(f12 * 100.0F), (double)(f13 * 100.0F), (double)(-f13 * 90.0F));
+	            }
+
+	            tessellator.draw();
+	            GL11.glPopMatrix();
+	            GL11.glShadeModel(GL11.GL_FLAT);
+	            
+	        }
 		if(f18 > 0.0F) {
 			GL11.glPushMatrix();
+			GL11.glRotatef(60.0F, 1.0F, 0.0F, 0.0F);
+			GL11.glRotatef(-90.0F, 0.0F, 1.0F, 0.0F);
+			GL11.glRotatef(world.getCelestialAngle(partialTicks) * 360.0F, 1.0F, 0.0F, 0.0F);	
 	        mc.renderEngine.bindTexture(this.night);
 	        GL11.glEnable(3553);
 	        GL11.glBlendFunc(770, 1);
@@ -149,7 +279,6 @@ public class SkyProviderLaythe extends IRenderHandler {
 	        
 	       // 
 
-	        GL11.glRotatef(world.getCelestialAngle(partialTicks) * 360.0F, 1.0F, 0.0F, 0.0F);
 	        GL11.glRotatef(-90.0F, 1.0F, 0.0F, 0.0F);
 	        GL11.glColor4f(1.0F, 1.0F, 1.0F, starBrightness);
 	        
@@ -196,14 +325,16 @@ public class SkyProviderLaythe extends IRenderHandler {
 		f8 = 0.0F;
 		f9 = 0.0F;
 		GL11.glTranslatef(f7, f8, f9);
-		GL11.glRotatef(-90.0F, 0.0F, 1.0F, 0.0F);
-		GL11.glRotatef(world.getCelestialAngle(partialTicks) * 360.0F, 1.0F, 0.0F, 0.0F);
-
+		{
 		// Render sun
+		GL11.glPushMatrix();
+		GL11.glRotatef(60.0F, 1.0F, 0.0F, 0.0F);
+		GL11.glRotatef(-90.0F, 0.0F, 1.0F, 0.0F);
+		GL11.glRotatef(world.getCelestialAngle(partialTicks) * 360.0F, 1.0F, 0.0F, 0.0F);	
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		GL11.glColor4f(0.0F, 0.0F, 0.0F, 1.0F);
 		// Some blanking to conceal the stars
-		f10 = (float) (2*Math.atan((AstronomyUtil.KerbolRadius*4)/(2*AstronomyUtil.JoolAU*AstronomyUtil.AUToKm))*57.2958);
+		f10 = (float) (2*Math.atan((AstronomyUtil.KerbolRadius*9)/(2*AstronomyUtil.JoolAU*AstronomyUtil.AUToKm))*57.2958);
 		float f11 = f10*4;
 		tessellator.startDrawingQuads();
 		tessellator.addVertex(-f10, 99.9D, -f10);
@@ -211,7 +342,7 @@ public class SkyProviderLaythe extends IRenderHandler {
 		tessellator.addVertex(f10, 99.9D, f10);
 		tessellator.addVertex(-f10, 99.9D, f10);
 		tessellator.draw();
-		{
+		
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
 			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1);
 			mc.renderEngine.bindTexture(this.sunTexture);
@@ -221,8 +352,8 @@ public class SkyProviderLaythe extends IRenderHandler {
 			tessellator.addVertexWithUV(f10, 100.0D, f10, 1.0D, 1.0D);
 			tessellator.addVertexWithUV(-f10, 100.0D, f10, 0.0D, 1.0D);
 			tessellator.draw();
-		}
-		{
+		
+		
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
 			GL11.glColor4f(1.0F, 1.0F, 1.0F, 0.3f);
 			mc.renderEngine.bindTexture(this.flare);
@@ -232,7 +363,9 @@ public class SkyProviderLaythe extends IRenderHandler {
 			tessellator.addVertexWithUV(f11, 100.0D, f11, 1.0D, 1.0D);
 			tessellator.addVertexWithUV(-f11, 100.0D, f11, 0.0D, 1.0D);
 			tessellator.draw();
+			GL11.glPopMatrix();
 		}
+		
 		{
 			OpenGlHelper.glBlendFunc(770, 1, 1, 0);
 
@@ -261,6 +394,11 @@ public class SkyProviderLaythe extends IRenderHandler {
 			GL11.glPopMatrix();
 
 		}
+		GL11.glRotatef(-90.0F, 0.0F, 1.0F, 0.0F);
+		GL11.glRotatef(world.getCelestialAngle(partialTicks) * 360.0F, 1.0F, 0.0F, 0.0F);
+		
+
+
 		{
    		    GL11.glPushMatrix();
    		    double BopRad = AstronomyUtil.BopRadius;

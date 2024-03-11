@@ -147,13 +147,7 @@ public class TileEntityAirPump extends TileEntityMachineBase implements IFluidSt
 	}
 
 	public void revalidateRoom() {
-	    List<AxisAlignedBB> roomSections = findRoomSections(worldObj, xCoord, yCoord, zCoord);
-	    AxisAlignedBB newSealedRoomAABB = mergeAABBs(roomSections);
-	    // Finalize the sealing process with the new AABB
-	    if (newSealedRoomAABB != null) {
-	        sealedRoomAABB = newSealedRoomAABB;
-	       // processEntitiesWithinAABB(worldObj, sealedRoomAABB);
-	    }
+	    findRoomSections(worldObj, xCoord, yCoord, zCoord);
 	}
 	
 
@@ -184,11 +178,10 @@ public class TileEntityAirPump extends TileEntityMachineBase implements IFluidSt
 	}
 	
 	//TODO: Rewrite this fucking mess of a class
-	private List<AxisAlignedBB> findRoomSections(World world, int startX, int startY, int startZ) {
+	private void findRoomSections(World world, int startX, int startY, int startZ) {
 	    Set<BlockPos> visited = new HashSet<>();
 	    Set<BlockPos> air = new HashSet<>();
 	    Stack<BlockPos> stack = new Stack<>();
-	    List<AxisAlignedBB> sectionAABBs = new ArrayList<>();
 
 	    stack.push(new BlockPos(startX, startY, startZ));
 
@@ -230,14 +223,9 @@ public class TileEntityAirPump extends TileEntityMachineBase implements IFluidSt
 
 	        // After a section has been fully traversed, we add its AABB to the list
 	        if (stack.isEmpty() && !visited.isEmpty()) {
-	            AxisAlignedBB sectionAABB = AxisAlignedBB.getBoundingBox(minX, minY, minZ, maxX, maxY, maxZ);
-	            sectionAABBs.add(sectionAABB);
 	            for(BlockPos pos : air)
 	            {
-	            	if((pos.getX()<sectionAABB.minX || pos.getX()>sectionAABB.maxX) || (pos.getY()<sectionAABB.minY || pos.getY()>sectionAABB.maxY) || (pos.getZ()<sectionAABB.minZ || pos.getZ()>sectionAABB.maxZ))
-	            	{
-	            		air.remove(pos);
-	            	}
+
 	            	world.setBlock(pos.getX(), pos.getY(), pos.getZ(), ModBlocks.air_block);
 	            }
 	            // Reset the bounds for the next section
@@ -255,36 +243,10 @@ public class TileEntityAirPump extends TileEntityMachineBase implements IFluidSt
 			}
 	    }
 
-	    return sectionAABBs;
-	}
-	private AxisAlignedBB mergeAABBs(List<AxisAlignedBB> aabbs) {
-	    if (aabbs.isEmpty()) return null;
-
-	    AxisAlignedBB combinedAABB = aabbs.get(0); // Start with the first AABB
-
-	    // Expand the combined AABB to include all other AABBs
-	    for (int i = 1; i < aabbs.size(); i++) {
-	        combinedAABB = combinedAABB.func_111270_a(aabbs.get(i));
-	    }
-
-	    return combinedAABB;
-	}
-	public AxisAlignedBB mergeRoomSections(World world, int startX, int startY, int startZ) {
-	    List<AxisAlignedBB> sectionAABBs = findRoomSections(world, startX, startY, startZ);
-	    AxisAlignedBB mergedAABB = mergeAABBs(sectionAABBs);
-	    return mergedAABB;
 	}
 
-	private void processEntitiesWithinAABB(World world, AxisAlignedBB aabb) {
-	    List<EntityLivingBase> entities = world.getEntitiesWithinAABB(EntityLivingBase.class, aabb);
 
-	    for (EntityLivingBase entity : entities) {
-	        HbmLivingProps.SsetOxy(entity, 20);
-	    }
-	}
-	private boolean isWithinBounds(BlockPos pos, int minX, int maxX, int minY, int maxY, int minZ, int maxZ) {	    // Check if the position is within a certain bounding box to avoid checking an infinite area.
-	    return pos.getX() >= minX && pos.getX() <= maxX && pos.getY() >= minY && pos.getY() <= maxY && pos.getZ() >= minZ && pos.getZ() <= maxZ;
-	}
+
 
 	@Override
 	public void networkUnpack(NBTTagCompound nbt) {
@@ -296,11 +258,6 @@ public class TileEntityAirPump extends TileEntityMachineBase implements IFluidSt
 	private static final int MAX_RANGE_Y = 30; 
 	private static final int MAX_RANGE_Z = 50;
 
-	private boolean isWithinBounds(BlockPos pos, int startX, int startY, int startZ) {
-	    return pos.getX() >= startX - MAX_RANGE_X && pos.getX() <= startX + MAX_RANGE_X &&
-	           pos.getY() >= startY - MAX_RANGE_Y && pos.getY() <= startY + MAX_RANGE_Y &&
-	           pos.getZ() >= startZ - MAX_RANGE_Z && pos.getZ() <= startZ + MAX_RANGE_Z;
-	}
 	
 	/*
 	private boolean isValidRoomBlock(World world, BlockPos pos) {

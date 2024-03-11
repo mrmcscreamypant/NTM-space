@@ -3,7 +3,7 @@ package com.hbm.tileentity.machine.storage;
 import api.hbm.fluid.*;
 import com.hbm.blocks.ModBlocks;
 import com.hbm.entity.effect.EntityCloudFleija;
-import com.hbm.entity.effect.EntityNukeCloudSmall;
+import com.hbm.entity.effect.EntityNukeTorex;
 import com.hbm.entity.logic.EntityBalefire;
 import com.hbm.entity.logic.EntityNukeExplosionMK3;
 import com.hbm.explosion.vanillant.ExplosionVNT;
@@ -98,6 +98,7 @@ public class TileEntityBarrel extends TileEntityMachineBase implements IFluidAcc
 	public long transferFluid(FluidType type, int pressure, long fluid) {
 		long toTransfer = Math.min(getDemand(type, pressure), fluid);
 		tank.setFill(tank.getFill() + (int) toTransfer);
+		this.markChanged();
 		return fluid - toTransfer;
 	}
 
@@ -108,8 +109,10 @@ public class TileEntityBarrel extends TileEntityMachineBase implements IFluidAcc
 			if(!this.hasExploded) {
 
 			byte comp = this.getComparatorPower(); //do comparator shenanigans
-			if(comp != this.lastRedstone)
+			if(comp != this.lastRedstone) {
 				this.markDirty();
+				for(DirPos pos : getConPos()) this.updateRedstoneConnection(pos);
+			}
 			this.lastRedstone = comp;
 
 			tank.setType(0, 1, slots);
@@ -120,12 +123,6 @@ public class TileEntityBarrel extends TileEntityMachineBase implements IFluidAcc
 			this.sendingBrake = true;
 			tank.setFill(transmitFluidFairly(worldObj, tank, this, tank.getFill(), this.mode == 0 || this.mode == 1, this.mode == 1 || this.mode == 2, getConPos()));
 			this.sendingBrake = false;
-			
-			age++;
-			if(age >= 20) {
-				age = 0;
-				this.markChanged();
-			}
 			
 			if((mode == 1 || mode == 2) && (age == 9 || age == 19))
 				fillFluidInit(tank.getTankType());
@@ -263,8 +260,9 @@ public class TileEntityBarrel extends TileEntityMachineBase implements IFluidAcc
 			worldObj.playSoundEffect(xCoord + 0.5, yCoord + 0.5, zCoord + 0.5, "random.fizz", 1.0F, 1.0F);
 		}
 		
-		if(b == ModBlocks.barrel_corroded && worldObj.rand.nextInt(3) == 0) {
-			tank.setFill(tank.getFill() - 1);
+		if(b == ModBlocks.barrel_corroded ) {
+			if(worldObj.rand.nextInt(3) == 0) tank.setFill(tank.getFill() - 1);
+			if(worldObj.rand.nextInt(3 * 60 * 20) == 0) worldObj.func_147480_a(xCoord, yCoord, zCoord, false);
 		}
 		
 		//For when Tom's firestorm hits a barrel full of water
@@ -278,6 +276,8 @@ public class TileEntityBarrel extends TileEntityMachineBase implements IFluidAcc
 	}
 	
 	public void networkUnpack(NBTTagCompound data) {
+		super.networkUnpack(data);
+		
 		mode = data.getShort("mode");
 	}
 
@@ -446,7 +446,7 @@ public class TileEntityBarrel extends TileEntityMachineBase implements IFluidAcc
 	    	    		bf.setPosition(xCoord, yCoord, zCoord);
 	    				bf.destructionRange = (int) amat;
 	    				worldObj.spawnEntityInWorld(bf);
-	    				worldObj.spawnEntityInWorld(EntityNukeCloudSmall.statFacAnti(worldObj, xCoord, yCoord, zCoord, amat * 1.5F, 1000));
+	    				EntityNukeTorex.startFacAnti(worldObj, xCoord, yCoord, zCoord, amat * 1.5F);
 	    				return;
 	    			}
 	    			else

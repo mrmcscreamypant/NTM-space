@@ -25,18 +25,28 @@ public class RenderNTMSkyboxImpact extends IRenderHandler {
 	private static final ResourceLocation digammaStar = new ResourceLocation("hbm:textures/misc/star_digamma.png");
 	private static final ResourceLocation bobmazonSat = new ResourceLocation("hbm:textures/misc/sat_bobmazon.png");
 
-	public int starGLCallList = GLAllocation.generateDisplayLists(3);
+	public int starGLCallList;
 	public int glSkyList;
 	public int glSkyList2;
+
+	public boolean displayListsInitialized = false;
+
 
 	protected double x;
 	protected double y;
 	protected double z;
 
+	public RenderNTMSkyboxImpact() {
+	    if (!displayListsInitialized) {
+	        initializeDisplayLists();
+	    }
+	}
 	/// I had to break your compat feature for other mods' skyboxes in order to
 	/// make the skybox render correctly after Tom. Sorry about that. -Pu
 
-	public RenderNTMSkyboxImpact() {
+	private void initializeDisplayLists() {
+		
+	    starGLCallList = GLAllocation.generateDisplayLists(3);
 		GL11.glPushMatrix();
 		GL11.glNewList(this.starGLCallList, GL11.GL_COMPILE);
 		this.renderStars();
@@ -77,6 +87,7 @@ public class RenderNTMSkyboxImpact extends IRenderHandler {
 
 		tessellator.draw();
 		GL11.glEndList();
+		displayListsInitialized = true;
 	}
 
 	@Override

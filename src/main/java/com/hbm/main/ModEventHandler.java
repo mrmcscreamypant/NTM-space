@@ -29,7 +29,6 @@ import com.hbm.config.SpaceConfig;
 import com.hbm.entity.missile.EntityMissileCustom;
 import com.hbm.entity.mob.EntityCyberCrab;
 import com.hbm.entity.mob.EntityDuck;
-import com.hbm.entity.mob.EntityGlyphid;
 import com.hbm.entity.mob.EntityCreeperNuclear;
 import com.hbm.entity.mob.EntityQuackos;
 import com.hbm.entity.mob.EntityCreeperTainted;
@@ -214,31 +213,7 @@ public class ModEventHandler {
 		}
 	}
 	
-	@SubscribeEvent
-	public void onBlockChange(BlockEvent event) {
-	    if (event.world.isRemote) {
-	        return; 
-	    }
 
-
-	    for (TileEntity te : (Iterable<TileEntity>) event.world.loadedTileEntityList) { 
-	        if (te instanceof TileEntityAirPump) {
-	            TileEntityAirPump airPump = (TileEntityAirPump) te;
-	            AxisAlignedBB sealedRoomAABB = airPump.getSealedRoomAABB();
-	            if (sealedRoomAABB != null) {
-	                int x = event.x;
-	                int y = event.y;
-	                int z = event.z;
-	                if (sealedRoomAABB.minX <= x && x <= sealedRoomAABB.maxX &&
-	                    sealedRoomAABB.minY <= y && y <= sealedRoomAABB.maxY &&
-	                    sealedRoomAABB.minZ <= z && z <= sealedRoomAABB.maxZ) {
-	                    airPump.setNeedsRevalidate(true);
-	                    break;
-	                }
-	            }
-	        }
-	    }
-	}
 	@SubscribeEvent
 	public void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
 		
@@ -407,8 +382,10 @@ public class ModEventHandler {
 					event.entityLiving.dropItem(ModItems.bandaid, 1);
 				}
 				
-				if(event.entityLiving instanceof IMob && event.entityLiving.getRNG().nextInt(1000) == 0) {
-					event.entityLiving.dropItem(ModItems.heart_piece, 1);
+				if(event.entityLiving instanceof IMob) {
+					if(event.entityLiving.getRNG().nextInt(1000) == 0) event.entityLiving.dropItem(ModItems.heart_piece, 1);
+					if(event.entityLiving.getRNG().nextInt(250) == 0) event.entityLiving.dropItem(ModItems.key_red_cracked, 1);
+					if(event.entityLiving.getRNG().nextInt(250) == 0) event.entityLiving.dropItem(ModItems.launch_code_piece, 1);
 				}
 				
 				if(event.entityLiving instanceof EntityCyberCrab && event.entityLiving.getRNG().nextInt(500) == 0) {
@@ -1380,7 +1357,7 @@ public class ModEventHandler {
 				for(int k = 0; k < 5; k++) {
 					
 					vec.rotateAroundY((float) (1F * Math.PI / 180D));
-					player.worldObj.spawnParticle("townaura", player.posX + vec.xCoord, player.posY + 1 + player.worldObj.rand.nextDouble() * 0.05, player.posZ + vec.zCoord, 0.0, 0.0, 0.0);
+					//player.worldObj.spawnParticle("townaura", player.posX + vec.xCoord, player.posY + 1 + player.worldObj.rand.nextDouble() * 0.05, player.posZ + vec.zCoord, 0.0, 0.0, 0.0);
 				}
 			}
 			

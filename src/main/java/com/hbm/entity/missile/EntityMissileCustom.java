@@ -21,9 +21,11 @@ import com.hbm.items.ModItems;
 import com.hbm.items.ItemVOTVdrive.DestinationType;
 import com.hbm.items.ModItems;
 import com.hbm.items.weapon.ItemMissile;
-import com.hbm.items.weapon.ItemMissile.FuelType;
-import com.hbm.items.weapon.ItemMissile.PartSize;
-import com.hbm.items.weapon.ItemMissile.WarheadType;
+import com.hbm.items.ModItems;
+import com.hbm.items.weapon.ItemCustomMissilePart;
+import com.hbm.items.weapon.ItemCustomMissilePart.FuelType;
+import com.hbm.items.weapon.ItemCustomMissilePart.PartSize;
+import com.hbm.items.weapon.ItemCustomMissilePart.WarheadType;
 import com.hbm.main.MainRegistry;
 
 import api.hbm.entity.IRadarDetectable;
@@ -35,7 +37,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-public class EntityMissileCustom extends EntityMissileBaseNT implements IChunkLoader, IRadarDetectable {
+public class EntityMissileCustom extends EntityMissileBaseNT implements IChunkLoader {
 	private ItemStack payload;
 
 	public void setPayload(ItemStack stack) {
@@ -72,8 +74,8 @@ public class EntityMissileCustom extends EntityMissileBaseNT implements IChunkLo
 			this.dataWatcher.updateObject(11, Integer.valueOf(0));
 		}
 
-		ItemMissile fuselage = (ItemMissile) template.fuselage;
-		ItemMissile thruster = (ItemMissile) template.thruster;
+		ItemCustomMissilePart fuselage = (ItemCustomMissilePart) template.fuselage;
+		ItemCustomMissilePart thruster = (ItemCustomMissilePart) template.thruster;
 
 		this.fuel = (Float) fuselage.attributes[1];
 		this.consumption = (Float) thruster.attributes[1];
@@ -83,8 +85,11 @@ public class EntityMissileCustom extends EntityMissileBaseNT implements IChunkLo
 
 	@Override
 	protected void killMissile() {
-		ExplosionLarge.explode(worldObj, posX, posY, posZ, 5, true, false, true);
-		ExplosionLarge.spawnShrapnelShower(worldObj, posX, posY, posZ, motionX, motionY, motionZ, 15, 0.075);
+		if(!this.isDead) {
+			this.setDead();
+			ExplosionLarge.explode(worldObj, posX, posY, posZ, 5, true, false, true);
+			ExplosionLarge.spawnShrapnelShower(worldObj, posX, posY, posZ, motionX, motionY, motionZ, 15, 0.075);
+		}
 	}
 	
 	@Override
@@ -93,9 +98,12 @@ public class EntityMissileCustom extends EntityMissileBaseNT implements IChunkLo
 		if(!worldObj.isRemote) {
 			if(this.hasPropulsion()) this.fuel -= this.consumption;
 			EntityPlayer riding = (EntityPlayer) this.riddenByEntity;
+			ItemCustomMissilePart  part = (ItemCustomMissilePart ) Item.getItemById(this.dataWatcher.getWatchableObjectInt(9));
+
+			WarheadType type = (WarheadType) part.attributes[0];
 
 				if(payload != null) {
-				if(payload.getTagCompound().getBoolean("Processed") == true ) {
+				if(payload.getTagCompound().getBoolean("Processed") == true && type == WarheadType.APOLLO) {
 					
 				if(posY < 7 && riding == null) {
 					this.motionY = 0.01;
@@ -199,7 +207,7 @@ public class EntityMissileCustom extends EntityMissileBaseNT implements IChunkLo
 
 		Vec3 v = Vec3.createVectorHelper(motionX, motionY, motionZ).normalize();
 		String smoke = "";
-		ItemMissile part = (ItemMissile) Item.getItemById(this.dataWatcher.getWatchableObjectInt(10));
+		ItemCustomMissilePart part = (ItemCustomMissilePart) Item.getItemById(this.dataWatcher.getWatchableObjectInt(10));
 		FuelType type = (FuelType) part.attributes[0];
 
 		switch(type) {
@@ -208,7 +216,10 @@ public class EntityMissileCustom extends EntityMissileBaseNT implements IChunkLo
 		case KEROSENE: smoke = "exKerosene"; break;
 		case SOLID: smoke = "exSolid"; break;
 		case XENON: break;
-		case HYDRAZINE: break;
+		case HYDRAZINE: smoke = "exKerosene"; break;
+		case METHALOX:
+			break;
+
 
 		}
 		EntityPlayer riding = (EntityPlayer) this.riddenByEntity;
@@ -223,7 +234,7 @@ public class EntityMissileCustom extends EntityMissileBaseNT implements IChunkLo
 	@Override
 	public void onImpact() { //TODO: demolish this steaming pile of shit
 
-		ItemMissile part = (ItemMissile) Item.getItemById(this.dataWatcher.getWatchableObjectInt(9));
+		ItemCustomMissilePart part = (ItemCustomMissilePart) Item.getItemById(this.dataWatcher.getWatchableObjectInt(9));
 
 		WarheadType type = (WarheadType) part.attributes[0];
 		float strength = (Float) part.attributes[1];
@@ -308,25 +319,9 @@ public class EntityMissileCustom extends EntityMissileBaseNT implements IChunkLo
 	}
 
 	@Override
-	public RadarTargetType getTargetType() {
-
-		ItemMissile part = (ItemMissile) Item.getItemById(this.dataWatcher.getWatchableObjectInt(10));
-		PartSize top = part.top;
-		PartSize bottom = part.bottom;
-
-		if(top == PartSize.SIZE_10 && bottom == PartSize.SIZE_10) return RadarTargetType.MISSILE_10;
-		if(top == PartSize.SIZE_10 && bottom == PartSize.SIZE_15) return RadarTargetType.MISSILE_10_15;
-		if(top == PartSize.SIZE_15 && bottom == PartSize.SIZE_15) return RadarTargetType.MISSILE_15;
-		if(top == PartSize.SIZE_15 && bottom == PartSize.SIZE_20) return RadarTargetType.MISSILE_15_20;
-		if(top == PartSize.SIZE_20 && bottom == PartSize.SIZE_20) return RadarTargetType.MISSILE_20;
-
-		return RadarTargetType.MISSILE_TIER1;
-	}
-
-	@Override
 	public String getUnlocalizedName() {
 
-		ItemMissile part = (ItemMissile) Item.getItemById(this.dataWatcher.getWatchableObjectInt(10));
+		ItemCustomMissilePart part = (ItemCustomMissilePart) Item.getItemById(this.dataWatcher.getWatchableObjectInt(10));
 		PartSize top = part.top;
 		PartSize bottom = part.bottom;
 
@@ -342,7 +337,7 @@ public class EntityMissileCustom extends EntityMissileBaseNT implements IChunkLo
 	@Override
 	public int getBlipLevel() {
 
-		ItemMissile part = (ItemMissile) Item.getItemById(this.dataWatcher.getWatchableObjectInt(10));
+		ItemCustomMissilePart part = (ItemCustomMissilePart) Item.getItemById(this.dataWatcher.getWatchableObjectInt(10));
 		PartSize top = part.top;
 		PartSize bottom = part.bottom;
 
@@ -357,4 +352,9 @@ public class EntityMissileCustom extends EntityMissileBaseNT implements IChunkLo
 
 	@Override public List<ItemStack> getDebris() { return new ArrayList(); }
 	@Override public ItemStack getDebrisRareDrop() { return null; }
+
+	@Override
+	public ItemStack getMissileItemForInfo() {
+		return new ItemStack(ModItems.missile_custom);
+	}
 }

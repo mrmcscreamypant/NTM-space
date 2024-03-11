@@ -12,6 +12,7 @@ import com.hbm.blocks.generic.BlockEmitter.TileEntityEmitter;
 import com.hbm.blocks.generic.BlockGlyphidSpawner.TileEntityGlpyhidSpawner;
 import com.hbm.blocks.generic.BlockLoot.TileEntityLoot;
 import com.hbm.blocks.generic.BlockMotherOfAllOres.TileEntityRandomOre;
+import com.hbm.blocks.generic.BlockPedestal.TileEntityPedestal;
 import com.hbm.blocks.generic.BlockSnowglobe.TileEntitySnowglobe;
 import com.hbm.blocks.generic.PartEmitter.TileEntityPartEmitter;
 import com.hbm.blocks.machine.BlockPWR.TileEntityBlockPWR;
@@ -24,6 +25,7 @@ import com.hbm.blocks.network.BlockCablePaintable.TileEntityCablePaintable;
 import com.hbm.blocks.network.CableDiode.TileEntityDiode;
 import com.hbm.blocks.network.FluidDuctGauge.TileEntityPipeGauge;
 import com.hbm.blocks.network.FluidDuctPaintable.TileEntityPipePaintable;
+import com.hbm.blocks.rail.RailStandardSwitch.TileEntityRailSwitch;
 import com.hbm.interfaces.IFluidAcceptor;
 import com.hbm.interfaces.IFluidSource;
 import com.hbm.tileentity.bomb.*;
@@ -43,8 +45,8 @@ import net.minecraft.tileentity.TileEntity;
 
 public class TileMappings {
 
-	public static HashMap<Class<? extends TileEntity>, String[]> map = new HashMap();
-	public static List<Class<? extends IConfigurableMachine>> configurables = new ArrayList();
+	public static HashMap<Class<? extends TileEntity>, String[]> map = new HashMap<Class<? extends TileEntity>, String[]>();
+	public static List<Class<? extends IConfigurableMachine>> configurables = new ArrayList<Class<? extends IConfigurableMachine>>();
 	
 	public static void writeMappings() {
 		put(TileEntityTestBombAdvanced.class, "tilentity_testbombadvanced");
@@ -73,6 +75,8 @@ public class TileMappings {
 		put(TileEntityYellowBarrel.class, "tileentity_nukebarrel");
 		put(TileEntityLaunchPad.class, "tileentity_launch1");
 		put(TileEntityLaunchPadPassenger.class, "tileentity_launch2");
+		put(TileEntityLaunchPadRusted.class, "tileentity_launchpad_rusted");
+		put(TileEntityLaunchPadLarge.class, "tileentity_launchpad_large");
 		put(TileEntityDecoBlock.class, "tileentity_deco");
 		put(TileEntityDecoBlockAltW.class, "tileentity_deco_w");
 		put(TileEntityDecoBlockAltG.class, "tileentity_deco_g");
@@ -83,9 +87,7 @@ public class TileMappings {
 		put(TileEntityMachineSchrabidiumTransmutator.class, "tileentity_schrabidium_transmutator");
 		put(TileEntityMachineDischarger.class, "tileentity_discharger");
 		put(TileEntityMachineDiesel.class, "tileentity_diesel_generator");
-		put(TileEntityWatzCore.class, "tileentity_watz_multiblock");
 		put(TileEntityMachineShredder.class, "tileentity_machine_shredder");
-		put(TileEntityMachineCMBFactory.class, "tileentity_machine_cmb");
 		put(TileEntityFWatzCore.class, "tileentity_fwatz_multiblock");
 		put(TileEntityMachineTeleporter.class, "tileentity_teleblock");
 		put(TileEntityHatch.class, "tileentity_seal_lid");
@@ -96,8 +98,6 @@ public class TileMappings {
 		put(TileEntityMachineCyclotron.class, "tileentity_cyclotron");
 		put(TileEntityMachineExposureChamber.class, "tileentity_exposure_chamber");
 		put(TileEntityMachineRTG.class, "tileentity_machine_rtg");
-		put(TileEntityStructureMarker.class, "tileentity_structure_marker");
-		put(TileEntityMachineMiningDrill.class, "tileentity_mining_drill");
 		put(TileEntityMachineExcavator.class, "tileentity_ntm_excavator");
 		put(TileEntityFluidDuctSimple.class, "tileentity_universal_duct_simple");
 		put(TileEntityFluidDuct.class, "tileentity_universal_duct");
@@ -118,6 +118,7 @@ public class TileMappings {
 		put(TileEntityMachineRadGen.class, "tileentity_radgen");
 		put(TileEntityMachineTransformer.class, "tileentity_transformer");
 		put(TileEntityMachineRadarNT.class, "tileentity_radar");
+		put(TileEntityMachineRadarLarge.class, "tileentity_radar_large");
 		put(TileEntityMachineRadarScreen.class, "tileentity_radar_screen");
 		put(TileEntityBroadcaster.class, "tileentity_pink_cloud_broadcaster");
 		put(TileEntityMachineSeleniumEngine.class, "tileentity_selenium_engine");
@@ -128,10 +129,8 @@ public class TileMappings {
 		put(TileEntityRadioRec.class, "tileentity_radio_receiver");
 		put(TileEntityVent.class, "tileentity_vent");
 		put(TileEntityLandmine.class, "tileentity_landmine");
-		put(TileEntityBomber.class, "tileentity_bomber");
 		put(TileEntityMachineKeyForge.class, "tileentity_key_forge");
 		put(TileEntitySellafield.class, "tileentity_sellafield_core");
-		put(TileEntityNukeN45.class, "tileentity_n45");
 		put(TileEntityBlastDoor.class, "tileentity_blast_door");
 		put(TileEntitySafe.class, "tileentity_safe");
 		put(TileEntityMachineGasCent.class, "tileentity_gas_centrifuge");
@@ -143,7 +142,6 @@ public class TileMappings {
 		put(TileEntityMachineShredderLarge.class, "tileentity_machine_big_shredder");
 		put(TileEntityRFDuct.class, "tileentity_hbm_rfduct");
 		put(TileEntityReactorControl.class, "tileentity_reactor_remote_control");
-		put(TileEntityMachineReactorLarge.class, "tileentity_large_reactor");
 		put(TileEntityWasteDrum.class, "tileentity_waste_drum");
 		put(TileEntityDecon.class, "tileentity_decon");
 		put(TileEntityMachineSatDock.class, "tileentity_miner_dock");
@@ -211,6 +209,7 @@ public class TileMappings {
 		put(TileEntityCustomMachine.class, "tileentity_custom_machine");
 		
 		put(TileEntityLoot.class, "tileentity_ntm_loot");
+		put(TileEntityPedestal.class, "tileentity_ntm_pedestal");
 		put(TileEntityBobble.class, "tileentity_ntm_bobblehead");
 		put(TileEntitySnowglobe.class, "tileentity_ntm_snowglobe");
 		put(TileEntityEmitter.class, "tileentity_ntm_emitter");
@@ -232,6 +231,8 @@ public class TileMappings {
 
 		put(TileEntityBlockPWR.class, "tileentity_block_pwr");
 		put(TileEntityPWRController.class, "tileentity_pwr_controller");
+
+		put(TileEntityData.class, "tileentity_data");
 		
 		putNetwork();
 		putBombs();
@@ -273,6 +274,7 @@ public class TileMappings {
 		put(TileEntityTurretArty.class, "tileentity_turret_arty");
 		put(TileEntityTurretHIMARS.class, "tileentity_turret_himars");
 		put(TileEntityTurretSentry.class, "tileentity_turret_sentry");
+		put(TileEntityTurretSentryDamaged.class, "tileentity_turret_sentry_damaged");
 	}
 	
 	private static void putMachines() {
@@ -283,6 +285,7 @@ public class TileMappings {
 		put(TileEntityHeaterElectric.class, "tileentity_electric_heater");
 		put(TileEntityHeaterHeatex.class, "tileentity_heater_heatex");
 		put(TileEntityFurnaceIron.class, "tileentity_furnace_iron");
+		put(TileEntityFurnaceBrick.class, "tileentity_furnace_brick");
 		put(TileEntityFurnaceSteel.class, "tileentity_furnace_steel");
 		put(TileEntityFurnaceCombination.class, "tileentity_combination_oven");
 		put(TileEntityStirling.class, "tileentity_stirling");
@@ -301,8 +304,10 @@ public class TileMappings {
 		put(TileEntityFoundryOutlet.class, "tileentity_foundry_outlet");
 		put(TileEntityFoundrySlagtap.class, "tileentity_foundry_slagtap");
 		put(TileEntitySlag.class, "tileentity_foundry_slag");
-		
+		put(TileEntityMachineStrandCaster.class, "tileentity_strand_caster");
+
 		put(TileEntityMachineAutocrafter.class, "tileentity_autocrafter");
+		put(TileEntityMachineFunnel.class, "tileentity_funnel");
 		put(TileEntityDiFurnaceRTG.class, "tileentity_rtg_difurnace");
 		put(TileEntityMachineRadiolysis.class, "tileentity_radiolysis");
 		put(TileEntityUVLamp.class, "tileentity_uv_lamp");
@@ -348,6 +353,7 @@ public class TileMappings {
 		put(TileEntityMachineCryoDistill.class, "tileentity_cryogenic_distillator");
 		put(TileEntityMachineMilkReformer.class, "tileentity_milk_reformer");
 
+		put(TileEntityMachineHydrotreater.class, "tileentity_hydrotreater");
 		put(TileEntityMachineCoker.class, "tileentity_coker");
 		put(TileEntityChimneyBrick.class, "tileentity_chimney_brick");
 		put(TileEntityChimneyIndustrial.class, "tileentity_chimney_industrial");
@@ -418,6 +424,8 @@ public class TileMappings {
 		put(TileEntityDroneDock.class, "tileentity_drone_dock");
 		put(TileEntityDroneProvider.class, "tileentity_drone_provider");
 		put(TileEntityDroneRequester.class, "tileentity_drone_requester");
+		
+		put(TileEntityRailSwitch.class, "tileentity_rail_switch");
 	}
 	
 	private static void put(Class<? extends TileEntity> clazz, String... names) {

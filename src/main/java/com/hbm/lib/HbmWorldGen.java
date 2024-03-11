@@ -13,25 +13,13 @@ import com.hbm.handler.MultiblockHandlerXR;
 import com.hbm.items.ModItems;
 import com.hbm.main.MainRegistry;
 import com.hbm.saveddata.TomSaveData;
+import com.hbm.tileentity.bomb.TileEntityLandmine;
 import com.hbm.tileentity.deco.TileEntityLanternBehemoth;
 import com.hbm.tileentity.machine.storage.TileEntitySafe;
 import com.hbm.tileentity.machine.storage.TileEntitySoyuzCapsule;
 import com.hbm.util.LootGenerator;
 import com.hbm.util.WeightedRandomGeneric;
-import com.hbm.world.dungeon.AncientTomb;
-import com.hbm.world.dungeon.Antenna;
-import com.hbm.world.dungeon.ArcticVault;
-import com.hbm.world.dungeon.Barrel;
-import com.hbm.world.dungeon.CrashedVertibird;
-import com.hbm.world.dungeon.DesertAtom001;
-import com.hbm.world.dungeon.Factory;
-import com.hbm.world.dungeon.LibraryDungeon;
-import com.hbm.world.dungeon.Radio01;
-import com.hbm.world.dungeon.Relay;
-import com.hbm.world.dungeon.Satellite;
-import com.hbm.world.dungeon.Silo;
-import com.hbm.world.dungeon.Spaceship;
-import com.hbm.world.dungeon.Vertibird;
+import com.hbm.world.dungeon.*;
 import com.hbm.world.feature.BedrockOre;
 import com.hbm.world.feature.BedrockOre.BedrockOreDefinition;
 import com.hbm.world.feature.DepthDeposit;
@@ -64,7 +52,6 @@ import net.minecraft.world.biome.BiomeGenForest;
 import net.minecraft.world.biome.BiomeGenJungle;
 import net.minecraft.world.biome.BiomeGenRiver;
 import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraft.world.gen.ChunkProviderFlat;
 import net.minecraft.world.gen.feature.WorldGenMinable;
 import net.minecraftforge.common.util.ForgeDirection;
 import cpw.mods.fml.common.IWorldGenerator;
@@ -177,6 +164,7 @@ public class HbmWorldGen implements IWorldGenerator {
 			DungeonToolbox.generateOre(world, rand, i, j, WorldConfig.limestoneSpawn, 12, 25, 30, ModBlocks.stone_resource, EnumStoneType.LIMESTONE.ordinal());
 			
 			if(rand.nextInt(3) == 0) {
+				@SuppressWarnings("unchecked")
 				WeightedRandomGeneric<BedrockOreDefinition> item = (WeightedRandomGeneric<BedrockOreDefinition>) WeightedRandom.getRandomItem(rand, BedrockOre.weightedOres);
 				BedrockOreDefinition def = item.get();
 				
@@ -241,20 +229,21 @@ public class HbmWorldGen implements IWorldGenerator {
 			}
 		}
 		
-		boolean enableDungeons = true;
+		boolean enableDungeons = world.getWorldInfo().isMapFeaturesEnabled();
 		
-		if(world.getChunkProvider() instanceof ChunkProviderFlat) {
-			ChunkProviderFlat provider = (ChunkProviderFlat) world.getChunkProvider();
-			enableDungeons = provider.hasDungeons;
-		}
-
 		if(GeneralConfig.enableDungeons && world.provider.dimensionId == 0 && enableDungeons) {
 			
 			if(MobConfig.enableHives && rand.nextInt(MobConfig.hiveSpawn) == 0) {
 				int x = i + rand.nextInt(16) + 8;
 				int z = j + rand.nextInt(16) + 8;
 				int y = world.getHeightValue(x, z);
-				if(world.getBlock(x, y - 1, z).isNormalCube()) GlyphidHive.generate(world, x, y, z, rand);
+				
+				for(int k = 3; k >= -1; k--) {
+					if(world.getBlock(x, y - 1 + k, z).isNormalCube()) {
+						GlyphidHive.generateSmall(world, x, y + k, z, rand, rand.nextInt(10) == 0, true);
+						break;
+					}
+				}
 			}
 
 			if(biome == BiomeGenBase.plains || biome == BiomeGenBase.desert) {
@@ -353,13 +342,13 @@ public class HbmWorldGen implements IWorldGenerator {
 				}
 			}
 
-			if(WorldConfig.siloStructure > 0 && rand.nextInt(WorldConfig.siloStructure) == 0) {
+			/*if(WorldConfig.siloStructure > 0 && rand.nextInt(WorldConfig.siloStructure) == 0) {
 				int x = i + rand.nextInt(16);
 				int z = j + rand.nextInt(16);
 				int y = world.getHeightValue(x, z);
 
 				new Silo().generate(world, rand, x, y, z);
-			}
+			}*/
 
 			if(WorldConfig.factoryStructure > 0 && rand.nextInt(WorldConfig.factoryStructure) == 0) {
 				int x = i + rand.nextInt(16);
@@ -377,6 +366,7 @@ public class HbmWorldGen implements IWorldGenerator {
 				new Dud().generate(world, rand, x, y, z);
 			}
 
+
 			if(WorldConfig.spaceshipStructure > 0 && rand.nextInt(WorldConfig.spaceshipStructure) == 0) {
 				int x = i + rand.nextInt(16);
 				int z = j + rand.nextInt(16);
@@ -384,7 +374,6 @@ public class HbmWorldGen implements IWorldGenerator {
 
 				new Spaceship().generate(world, rand, x, y, z);
 			}
-
 			if(WorldConfig.barrelStructure > 0 && biome.temperature >= 1.5F && !biome.canSpawnLightningBolt() && rand.nextInt(WorldConfig.barrelStructure) == 0) {
 				int x = i + rand.nextInt(16);
 				int z = j + rand.nextInt(16);
@@ -413,6 +402,8 @@ public class HbmWorldGen implements IWorldGenerator {
 
 				if(world.getBlock(x, y - 1, z).canPlaceTorchOnTop(world, x, y - 1, z)) {
 					world.setBlock(x, y, z, ModBlocks.mine_ap);
+					TileEntityLandmine landmine = (TileEntityLandmine) world.getTileEntity(x, y, z);
+					landmine.waitingForPlayer = true;
 
 					if(GeneralConfig.enableDebugMode)
 						MainRegistry.logger.info("[Debug] Successfully spawned landmine at " + x + " " + (y) + " " + z);
@@ -448,6 +439,8 @@ public class HbmWorldGen implements IWorldGenerator {
 				int y = world.getHeightValue(x, z);
 				if(world.getBlock(x, y - 1, z).canPlaceTorchOnTop(world, x, y - 1, z)) {
 					world.setBlock(x, y, z, ModBlocks.mine_he);
+					TileEntityLandmine landmine = (TileEntityLandmine) world.getTileEntity(x, y, z);
+					landmine.waitingForPlayer = true;
 				}
 			}
 
@@ -760,6 +753,16 @@ public class HbmWorldGen implements IWorldGenerator {
 				}
 			}
 		}
+		
+		if(rand.nextInt(4) == 0) {
+			int x = i + rand.nextInt(16) + 8;
+			int y = 6 + rand.nextInt(13);
+			int z = j + rand.nextInt(16) + 8;
+			
+			if(world.getBlock(x, y, z).isReplaceableOreGen(world, x, y, z, Blocks.stone)) {
+				world.setBlock(x, y, z, ModBlocks.stone_keyhole);
+			}
+		}
 
 	}
 
@@ -783,6 +786,7 @@ public class HbmWorldGen implements IWorldGenerator {
 				DungeonToolbox.generateOre(world, rand, i, j, WorldConfig.netherPlutoniumSpawn, 4, 0, 127, ModBlocks.ore_nether_plutonium, Blocks.netherrack);
 			
 			if(rand.nextInt(10) == 0) {
+				@SuppressWarnings("unchecked")
 				WeightedRandomGeneric<BedrockOreDefinition> item = (WeightedRandomGeneric<BedrockOreDefinition>) WeightedRandom.getRandomItem(rand, BedrockOre.weightedOresNether);
 				BedrockOreDefinition def = item.get();
 				int randPosX = i + rand.nextInt(2) + 8;

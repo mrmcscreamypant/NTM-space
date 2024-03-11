@@ -1,13 +1,16 @@
 package com.hbm.extprop;
 
 import com.hbm.entity.train.EntityRailCarBase;
+import com.hbm.handler.ArmorModHandler;
 import com.hbm.handler.HbmKeybinds.EnumKeybind;
+import com.hbm.items.armor.ItemModShield;
 import com.hbm.main.MainRegistry;
 import com.hbm.tileentity.IGUIProvider;
 
 import cpw.mods.fml.common.network.internal.FMLNetworkHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
@@ -44,6 +47,8 @@ public class HbmPlayerProps implements IExtendedEntityProperties {
 	public static final float shieldCap = 100;
 	
 	public int reputation;
+	
+	public boolean isOnLadder = false;
 	
 	public HbmPlayerProps(EntityPlayer player) {
 		this.player = player;
@@ -144,8 +149,19 @@ public class HbmPlayerProps implements IExtendedEntityProperties {
 		}
 	}
 	
-	public float getMaxShield() {
-		return this.maxShield;
+	public float getEffectiveMaxShield() {
+		
+		float max = this.maxShield;
+		
+		if(player.getCurrentArmor(2) != null) {
+			ItemStack[] mods = ArmorModHandler.pryMods(player.getCurrentArmor(2));
+			if(mods[ArmorModHandler.kevlar] != null && mods[ArmorModHandler.kevlar].getItem() instanceof ItemModShield) {
+				ItemModShield mod = (ItemModShield) mods[ArmorModHandler.kevlar].getItem();
+				max += mod.shield;
+			}
+		}
+		
+		return max;
 	}
 
 	@Override
@@ -155,7 +171,7 @@ public class HbmPlayerProps implements IExtendedEntityProperties {
 	public void saveNBTData(NBTTagCompound nbt) {
 		
 		NBTTagCompound props = new NBTTagCompound();
-		
+
 		props.setBoolean("hasReceivedBook", hasReceivedBook);
 		props.setFloat("shield", shield);
 		props.setFloat("maxShield", maxShield);
@@ -163,6 +179,7 @@ public class HbmPlayerProps implements IExtendedEntityProperties {
 		props.setBoolean("enableBackpack", enableBackpack);
 		props.setBoolean("enableHUD", enableHUD);
 		props.setInteger("reputation", reputation);
+		props.setBoolean("isOnLadder", isOnLadder);
 		
 		nbt.setTag("HbmPlayerProps", props);
 	}
@@ -180,6 +197,7 @@ public class HbmPlayerProps implements IExtendedEntityProperties {
 			this.enableBackpack = props.getBoolean("enableBackpack");
 			this.enableHUD = props.getBoolean("enableHUD");
 			this.reputation = props.getInteger("reputation");
+			this.isOnLadder = props.getBoolean("isOnLadder");
 		}
 	}
 }

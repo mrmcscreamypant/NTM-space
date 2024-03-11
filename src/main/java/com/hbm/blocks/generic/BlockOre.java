@@ -5,6 +5,7 @@ import java.util.Random;
 import com.hbm.blocks.ModBlocks;
 import com.hbm.handler.radiation.ChunkRadiationManager;
 import com.hbm.interfaces.Spaghetti;
+import com.hbm.items.ItemEnums.EnumChunkType;
 import com.hbm.items.ModItems;
 import com.hbm.potion.HbmPotion;
 import cpw.mods.fml.relauncher.Side;
@@ -43,7 +44,7 @@ public class BlockOre extends Block {
 	@Spaghetti("*throws up*")
 	@Override
 	public Item getItemDropped(int i, Random rand, int j) {
-		if(this == ModBlocks.ore_fluorite || this == ModBlocks.basalt_fluorite) {
+		if(this == ModBlocks.ore_fluorite) {
 			return ModItems.fluorite;
 		}
 		if(this == ModBlocks.ore_niter) {
@@ -52,7 +53,7 @@ public class BlockOre extends Block {
 		if(this == ModBlocks.dres_diamond) {
 			return Items.diamond;
 		}
-		if(this == ModBlocks.ore_sulfur || this == ModBlocks.ore_nether_sulfur || this == ModBlocks.ore_meteor_sulfur || this == ModBlocks.basalt_sulfur) {
+		if(this == ModBlocks.ore_sulfur || this == ModBlocks.ore_nether_sulfur || this == ModBlocks.ore_meteor_sulfur) {
 			return ModItems.sulfur;
 		}
 		if(this == ModBlocks.waste_trinitite || this == ModBlocks.waste_trinitite_red) {
@@ -130,7 +131,7 @@ public class BlockOre extends Block {
 			case 23:
 				return Item.getItemFromBlock(ModBlocks.fusion_conductor);
 			case 24:
-				return Item.getItemFromBlock(ModBlocks.reactor_computer);
+				return Item.getItemFromBlock(ModBlocks.pwr_fuel);
 			case 25:
 				return Item.getItemFromBlock(ModBlocks.machine_diesel);
 			case 26:
@@ -154,46 +155,9 @@ public class BlockOre extends Block {
 			}
 		}
 		if(this == ModBlocks.ore_rare || this == ModBlocks.ore_gneiss_rare) {
-			switch(rand.nextInt(6)) {
-			case 0:
-				return ModItems.fragment_boron;
-			case 1:
-				return ModItems.fragment_cerium;
-			case 2:
-				return ModItems.fragment_cobalt;
-			case 3:
-				return ModItems.fragment_lanthanium;
-			case 4:
-				return ModItems.fragment_neodymium;
-			case 5:
-				return ModItems.fragment_niobium;
-			}
+			return ModItems.chunk_ore;
 		}
-		if(this == ModBlocks.deco_aluminium) {
-			return ModItems.ingot_aluminium;
-		}
-		if(this == ModBlocks.deco_beryllium) {
-			return ModItems.ingot_beryllium;
-		}
-		if(this == ModBlocks.deco_lead) {
-			return ModItems.ingot_lead;
-		}
-		if(this == ModBlocks.deco_red_copper) {
-			return ModItems.ingot_red_copper;
-		}
-		if(this == ModBlocks.deco_steel) {
-			return ModItems.ingot_steel;
-		}
-		if(this == ModBlocks.deco_titanium) {
-			return ModItems.ingot_titanium;
-		}
-		if(this == ModBlocks.deco_tungsten) {
-			return ModItems.ingot_tungsten;
-		}
-		if(this == ModBlocks.deco_asbestos) {
-			return ModItems.ingot_asbestos;
-		}
-		if(this == ModBlocks.ore_asbestos || this == ModBlocks.ore_gneiss_asbestos || this == ModBlocks.basalt_asbestos) {
+		if(this == ModBlocks.ore_asbestos || this == ModBlocks.ore_gneiss_asbestos) {
 			return ModItems.ingot_asbestos;
 		}
 		if(this == ModBlocks.ore_lignite) {
@@ -214,22 +178,23 @@ public class BlockOre extends Block {
 		if(this == ModBlocks.moho_sulfur) {
 			return ModItems.sulfur;
 		}
+		if(this == ModBlocks.block_meteor_molten) {
+			return null;
+		}
+
 		return Item.getItemFromBlock(this);
 	}
 
 	@Override
 	public int quantityDropped(Random rand) {
-		if(this == ModBlocks.ore_fluorite || this == ModBlocks.basalt_fluorite) {
+		if(this == ModBlocks.ore_fluorite) {
 			return 2 + rand.nextInt(3);
 		}
 		if(this == ModBlocks.ore_niter) {
 			return 2 + rand.nextInt(3);
 		}
-		if(this == ModBlocks.ore_sulfur || this == ModBlocks.ore_nether_sulfur || this == ModBlocks.ore_meteor_sulfur || this == ModBlocks.basalt_sulfur) {
+		if(this == ModBlocks.ore_sulfur || this == ModBlocks.ore_nether_sulfur || this == ModBlocks.ore_meteor_sulfur) {
 			return 2 + rand.nextInt(3);
-		}
-		if(this == ModBlocks.ore_rare || this == ModBlocks.ore_gneiss_rare) {
-			return 4 + rand.nextInt(8);
 		}
 		if(this == ModBlocks.block_meteor_broken) {
 			return 1 + rand.nextInt(3);
@@ -276,7 +241,8 @@ public class BlockOre extends Block {
 	}
 
 	@Override
-	public int damageDropped(int p_149692_1_) {
+	public int damageDropped(int meta) {
+		if(this == ModBlocks.ore_rare || this == ModBlocks.ore_gneiss_rare) return EnumChunkType.RARE.ordinal();
 		return this == ModBlocks.waste_planks ? 1 : 0;
 	}
 
@@ -358,8 +324,7 @@ public class BlockOre extends Block {
 	public void onBlockDestroyedByPlayer(World world, int x, int y, int z, int i) {
 
 		if(this == ModBlocks.block_meteor_molten) {
-			if(!world.isRemote)
-				world.setBlock(x, y, z, Blocks.lava);
+			if(!world.isRemote) world.setBlock(x, y, z, Blocks.lava);
 		}
 	}
 }

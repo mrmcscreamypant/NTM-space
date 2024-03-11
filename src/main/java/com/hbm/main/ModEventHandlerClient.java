@@ -1,6 +1,7 @@
 package com.hbm.main;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -14,6 +15,10 @@ import com.hbm.blocks.ILookOverlay;
 import com.hbm.blocks.ModBlocks;
 import com.hbm.blocks.gas.BlockGasAir;
 import com.hbm.blocks.generic.BlockAshes;
+import com.hbm.blocks.rail.IRailNTM;
+import com.hbm.blocks.rail.IRailNTM.MoveContext;
+import com.hbm.blocks.rail.IRailNTM.RailCheckType;
+import com.hbm.blocks.rail.IRailNTM.RailContext;
 import com.hbm.config.GeneralConfig;
 import com.hbm.config.SpaceConfig;
 import com.hbm.dim.eve.WorldProviderEve;
@@ -36,6 +41,7 @@ import com.hbm.interfaces.IItemHUD;
 import com.hbm.interfaces.Spaghetti;
 import com.hbm.inventory.RecipesCommon.ComparableStack;
 import com.hbm.inventory.gui.GUIArmorTable;
+import com.hbm.inventory.gui.GUIScreenPreview;
 import com.hbm.items.ISyncButtons;
 import com.hbm.items.ModItems;
 import com.hbm.items.armor.ArmorFSB;
@@ -75,6 +81,7 @@ import com.hbm.util.ItemStackUtil;
 import com.hbm.util.LoggingUtil;
 import com.hbm.util.PlanetaryTraitUtil;
 import com.hbm.util.PlanetaryTraitUtil.Hospitality;
+import com.hbm.util.fauxpointtwelve.BlockPos;
 import com.hbm.wiaj.GuiWorldInAJar;
 import com.hbm.wiaj.cannery.CanneryBase;
 import com.hbm.wiaj.cannery.Jars;
@@ -229,6 +236,11 @@ public class ModEventHandlerClient {
 					} else if(world.getBlock(mop.blockX, mop.blockY, mop.blockZ) instanceof ILookOverlay) {
 						((ILookOverlay) world.getBlock(mop.blockX, mop.blockY, mop.blockZ)).printHook(event, world, mop.blockX, mop.blockY, mop.blockZ);
 					}
+					
+					/*List<String> text = new ArrayList();
+					text.add("Meta: " + world.getBlockMetadata(mop.blockX, mop.blockY, mop.blockZ));
+					ILookOverlay.printGeneric(event, "DEBUG", 0xffff00, 0x4040000, text);*/
+					
 				} else if(mop.typeOfHit == mop.typeOfHit.ENTITY) {
 					Entity entity = mop.entityHit;
 					
@@ -269,6 +281,11 @@ public class ModEventHandlerClient {
 				BlockPos anchor = new BlockPos(pos.blockX, pos.blockY, pos.blockZ);
 				
 				double distanceToCover = 4D * (i == 0 ? 1 : -1);
+				
+				if(distanceToCover < 0) {
+					distanceToCover *= -1;
+					yaw += 180;
+				}
 				
 				do {
 					
@@ -330,6 +347,9 @@ public class ModEventHandlerClient {
 			
 			if(animation == null)
 				continue;
+
+			if(animation.holdLastFrame)
+				continue;
 			
 			long time = System.currentTimeMillis() - animation.startMillis;
 			
@@ -384,8 +404,22 @@ public class ModEventHandlerClient {
 	    }
 	}
 	
-	@SubscribeEvent
-	public void onOverlayRender(RenderGameOverlayEvent.Post event) {
+	@SubscribeEvent(receiveCanceled = true)
+	public void onHUDRenderShield(RenderGameOverlayEvent.Pre event) {
+
+		EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+		
+		if(event.type == event.type.ARMOR) {
+
+			HbmPlayerProps props = HbmPlayerProps.getData(player);
+			if(props.getEffectiveMaxShield() > 0) {
+				RenderScreenOverlay.renderShieldBar(event.resolution, Minecraft.getMinecraft().ingameGUI);
+			}
+		}
+	}
+	
+	@SubscribeEvent(receiveCanceled = true, priority = EventPriority.LOW)
+	public void onHUDRenderBar(RenderGameOverlayEvent.Post event) {
 		
 		/// HANDLE ELECTRIC FSB HUD ///
 		
@@ -409,9 +443,9 @@ public class ModEventHandlerClient {
         		RenderScreenOverlay.renderCountdown(event.resolution, Minecraft.getMinecraft().ingameGUI, Minecraft.getMinecraft().theWorld);	
         	}        	
         }
-		if(!event.isCanceled() && event.type == event.type.ARMOR) {
+		if(event.type == event.type.ARMOR) {
 			
-			if(ForgeHooks.getTotalArmorValue(player) == 0/* && GuiIngameForge.left_height == 59*/) {
+			if(ForgeHooks.getTotalArmorValue(player) == 0) {
 				GuiIngameForge.left_height -= 10;
 			}
 
@@ -454,7 +488,7 @@ public class ModEventHandlerClient {
 
 				for(int i = 0; i < (noHelmet ? 3 : 4); i++) {
 					
-					int top = height - GuiIngameForge.left_height + 6;
+					int top = height - GuiIngameForge.left_height + 7;
 
 					ItemStack stack = player.inventory.armorInventory[i];
 
@@ -1013,37 +1047,25 @@ public class ModEventHandlerClient {
 			}
 		}
 		
-		if(mc.currentScreen instanceof GuiContainer && Keyboard.isKeyDown(Keyboard.KEY_F1)) {
-
-			ScaledResolution scaledresolution = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
-			int width = scaledresolution.getScaledWidth();
-			int height = scaledresolution.getScaledHeight();
-			int mouseX = Mouse.getX() * width / mc.displayWidth;
-			int mouseY = height - Mouse.getY() * height / mc.displayHeight - 1;
+		if(Keyboard.isKeyDown(Keyboard.KEY_F1)) {
 			
-			GuiContainer container = (GuiContainer) mc.currentScreen;
-			
-			for(Object o : container.inventorySlots.inventorySlots) {
-				Slot slot = (Slot) o;
-				
-				if(slot.getHasStack()) {
-					try {
-						Method isMouseOverSlot = ReflectionHelper.findMethod(GuiContainer.class, container, new String[] {"func_146981_a", "isMouseOverSlot"}, Slot.class, int.class, int.class);
-						
-						if((boolean) isMouseOverSlot.invoke(container, slot, mouseX, mouseY)) {
-							
-							ComparableStack comp = new ComparableStack(slot.getStack()).makeSingular();
-							CanneryBase cannery = Jars.canneries.get(comp);
-							
-							if(cannery != null) {
-								FMLCommonHandler.instance().showGuiScreen(new GuiWorldInAJar(cannery.createScript(), cannery.getName(), cannery.getIcon(), cannery.seeAlso()));
-							}
-							
-							break;
-						}
-						
-					} catch(Exception ex) { }
+			ItemStack stack = getMouseOverStack();
+			if(stack != null) {
+				ComparableStack comp = new ComparableStack(stack).makeSingular();
+				CanneryBase cannery = Jars.canneries.get(comp);
+				if(cannery != null) {
+					FMLCommonHandler.instance().showGuiScreen(new GuiWorldInAJar(cannery.createScript(), cannery.getName(), cannery.getIcon(), cannery.seeAlso()));
 				}
+			}
+		}
+		
+		if(Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) && Keyboard.isKeyDown(Keyboard.KEY_LMENU)) {
+			
+			ItemStack stack = getMouseOverStack();
+			if(stack != null) {
+				stack = stack.copy();
+				stack.stackSize = 1;
+				FMLCommonHandler.instance().showGuiScreen(new GUIScreenPreview(stack));
 			}
 		}
 		
@@ -1065,6 +1087,38 @@ public class ModEventHandlerClient {
 				for(int i = 1; i < 4; i++) if(player.stepHeight == i + discriminator) player.stepHeight = defaultStepSize;
 			}
 		}
+	}
+	
+	public static ItemStack getMouseOverStack() {
+		
+		Minecraft mc = Minecraft.getMinecraft();
+		if(mc.currentScreen instanceof GuiContainer) {
+
+			ScaledResolution scaledresolution = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
+			int width = scaledresolution.getScaledWidth();
+			int height = scaledresolution.getScaledHeight();
+			int mouseX = Mouse.getX() * width / mc.displayWidth;
+			int mouseY = height - Mouse.getY() * height / mc.displayHeight - 1;
+			
+			GuiContainer container = (GuiContainer) mc.currentScreen;
+			
+			for(Object o : container.inventorySlots.inventorySlots) {
+				Slot slot = (Slot) o;
+				
+				if(slot.getHasStack()) {
+					try {
+						Method isMouseOverSlot = ReflectionHelper.findMethod(GuiContainer.class, container, new String[] {"func_146981_a", "isMouseOverSlot"}, Slot.class, int.class, int.class);
+						
+						if((boolean) isMouseOverSlot.invoke(container, slot, mouseX, mouseY)) {
+							return slot.getStack();
+						}
+						
+					} catch(Exception ex) { }
+				}
+			}
+		}
+		
+		return null;
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -1412,7 +1466,9 @@ public class ModEventHandlerClient {
 			case 12: main.splashText = "Imagine being scared by splash texts!"; break;
 			}
 			
-			if(Math.random() < 0.1) main.splashText = "Redditors aren't people!";
+			double d = Math.random();
+			if(d < 0.1) main.splashText = "Redditors aren't people!";
+			else if(d < 0.2) main.splashText = "Can someone tell me what corrosive fumes the people on Reddit are huffing so I can avoid those more effectively?";
 		}
 	}
 }

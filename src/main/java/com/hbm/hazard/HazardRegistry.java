@@ -14,6 +14,7 @@ import com.hbm.inventory.OreDictManager.DictFrame;
 import com.hbm.inventory.material.MaterialShapes;
 import com.hbm.items.ModItems;
 import com.hbm.items.machine.ItemBreedingRod.BreedingRodType;
+import com.hbm.items.machine.ItemPWRFuel.EnumPWRFuel;
 import com.hbm.items.machine.ItemRTGPelletDepleted.DepletedRTGMaterial;
 import com.hbm.items.machine.ItemWatzPellet.EnumWatzType;
 import com.hbm.items.machine.ItemZirnoxRod.EnumZirnoxType;
@@ -255,6 +256,9 @@ public class HazardRegistry {
 		HazardSystem.register(new ItemStack(ModBlocks.sellafield, 1, 3), makeData(RADIATION, 4F));
 		HazardSystem.register(new ItemStack(ModBlocks.sellafield, 1, 4), makeData(RADIATION, 5F));	
 		HazardSystem.register(new ItemStack(ModBlocks.sellafield, 1, 5), makeData(RADIATION, 10F));
+
+		HazardSystem.register(new ItemStack(ModBlocks.ore_sellafield_radgem), makeData(RADIATION, 25F));
+		HazardSystem.register(new ItemStack(ModItems.gem_rad), makeData(RADIATION, 25F));
 		
 		registerOtherFuel(rod_zirnox, EnumZirnoxType.NATURAL_URANIUM_FUEL.ordinal(), u * rod_dual, wst * rod_dual * 11.5F, false);
 		registerOtherFuel(rod_zirnox, EnumZirnoxType.URANIUM_FUEL.ordinal(), uf * rod_dual, wst * rod_dual * 10F, false);
@@ -466,12 +470,12 @@ public class HazardRegistry {
 		registerRBMKPellet(rbmk_pellet_ra226be, rabe * billet, rabe * billet * 0.4F, true);
 		registerRBMKPellet(rbmk_pellet_pu238be, pube * billet, wst * 1.5F);
 		registerRBMKPellet(rbmk_pellet_balefire_gold, au198 * billet, bf * billet * 0.5F, true);
-		registerRBMKPellet(rbmk_pellet_flashlead, pb209 * 1.25F * billet, pb209 * nugget * 0.05F, true, 0, 0, pb209 * billet * 0.008f );
+		registerRBMKPellet(rbmk_pellet_flashlead, pb209 * 1.25F * billet, pb209 * nugget * 0.05F, true, 0, 0);
 		registerRBMKPellet(rbmk_pellet_balefire, bf * billet, bf * billet * 100F, true);
 		registerRBMKPellet(rbmk_pellet_zfb_bismuth, pu241 * billet * 0.1F, wst * billet * 5F);
 		registerRBMKPellet(rbmk_pellet_zfb_pu241, pu239 * billet * 0.1F, wst * billet * 7.5F);
 		registerRBMKPellet(rbmk_pellet_zfb_am_mix, pu241 * billet * 0.1F, wst * billet * 10F);
-		registerRBMKPellet(rbmk_pellet_drx, bf * billet, bf * billet * 100F, true, 0F, 1F/24F, 0);
+		registerRBMKPellet(rbmk_pellet_drx, bf * billet, bf * billet * 100F, true, 0F, 1F/24F);
 		registerRBMKPellet(rbmk_pellet_lecm, cmrg * billet, wst * cf252 * 2.5F);
 		registerRBMKPellet(rbmk_pellet_mecm, cmrg * billet, wst * cf252 * 2.6F);
 		registerRBMKPellet(rbmk_pellet_hecm, cmrg * billet, wst * cf252 * 2.7F);
@@ -494,6 +498,23 @@ public class HazardRegistry {
 		HazardSystem.register(DictFrame.fromOne(ModItems.watz_pellet, EnumWatzType.CF252), makeData(RADIATION, cf252 * ingot * 4));
 		HazardSystem.register(DictFrame.fromOne(ModItems.watz_pellet, EnumWatzType.ES253), makeData(RADIATION, es253 * ingot * 4));
 
+
+		registerPWRFuel(EnumPWRFuel.MEU, uf * billet * 2);
+		registerPWRFuel(EnumPWRFuel.HEU233, u233 * billet * 2);
+		registerPWRFuel(EnumPWRFuel.HEU235, u235 * billet * 2);
+		registerPWRFuel(EnumPWRFuel.MEN, npf * billet * 2);
+		registerPWRFuel(EnumPWRFuel.HEN237, np237 * billet * 2);
+		registerPWRFuel(EnumPWRFuel.MOX, mox * billet * 2);
+		registerPWRFuel(EnumPWRFuel.MEP, purg * billet * 2);
+		registerPWRFuel(EnumPWRFuel.HEP239, pu239 * billet * 2);
+		registerPWRFuel(EnumPWRFuel.HEP241, pu241 * billet * 2);
+		registerPWRFuel(EnumPWRFuel.MEA, amrg * billet * 2);
+		registerPWRFuel(EnumPWRFuel.HEA242, am242 * billet * 2);
+		registerPWRFuel(EnumPWRFuel.HES326, sa326 * billet * 2);
+		registerPWRFuel(EnumPWRFuel.HES327, sa327 * billet * 2);
+		registerPWRFuel(EnumPWRFuel.BFB_AM_MIX, amrg * billet);
+		registerPWRFuel(EnumPWRFuel.BFB_PU241, pu241 * billet);
+		
 		HazardSystem.register(powder_yellowcake, makeData(RADIATION, yc * powder));
 		HazardSystem.register(block_yellowcake, makeData(RADIATION, yc * block * powder_mult));
 		HazardSystem.register(ModItems.fallout, makeData(RADIATION, fo * powder));
@@ -586,15 +607,20 @@ public class HazardRegistry {
 	private static HazardData makeData(HazardTypeBase hazard, float level) { return new HazardData().addEntry(hazard, level); }
 	private static HazardData makeData(HazardTypeBase hazard, float level, boolean override) { return new HazardData().addEntry(hazard, level, override); }
 	
-	private static void registerRBMKPellet(Item pellet, float base, float dep) { registerRBMKPellet(pellet, base, dep, false, 0F, 0F, 0F); }
-	private static void registerRBMKPellet(Item pellet, float base, float dep, boolean linear) { registerRBMKPellet(pellet, base, dep, linear, 0F, 0F, 0F); }
-	private static void registerRBMKPellet(Item pellet, float base, float dep, boolean linear, float blinding, float digamma, float neutron) {
+	private static void registerPWRFuel(EnumPWRFuel fuel, float baseRad) {
+		HazardSystem.register(DictFrame.fromOne(ModItems.pwr_fuel, fuel), makeData(RADIATION, baseRad));
+		HazardSystem.register(DictFrame.fromOne(ModItems.pwr_fuel_hot, fuel), makeData(RADIATION, baseRad * 10).addEntry(HOT, 5));
+		HazardSystem.register(DictFrame.fromOne(ModItems.pwr_fuel_depleted, fuel), makeData(RADIATION, baseRad * 10));
+	}
+	
+	private static void registerRBMKPellet(Item pellet, float base, float dep) { registerRBMKPellet(pellet, base, dep, false, 0F, 0F); }
+	private static void registerRBMKPellet(Item pellet, float base, float dep, boolean linear) { registerRBMKPellet(pellet, base, dep, linear, 0F, 0F); }
+	private static void registerRBMKPellet(Item pellet, float base, float dep, boolean linear, float blinding, float digamma) {
 		
 		HazardData data = new HazardData();
 		data.addEntry(new HazardEntry(RADIATION, base).addMod(new HazardModifierRBMKRadiation(dep, linear)));
 		if(blinding > 0) data.addEntry(new HazardEntry(BLINDING, blinding));
 		if(digamma > 0) data.addEntry(new HazardEntry(DIGAMMA, digamma));
-		if(neutron > 0) data.addEntry(new HazardEntry(NEUTRON, neutron).addMod(new HazardModifierRBMKRadiation(dep / neutron, linear)));
 		HazardSystem.register(pellet, data);
 	}
 	
