@@ -980,6 +980,12 @@ public class ModEventHandlerClient {
 	public static float flashd;
 	public static float altitude;
 	public static float toy;
+	public static float scale;
+	public static float shield;
+	public static float cooldown;
+	public static float nmass;
+	public static float shielde;
+	public static float csyw;
 
 	@SubscribeEvent
 	public void clentTick(ClientTickEvent event) {
@@ -1052,22 +1058,21 @@ public class ModEventHandlerClient {
 		}
 
 	        if (event.phase == Phase.START && !Minecraft.getMinecraft().isGamePaused()) {
+
 	            // Check if the player is in the specified dimension
 	            EntityPlayer player = Minecraft.getMinecraft().thePlayer;
 	            WorldClient world = Minecraft.getMinecraft().theWorld;
 
 	            if (player != null && world != null && world.provider.dimensionId == SpaceConfig.moonDimension) {
-	                // Your existing logic here
+	            	
 	                if (chargetime <= 0 || chargetime <= 600) {
 	                    chargetime += 1;
 	                    flashd = 0;
-	                    //System.out.println(chargetime);
 	                } else if (chargetime >= 100) {
 	                    flashd += 0.3f;
 	                    flashd = Math.min(100.0f, flashd + 0.3f * (100.0f - flashd) * 0.15f);
 
 	                    if (flashd <= 5) {
-	                        // Your sound logic here
 	                        Minecraft.getMinecraft().thePlayer.playSound("hbm:misc.fireflash", 10F, 1F);
 	                    }
 
@@ -1076,8 +1081,46 @@ public class ModEventHandlerClient {
 	                    }
 	                }
 	            }
+	            if ( chargetime >= 300 &&chargetime <= 430) {
+	        	if (scale <= 0 || scale <= 20) {
+	        	    scale += 1.5;
+	        		}
+	            
 
-	            // Altitude logic
+	        	if (scale >= 20) {
+	        	    scale = 20; 
+	        	    shield += 0.4f; 
+
+	        	    shield = Math.min(25.0f, shield + 0.5f * (25.0f - shield) * 0.15f);	        	
+	        	    nmass = Math.min(180.0f, nmass + 0.2f * (180.0f - nmass) * 0.15f);
+	        	    shielde = Math.min(15.0f, shielde + 0.6f * (15.0f - shielde) * 0.10f);	   
+	        	    csyw += 0.2f;
+	        	    csyw = Math.min(100.0f, csyw + 0.2f * (100.0f - csyw) * 0.15f);
+
+	        	    }
+
+	        	if (shield > 0) {
+	        	    if (cooldown <= 0 || cooldown <= 60) {
+	        	        cooldown += 0.5;
+	        	    }
+
+	        	    if (cooldown >= 60) {
+	        	        cooldown = 0;
+	        	        shield = 0; 
+	        	        scale = 0;  
+	        	        nmass = 0;
+	        	        shielde = 0;
+	        	        csyw = 0;
+	        	    }
+	        	}
+	            }else {
+        	        cooldown = 0;
+        	        shield = 0; 
+        	        scale = 0;  
+        	        nmass = 0;
+        	        shielde = 0;
+        	        csyw = 0;
+				}
 	            if (altitude <= 400) {
 	                altitude += 5;
 	            }

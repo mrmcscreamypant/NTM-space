@@ -61,7 +61,8 @@ public class WorldProviderMoon extends WorldProvider {
 	    public Vec3 getFogColor(float x, float y) {
 	        float ne = ModEventHandlerClient.flashd;
            float alpha = (ne <= 0) ? 0.0F : 1.0F - Math.min(1.0F, ne / 100);
-	           
+	        float xe = ModEventHandlerClient.csyw;
+	           float xalpha = (xe <= 0) ? 0.0F : 1.0F - Math.min(1.0F, xe / 100);    
 	    	NBTTagCompound tagger3 = MainRegistry.proxy.getPlanetaryTags(worldObj);
 	        if (tagger3 != null) {
 	            String traitKey = Hospitality.BREATHEABLE.toString();
@@ -70,7 +71,7 @@ public class WorldProviderMoon extends WorldProvider {
 	                return Vec3.createVectorHelper(148.3D / 255 * f +  alpha , 144.4D / 255* f + alpha, 242.7D/ 255 * f + alpha);
 	            }
 	        }
-	      return Vec3.createVectorHelper(0.0D + alpha , 0.0D + alpha , 0.0D + alpha );
+	      return Vec3.createVectorHelper(0.0D + alpha + xalpha , 0.0D + alpha + xalpha , 0.0D + alpha + xalpha );
 	    }
 
 	    public Vec3 getSkyColor(Entity camera, float partialTicks) {
@@ -200,6 +201,8 @@ public class WorldProviderMoon extends WorldProvider {
     @SideOnly(Side.CLIENT)
     public float getSunBrightness(float par1)
     {
+        float xe = ModEventHandlerClient.csyw;
+        float xalpha = (xe <= 0) ? 0.0F : 0.5F - Math.min(0.5F, xe / 100);   
         float ne = ModEventHandlerClient.flashd;
         float alpha = (ne <= 0) ? 0.0F : 1.0F - Math.min(1.0F, ne / 100);
         float f1 = this.worldObj.getCelestialAngle(1.0F);
@@ -214,6 +217,6 @@ public class WorldProviderMoon extends WorldProvider {
             f2 = 1.0F;
         }
         f2 = 0.95F - f2;
-        return (float) (f2 * 0 + alpha);
+        return (float) (f2 * 0 + alpha + xalpha);
     }
 }
