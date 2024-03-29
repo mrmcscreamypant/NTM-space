@@ -501,9 +501,10 @@ public class SkyProviderMoon extends IRenderHandler {
 
 		GL11.glPopMatrix();
 		GL11.glPushMatrix();
-		GL11.glRotated(25.0 * rnd * random.nextInt(4), -12.0, 5.0 + rnd, 0.0 + rnd);
+		GL11.glRotated(25.0 * rnd, -12.0, 5.0 + rnd, 2.0 + rnd);
+		GL11.glRotated(15.0 * rnd, -11.0, 20.0 + rnd, 1.0 + rnd);
 
-		GL11.glTranslated(50 - rnd, alt - rnd * rnd, 2 * rnd);
+		GL11.glTranslated(50 - rnd, alt - rnd * rnd, -10 * rnd);
 		for (int i = 0; i < 17; i++) {
 		GL11.glTranslated( - rnd, 0 - random.nextInt(20) , rnd);
 		BeamPronter.prontBeam(Vec3.createVectorHelper(0, 5, 0), EnumWaveType.SPIRAL, EnumBeamType.SOLID, 0xFF9000, 0xFF9000, 0, 1, 0F, 6, (float)0.2 * 0.2F);
@@ -514,18 +515,38 @@ public class SkyProviderMoon extends IRenderHandler {
 		GL11.glPushMatrix();
 		GL11.glRotated(45.0 * rnd, -12.0, 5.0, 0.0);
 
-		GL11.glTranslated(-50 * rnd,alt - 50 * rnd, -80 * rnd);
+		GL11.glTranslated(-40 + rnd,alt - 50 * rnd, -90 * rnd);
 
 		for (int i = 0; i < 17; i++) {
-			GL11.glTranslated( - rnd, 0 - random.nextInt(20) , rnd);
+			GL11.glTranslated( -rnd, 0 - random.nextInt(20) ,- 1 - rnd);
 		BeamPronter.prontBeam(Vec3.createVectorHelper(0, 5, 0), EnumWaveType.SPIRAL, EnumBeamType.SOLID, 0xFF9000, 0xFF9000, 0, 1, 0F, 6, (float)0.2 * 0.2F);
 		}
 		GL11.glPopMatrix();
 		
+		GL11.glPushMatrix();
+		GL11.glRotated(-90.0 * rnd, -12.0, 5.0, -20 + -45);
 
+		GL11.glTranslated(-10 * rnd, rnd + alt - 110, -80 + rnd);
+
+		for (int i = 0; i < 17; i++) {
+			GL11.glTranslated( -rnd, 0 - random.nextInt(20) ,- 1 - rnd);
+		BeamPronter.prontBeam(Vec3.createVectorHelper(0, 5, 0), EnumWaveType.SPIRAL, EnumBeamType.SOLID, 0xFF9000, 0xFF9000, 0, 1, 0F, 6, (float)0.2 * 0.2F);
+		}
+		GL11.glPopMatrix();
 		
 		GL11.glPushMatrix();
-		GL11.glRotated(-25.0 - rnd, -12.0, 5.0, 0.0);
+		GL11.glRotated(-90.0 * 0.5961033, -12.0, 5.0, -20 + -45);
+		GL11.glTranslated(80 * rnd, rnd + alt - 110, 55 + rnd);
+
+		for (int i = 0; i < 17; i++) {
+			GL11.glTranslated( -rnd, 0 - random.nextInt(20) ,- 1 - rnd);
+		BeamPronter.prontBeam(Vec3.createVectorHelper(0, 5, 0), EnumWaveType.SPIRAL, EnumBeamType.SOLID, 0xFF9000, 0xFF9000, 0, 1, 0F, 6, (float)0.2 * 0.2F);
+		}
+		GL11.glPopMatrix();
+		
+		
+		GL11.glPushMatrix();
+		GL11.glRotated(-25.0 - rnd, -16.0, 5.0, 0.0);
 		GL11.glTranslated(-60 - rnd, alt - 150 * rnd, 20 * rnd);
 
 		for (int i = 0; i < 17; i++) {
@@ -537,7 +558,7 @@ public class SkyProviderMoon extends IRenderHandler {
 		GL11.glPushMatrix();
 		GL11.glRotated(-65.0 - rnd, -12.0, 5.0, 0.0);
 
-		GL11.glTranslated(20 + rnd, alt - 150 * rnd, -80 * rnd);
+		GL11.glTranslated(50 + rnd, alt - 150 * rnd, -80 * rnd);
 
 		for (int i = 0; i < 17; i++) {
 			GL11.glTranslated( rnd, 0 - random.nextInt(15) ,- rnd);
