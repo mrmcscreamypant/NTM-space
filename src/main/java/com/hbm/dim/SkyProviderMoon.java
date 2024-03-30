@@ -7,6 +7,8 @@ import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.client.IRenderHandler;
@@ -20,6 +22,7 @@ import com.hbm.main.MainRegistry;
 import com.hbm.main.ModEventHandler;
 import com.hbm.main.ModEventHandlerClient;
 import com.hbm.main.ResourceManager;
+import com.hbm.main.ModEventHandlerClient.Meteor;
 import com.hbm.render.util.BeamPronter;
 import com.hbm.render.util.BeamPronter.EnumBeamType;
 import com.hbm.render.util.BeamPronter.EnumWaveType;
@@ -432,6 +435,82 @@ public class SkyProviderMoon extends IRenderHandler {
 		GL11.glEnable(GL11.GL_ALPHA_TEST);
 		GL11.glEnable(GL11.GL_FOG);
 		GL11.glPopMatrix();
+		for(Meteor meteor : ModEventHandlerClient.meteors) {
+			GL11.glPushMatrix();
+			GL11.glDisable(GL11.GL_FOG);
+			GL11.glEnable(GL11.GL_TEXTURE_2D);
+			double dx = mc.thePlayer.prevPosX + (mc.thePlayer.posX - mc.thePlayer.prevPosX) * partialTicks;
+			double dy = mc.thePlayer.prevPosY + (mc.thePlayer.posY - mc.thePlayer.prevPosY) * partialTicks;
+			double dz = mc.thePlayer.prevPosZ + (mc.thePlayer.posZ - mc.thePlayer.prevPosZ) * partialTicks;
+			Vec3 vec = Vec3.createVectorHelper(meteor.posX - dx, meteor.posY - dy, meteor.posZ - dz);
+			Vec3 vec2 = Vec3.createVectorHelper(meteor.posX - dx, meteor.posY - dy, meteor.posZ - dz);
+			double l = Math.min(Minecraft.getMinecraft().gameSettings.renderDistanceChunks*16, vec.lengthVector());
+			double sf = Math.max(0.2,(312.5/(vec2.lengthVector()/l)));
+			vec = vec.normalize();
+			Vec3 vecd = Vec3.createVectorHelper(vec.xCoord*l, vec.yCoord*l, vec.zCoord*l);
+			GL11.glTranslated( vecd.xCoord, vecd.yCoord , vecd.zCoord);
+			double descent = 2017d-meteor.posY;
+			double quadratic = (-1*Math.pow(descent, 2)+(1517*descent))/41;
+			//float scalar = (float) (7000f/vec2.lengthVector()); 
+			float scalar = (float) (quadratic/vec2.lengthVector()); 
+			GL11.glScaled(scalar, scalar, scalar);
+				//System.out.println("scalar "+scalar);
+			renderGlow(new ResourceLocation(RefStrings.MODID + ":textures/particle/flare.png"), 1, 1, 1, partialTicks);
+			GL11.glDisable(GL11.GL_TEXTURE_2D);
+			GL11.glEnable(GL11.GL_FOG);
+			GL11.glPopMatrix();
+	}
+	for(Meteor fragment : ModEventHandlerClient.fragments) {
+		GL11.glPushMatrix();
+		GL11.glDisable(GL11.GL_FOG);
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		double dx = mc.thePlayer.prevPosX + (mc.thePlayer.posX - mc.thePlayer.prevPosX) * partialTicks;
+		double dy = mc.thePlayer.prevPosY + (mc.thePlayer.posY - mc.thePlayer.prevPosY) * partialTicks;
+		double dz = mc.thePlayer.prevPosZ + (mc.thePlayer.posZ - mc.thePlayer.prevPosZ) * partialTicks;
+		Vec3 vec = Vec3.createVectorHelper(fragment.posX - dx, fragment.posY - dy, fragment.posZ - dz);
+		Vec3 vec2 = Vec3.createVectorHelper(fragment.posX - dx, fragment.posY - dy, fragment.posZ - dz);
+		double l = Math.min(Minecraft.getMinecraft().gameSettings.renderDistanceChunks*16, vec.lengthVector());
+		double sf = Math.max(0.2,(312.5/(vec2.lengthVector()/l)));
+		vec = vec.normalize();
+		Vec3 vecd = Vec3.createVectorHelper(vec.xCoord*l, vec.yCoord*l, vec.zCoord*l);
+		GL11.glTranslated( vecd.xCoord, vecd.yCoord , vecd.zCoord);
+		double descent = 2017d-fragment.posY;
+		double quadratic = (-1*Math.pow(descent, 2)+(1517*descent))/82;
+		//float scalar = (float) (7000f/vec2.lengthVector()); 
+		float scalar = (float) (quadratic/vec2.lengthVector()); 
+			GL11.glScaled(scalar, scalar, scalar);
+			//System.out.println("scalar "+scalar);
+			renderGlow(new ResourceLocation(RefStrings.MODID + ":textures/particle/flare.png"), 1, 1, 1, partialTicks);
+		GL11.glDisable(GL11.GL_TEXTURE_2D);
+		GL11.glEnable(GL11.GL_FOG);
+		GL11.glPopMatrix();
+}
+	for(Meteor smoke : ModEventHandlerClient.smoke) {
+		GL11.glPushMatrix();
+		GL11.glDisable(GL11.GL_FOG);
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		double dx = mc.thePlayer.prevPosX + (mc.thePlayer.posX - mc.thePlayer.prevPosX) * partialTicks;
+		double dy = mc.thePlayer.prevPosY + (mc.thePlayer.posY - mc.thePlayer.prevPosY) * partialTicks;
+		double dz = mc.thePlayer.prevPosZ + (mc.thePlayer.posZ - mc.thePlayer.prevPosZ) * partialTicks;
+		Vec3 vec = Vec3.createVectorHelper(smoke.posX - dx, smoke.posY - dy, smoke.posZ - dz);
+		Vec3 vec2 = Vec3.createVectorHelper(smoke.posX - dx, smoke.posY - dy, smoke.posZ - dz);
+		double l = Math.min(Minecraft.getMinecraft().gameSettings.renderDistanceChunks*16, vec.lengthVector());
+		double sf = Math.max(0.2,(312.5/(vec2.lengthVector()/l)));
+		vec = vec.normalize();
+		Vec3 vecd = Vec3.createVectorHelper(vec.xCoord*l, vec.yCoord*l, vec.zCoord*l);
+		GL11.glTranslated( vecd.xCoord, vecd.yCoord , vecd.zCoord);
+		double descent = 2017d-smoke.posY;
+		double quadratic = (-1*Math.pow(descent, 2)+(1517*descent))/82;
+		//float scalar = (float) (14000f/vec2.lengthVector()); 
+		float scalar = (float) (quadratic/vec2.lengthVector()); 
+			//scalar = 3500;
+		GL11.glColor4d(1, 0, 0, 1);
+			GL11.glScaled(scalar, scalar, scalar);
+			renderSmoke(new ResourceLocation(RefStrings.MODID + ":textures/particle/particle_base.png"), smoke.age);
+		GL11.glDisable(GL11.GL_TEXTURE_2D);
+		GL11.glEnable(GL11.GL_FOG);
+		GL11.glPopMatrix();
+}
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		GL11.glColor3f(0.0F, 0.0F, 0.0F);
 		double d0 = mc.thePlayer.getPosition(partialTicks).yCoord - world.getHorizon();
@@ -653,5 +732,60 @@ public class SkyProviderMoon extends IRenderHandler {
 	    tessellator.addVertexWithUV(100.0D, -100.0D, -100.0D, u + 0.3333333333333333D, v);
 	    tessellator.draw();
 	  }
+		//ASTEROID ENTRY GLOW
+		public void renderGlow(ResourceLocation loc1, double x, double y, double z, float partialTicks) {
+			GL11.glPushMatrix();
+			GL11.glEnable(GL11.GL_BLEND);
+			float f4 = 1.0F;
+			float f5 = 0.5F;
+			float f6 = 0.25F;
+	        GL11.glRotatef(180.0F - RenderManager.instance.playerViewY, 0.0F, 1.0F, 0.0F);
+	        GL11.glRotatef(-RenderManager.instance.playerViewX, 1.0F, 0.0F, 0.0F);
+	       // double distant = 1d-(Math.min(6300000f, Math.max(0d, y-40000f))/6300000f);
+	      //  double sf = 1d-(Math.min(400000f, Math.max(0d, y-350000f))/400000f);
+	       //
+	        //double near = distant*(Math.min(40000f, Math.max(0d, y-35000f))/40000f)*Math.min(1d,Minecraft.getMinecraft().thePlayer.worldObj.getStarBrightness(partialTicks)+sf);
+	        double near = 0.51d*(Math.min(40000f, Math.max(0d, y-35000d))/40000d);
+	      //  System.out.println((1d-(Math.min(200d, Math.max(0d, y-2017d))/200f)));
+	        double entry = near*(1d-Minecraft.getMinecraft().thePlayer.worldObj.getRainStrength(partialTicks))+(1d-(Math.min(200d, Math.max(0d, x-2017d))/200f));
+			GL11.glColor4d(entry, entry, entry, entry);
+			Tessellator tess = Tessellator.instance;
+			TextureManager tex = Minecraft.getMinecraft().getTextureManager();
+			tess.startDrawingQuads();
+			tess.setNormal(0.0F, 1.0F, 0.0F);
+			tess.addVertexWithUV(0.0F - f5, 0.0F - f6, 0.0D, 1, 0);
+			tess.addVertexWithUV(f4 - f5, 0.0F - f6, 0.0D, 0, 0);
+			tess.addVertexWithUV(f4 - f5, f4 - f6, 0.0D, 0, 1);
+			tess.addVertexWithUV(0.0F - f5, f4 - f6, 0.0D, 1, 1);
+			tex.bindTexture(loc1);
+			tess.draw();
+			GL11.glDisable(GL11.GL_BLEND);
+			GL11.glPopMatrix();
 
+		}
+		
+		public void renderSmoke(ResourceLocation loc1, long age) {
+			GL11.glPushMatrix();
+			GL11.glEnable(GL11.GL_BLEND);
+			float f4 = 1.0F;
+			float f5 = 0.5F;
+			float f6 = 0.25F;
+			float dark = 1f - Math.min(((float)(age) / (float)(100f * 0.35F)), 1f);
+	        GL11.glRotatef(180.0F - RenderManager.instance.playerViewY, 0.0F, 1.0F, 0.0F);
+	        GL11.glRotatef(-RenderManager.instance.playerViewX, 1.0F, 0.0F, 0.0F);
+			GL11.glColor4d(0.6*dark+0.0, 0.6*dark+0.0, 1*dark+0.0, 1);
+			Tessellator tess = Tessellator.instance;
+			TextureManager tex = Minecraft.getMinecraft().getTextureManager();
+			tess.startDrawingQuads();
+			tess.setNormal(0.0F, 1.0F, 0.0F);
+			tess.addVertexWithUV(0.0F - f5, 0.0F - f6, 0.0D, 1, 0);
+			tess.addVertexWithUV(f4 - f5, 0.0F - f6, 0.0D, 0, 0);
+			tess.addVertexWithUV(f4 - f5, f4 - f6, 0.0D, 0, 1);
+			tess.addVertexWithUV(0.0F - f5, f4 - f6, 0.0D, 1, 1);
+			tex.bindTexture(loc1);
+			tess.draw();
+			GL11.glDisable(GL11.GL_BLEND);
+			GL11.glPopMatrix();
+
+		}
 }

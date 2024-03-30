@@ -1,6 +1,7 @@
 package com.hbm.main;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -55,6 +56,7 @@ import com.hbm.potion.HbmPotion;
 import com.hbm.render.anim.HbmAnimations;
 import com.hbm.render.anim.HbmAnimations.Animation;
 import com.hbm.render.block.ct.CTStitchReceiver;
+import com.hbm.render.model.ModelRubble;
 import com.hbm.render.util.RenderAccessoryUtility;
 import com.hbm.render.util.RenderOverhead;
 import com.hbm.render.util.RenderScreenOverlay;
@@ -1085,6 +1087,10 @@ public class ModEventHandlerClient {
 	                    }
 	                }
 	            }
+        	    if(chargetime == 285) {
+                    Minecraft.getMinecraft().thePlayer.playSound("hbm:misc.cenimp", 10F, 1F);
+	        	    System.out.println(chargetime);
+	        	}
 	            if ( chargetime >= 300 &&chargetime <= 430) {
 	        	if (scale <= 0 || scale <= 20) {
 	        	    scale += 1.5;
@@ -1094,7 +1100,6 @@ public class ModEventHandlerClient {
 	        	if (scale >= 20) {
 	        	    scale = 20; 
 	        	    shield += 0.4f; 
-
 	        	    shield = Math.min(25.0f, shield + 0.5f * (25.0f - shield) * 0.15f);	        	
 	        	    nmass = Math.min(180.0f, nmass + 0.2f * (180.0f - nmass) * 0.15f);
 	        	    shielde = Math.min(15.0f, shielde + 0.6f * (15.0f - shielde) * 0.10f);	   
@@ -1133,8 +1138,9 @@ public class ModEventHandlerClient {
 	                toy = Minecraft.getMinecraft().theWorld.rand.nextFloat();
 	            }
 	        }
+	       
 	        
-		
+		/*
 		if(Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) && Keyboard.isKeyDown(Keyboard.KEY_LMENU)) {
 			
 			ItemStack stack = getMouseOverStack();
@@ -1144,6 +1150,7 @@ public class ModEventHandlerClient {
 				FMLCommonHandler.instance().showGuiScreen(new GUIScreenPreview(stack));
 			}
 		}
+		*/
 		
 		 if (event.phase == Phase.START && !Minecraft.getMinecraft().isGamePaused()) {
 	            // Check if the player is in the specified dimension
@@ -1152,42 +1159,58 @@ public class ModEventHandlerClient {
                 	            
             	Random rand = new Random();
             	long time = ImpactWorldHandler.getTimeForClient(world);
-            	if(time>0 && world.provider.dimensionId == 0)
+            	if( world.provider.dimensionId == SpaceConfig.moonDimension)
             	{
-            		if(time>18000 && time <=24000)
-                	{
+
             			if(rand.nextInt(256)==0)
                     	{
                             	Meteor meteor = new Meteor((player.posX+rand.nextInt(16000))-8000, 2017, (player.posZ+rand.nextInt(16000))-8000);
                             	meteors.add(meteor);
                     	}
-                	}
-            		if(time>12000 && time <=18000)
-                	{
+
             			if(rand.nextInt(64)==0)
                     	{
                             	Meteor meteor = new Meteor((player.posX+rand.nextInt(16000))-8000, 2017, (player.posZ+rand.nextInt(16000))-8000);
                             	meteors.add(meteor);
                     	}
-                	}
-            		if(time>6000 && time <=12000)
-                	{
+
             			if(rand.nextInt(16)==0)
                     	{
                             	Meteor meteor = new Meteor((player.posX+rand.nextInt(16000))-8000, 2017, (player.posZ+rand.nextInt(16000))-8000);
                             	meteors.add(meteor);
                     	}
-                	}
-            		if(time <=6000)
-                	{
+
             			if(rand.nextInt(4)==0)
                     	{
-                            	Meteor meteor = new Meteor((player.posX+rand.nextInt(16000))-8000, 2017, (player.posZ+rand.nextInt(16000))-8000);
+                            	Meteor meteor = new Meteor((player.posX+rand.nextInt(18000))-8000, 2017, (player.posZ+rand.nextInt(18000))-8000);
+                            	meteors.add(meteor);
+                    	}
+            			if(rand.nextInt(256)==0)
+                    	{
+                            	Meteor meteor = new Meteor((player.posX+rand.nextInt(18000))-8000, 2017, (player.posZ+rand.nextInt(18000))-8000);
+                            	meteors.add(meteor);
+                    	}
+
+            			if(rand.nextInt(128)==0)
+                    	{
+                            	Meteor meteor = new Meteor((player.posX+rand.nextInt(18000))-8000, 2017, (player.posZ+rand.nextInt(18000))-8000);
+                            	meteors.add(meteor);
+                    	}
+
+            			if(rand.nextInt(32)==0)
+                    	{
+                            	Meteor meteor = new Meteor((player.posX+rand.nextInt(18000))-8000, 2017, (player.posZ+rand.nextInt(18000))-8000);
+                            	meteors.add(meteor);
+                    	}
+
+            			if(rand.nextInt(4)==0)
+                    	{
+                            	Meteor meteor = new Meteor((player.posX+rand.nextInt(18000))-8000, 2017, (player.posZ+rand.nextInt(18000))-8000);
                             	meteors.add(meteor);
                     	}
                 	}
             	}
-	        }
+	        
 			for(Meteor meteor : meteors) {
 				if(!Minecraft.getMinecraft().isGamePaused())
 				meteor.update();
@@ -1589,7 +1612,7 @@ public class ModEventHandlerClient {
 		
 		public Meteor(double posX, double posY, double posZ)
 		{
-			this(posX, posY, posZ, MeteorType.STANDARD, -31.2, -20.8, 0);
+			this(posX, posY, posZ, MeteorType.STANDARD, -31.2, -20.8, 20);
 		}
 		
 		public Meteor(double posX, double posY, double posZ, MeteorType type, double motionX, double motionY, double motionZ) {
@@ -1609,6 +1632,7 @@ public class ModEventHandlerClient {
 			{
 				Meteor meteor = new Meteor((this.posX+rand.nextInt(16))-8, (this.posY+rand.nextInt(16)), (this.posZ+rand.nextInt(16))-8, MeteorType.SMOKE,0,0,0);
 	        	smoke.add(meteor);
+	        	/*
             	if(rand.nextInt(4)==0)
             	{
             		//double spreadY = rand.nextDouble()*(Math.abs(this.motionY*0.05d))-0.5;
@@ -1616,6 +1640,8 @@ public class ModEventHandlerClient {
     				Meteor frag = new Meteor((this.posX+rand.nextInt(16))-8, (this.posY+rand.nextInt(16)), (this.posZ+rand.nextInt(16))-8, MeteorType.FRAGMENT,this.motionX*0.5,(this.motionY*0.5),(this.motionZ*0.5));
     				fragments.add(frag);
             	}
+            	*/
+	        	
 			}
 			if(this.posY <=500 && this.type != MeteorType.SMOKE)
 			{

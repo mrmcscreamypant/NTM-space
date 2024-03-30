@@ -7,6 +7,8 @@ import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.client.IRenderHandler;
@@ -238,17 +240,6 @@ public class RenderNTMSkyboxImpact extends IRenderHandler {
 		GL11.glEnable(GL11.GL_ALPHA_TEST);
 		GL11.glEnable(GL11.GL_FOG);
 		GL11.glPopMatrix();
-		if(time>0)
-		{
-			GL11.glPushMatrix();
-			GL11.glDisable(GL11.GL_FOG);
-			GL11.glColor3f(1.0F, 1.0F, 1.0F);
-			GL11.glEnable(GL11.GL_TEXTURE_2D);
-			renderAsteroid(partialTicks);
-			GL11.glDisable(GL11.GL_TEXTURE_2D);
-			GL11.glEnable(GL11.GL_FOG);
-			GL11.glPopMatrix();
-		}
 		for(Meteor meteor : ModEventHandlerClient.meteors) {
 				GL11.glPushMatrix();
 				GL11.glDisable(GL11.GL_FOG);
@@ -423,82 +414,7 @@ public class RenderNTMSkyboxImpact extends IRenderHandler {
 		tessellator.draw();
 	}
 	
-	//ASTEROID
-	  private void renderAsteroid(float partialTicks)
-	  {				
-			GL11.glPushMatrix();
-			EntityPlayer player = Minecraft.getMinecraft().thePlayer;
-			double T = player.worldObj.getWorldTime()+3460;
-			long t = ImpactWorldHandler.getTimeForClient(player.worldObj);
-			double dx = player.prevPosX + (player.posX - player.prevPosX) * partialTicks;
-			double dy = player.prevPosY + (player.posY - player.prevPosY) * partialTicks;
-			double dz = player.prevPosZ + (player.posZ - player.prevPosZ) * partialTicks;
 
-			//int dist = 6;
-			double P = 24000;
-			double R = t*37.5;
-			float x = (float) (ImpactWorldHandler.x+0.5+R);//(R*Math.cos((2*Math.PI*T)/P)));
-			float y = (float) (R/1.5f);//*Math.sin((2*Math.PI*T)/P));
-			float z = (float)(ImpactWorldHandler.z+0.5);
-			if(t<=6 && t>0 && System.currentTimeMillis() - ModEventHandlerClient.flashTimestamp > 1_000)
-			{
-				ModEventHandlerClient.flashTimestamp = System.currentTimeMillis();
-				ModEventHandlerClient.asteroidflashDuration = 15_000;
-			}
-			Vec3 vec = Vec3.createVectorHelper(x - dx, y - dy, z - dz);
-			Vec3 vec2 = Vec3.createVectorHelper(x - dx, y - dy, z - dz);
-			double l = Math.min(Minecraft.getMinecraft().gameSettings.renderDistanceChunks*16, vec.lengthVector());
-			vec = vec.normalize();
-			Vec3 vec3 = Vec3.createVectorHelper(vec.xCoord*l, vec.yCoord*l, vec.zCoord*l);
-
-			double sf = Math.max(0.2,(312.5/(vec2.lengthVector()/l)));//(2*Math.atan(1/(2*vec2.lengthVector())));//*17.2958);
-			//System.out.println("sf: "+sf);
-			if(vec2.lengthVector()>Minecraft.getMinecraft().gameSettings.renderDistanceChunks*6) {
-
-				GL11.glTranslated(vec3.xCoord, vec3.yCoord, vec3.zCoord);
-				GL11.glPushMatrix();
-				RenderHelper.enableStandardItemLighting();
-
-				GL11.glRotated(80, 0, 0, 1);
-				GL11.glRotated(30, 0, 1, 0);
-
-				double sine = Math.sin(System.currentTimeMillis() * 0.0005) * 5;
-				double sin3 = Math.sin(System.currentTimeMillis() * 0.0005 + Math.PI * 0.5) * 5;
-				GL11.glRotated(sine, 0, 0, 1);
-				GL11.glRotated(sin3, 1, 0, 0);
-
-				GL11.glTranslated(0, -3, 0);
-				OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 6500F, 30F);
-				GL11.glPopMatrix();
-
-				GL11.glDisable(GL11.GL_CULL_FACE);
-				GL11.glDisable(GL11.GL_LIGHTING);
-				GL11.glScaled(sf, sf, sf);
-				GL11.glPushMatrix();
-				GL11.glRotatef(-55, 0.0F, 0.0F, 1.0F);
-				//renderBlock(new ResourceLocation(RefStrings.MODID + ":textures/blocks/block_meteor_broken.png"), 0, y, 0);
-				GL11.glPushMatrix();
-				GL11.glPushMatrix();
-				float scalar = (float) (16000f/Math.min(60000, vec2.lengthVector())); 
-				//System.out.println(vec2.lengthVector());
-				GL11.glScaled(scalar, scalar, scalar);
-				GL11.glRotatef(55, 0.0F, 0.0F, 1.0F);
-				GL11.glTranslated(0, -1/4f/*(sf*0.768)*/, 0);
-				renderGlow(new ResourceLocation(RefStrings.MODID + ":textures/particle/flare.png"), y, vec2.lengthVector(), 1, partialTicks);
-				GL11.glPopMatrix();
-				GL11.glTranslated(0, -1/*(sf*0.768)*/, 0);
-				GL11.glScaled(1, 1, 1);
-				if(R<=10000)
-				{
-					TomPronter.prontTom2(2, y);
-				}
-				GL11.glPopMatrix();
-				GL11.glPopMatrix();
-				GL11.glEnable(GL11.GL_LIGHTING);
-				GL11.glEnable(GL11.GL_CULL_FACE);
-			}
-			GL11.glPopMatrix();
-	  }
 	  
 	//ASTEROID ENTRY GLOW
 			public void renderGlow(ResourceLocation loc1, double x, double y, double z, float partialTicks) {

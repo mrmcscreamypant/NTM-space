@@ -691,20 +691,7 @@ public class ModEventHandler {
 	    BlockPos targetPos = playerPos.add(offsetX, 0, offsetZ);
 		EntityBomber bomber = EntityBomber.statFacCarpet(event.world, targetPos.getX(), targetPos.getY(), targetPos.getZ());
 
-		WorldUtil.loadAndSpawnEntityInWorld(bomber);
-		
-		Class<EntityMissileGeneric> infer = EntityMissileGeneric.class;
-		
-		EntityMissileBaseNT newZealandBaseNT;
-		try {
-			newZealandBaseNT = infer.getConstructor(World.class, float.class, float.class, float.class, int.class, int.class).newInstance(event.world, targetPos.getX(), targetPos.getY() + 40, targetPos.getX(), targetPos.getX(), targetPos.getZ());
-			event.world.spawnEntityInWorld(newZealandBaseNT);
-
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException | SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		//premoWorldUtil.loadAndSpawnEntityInWorld(bomber);
 		
 			}
 		}
