@@ -1,25 +1,34 @@
 package com.hbm.render.entity.effect;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Random;
 
 import org.lwjgl.opengl.GL11;
 
+import com.hbm.entity.effect.EntityBlackHole;
+//import com.hbm.entity.effect.EntityNukeTorex;
 import com.hbm.entity.effect.EntityRagingVortex;
 import com.hbm.entity.effect.EntityVortex;
+import com.hbm.entity.effect.EntityBlackHole.Cloudlet;
 import com.hbm.lib.RefStrings;
+import com.hbm.main.MainRegistry;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.client.model.AdvancedModelLoader;
 import net.minecraftforge.client.model.IModelCustom;
 
 public class RenderBlackHole extends Render {
-
+	private static final ResourceLocation cloudlet = new ResourceLocation(RefStrings.MODID + ":textures/particle/particle_base.png");
 	protected static final ResourceLocation objTesterModelRL = new ResourceLocation(RefStrings.MODID, "models/Sphere.obj");
 	protected IModelCustom blastModel;
 	protected ResourceLocation hole = new ResourceLocation(RefStrings.MODID, "textures/models/BlackHole.png");
@@ -53,13 +62,70 @@ public class RenderBlackHole extends Render {
 			renderJets(entity, interp);
 			
 		} else {
-			renderDisc(entity, interp);
+			cloudletWrapper((EntityBlackHole) entity, interp);
+			//renderDisc(entity, interp);
+			GL11.glScalef(size, size, size);
 			renderJets(entity, interp);
 		}
 
 		GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glEnable(GL11.GL_LIGHTING);
 
+		GL11.glPopMatrix();
+	}
+	
+	private Comparator cloudSorter = new Comparator() {
+
+		@Override
+		public int compare(Object arg0, Object arg1) {
+			Cloudlet first = (Cloudlet) arg0;
+			Cloudlet second = (Cloudlet) arg1;
+			EntityPlayer player = MainRegistry.proxy.me();
+			double dist1 = player.getDistanceSq(first.posX, first.posY, first.posZ);
+			double dist2 = player.getDistanceSq(second.posX, second.posY, second.posZ);
+			
+			return dist1 > dist2 ? -1 : dist1 == dist2 ? 0 : 1;
+		}
+	};
+	
+	private void cloudletWrapper(EntityBlackHole cloud, float interp) {
+
+		GL11.glPushMatrix();
+		GL11.glEnable(GL11.GL_BLEND);
+		OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+		// To prevent particles cutting off before fully fading out
+		GL11.glAlphaFunc(GL11.GL_GREATER, 0);
+		GL11.glDisable(GL11.GL_ALPHA_TEST);
+		GL11.glDepthMask(false);
+		RenderHelper.disableStandardItemLighting();
+
+		bindTexture(cloudlet);
+
+		Tessellator tess = Tessellator.instance;
+		tess.startDrawingQuads();
+		
+		ArrayList<Cloudlet> cloudlets = new ArrayList(cloud.cloudlets);
+		cloudlets.sort(cloudSorter);
+		
+		for(Cloudlet cloudlet : cloudlets) {
+			Vec3 vec = cloudlet.getInterpPos(interp);
+			double x2 = (cloud.posX - cloudlet.posX);
+			double z2 = (cloud.posZ - cloudlet.posZ);
+			Vec3 suck = Vec3.createVectorHelper((x2)/5, 0, (z2)/5);
+			suck.rotateAroundY(90);
+			if(cloudlet.motionX>=0d)
+			{
+				tessellateCloudlet(tess, vec.xCoord - cloud.posX, vec.yCoord - cloud.posY, vec.zCoord - cloud.posZ, cloudlet, interp, suck);
+			}
+		}
+
+		tess.draw();
+
+		GL11.glDepthMask(true);
+		GL11.glEnable(GL11.GL_ALPHA_TEST);
+		RenderHelper.enableStandardItemLighting();
+		GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
+		GL11.glDisable(GL11.GL_BLEND);
 		GL11.glPopMatrix();
 	}
 	
@@ -271,8 +337,8 @@ public class RenderBlackHole extends Render {
 		Tessellator tess = Tessellator.instance;
 
 		GL11.glPushMatrix();
-		GL11.glRotatef(entity.getEntityId() % 90 - 45, 1, 0, 0);
-		GL11.glRotatef(entity.getEntityId() % 360, 0, 1, 0);
+		//GL11.glRotatef(entity.getEntityId() % 90 - 45, 1, 0, 0);
+		//GL11.glRotatef(entity.getEntityId() % 360, 0, 1, 0);
 		
 		GL11.glDisable(GL11.GL_ALPHA_TEST);
 		GL11.glDepthMask(false);
@@ -366,6 +432,67 @@ public class RenderBlackHole extends Render {
 		GL11.glPopMatrix();
 	}
 
+	private void tessellateCloudlet(Tessellator tess, double posX, double posY, double posZ, Cloudlet cloud, float interp, Vec3 cloudV) {
+
+		float alpha = cloud.getAlpha();
+		float scale = cloud.getScale();
+
+		float f1 = ActiveRenderInfo.rotationX;
+		float f2 = ActiveRenderInfo.rotationZ;
+		float f3 = ActiveRenderInfo.rotationYZ;
+		float f4 = ActiveRenderInfo.rotationXY;
+		float f5 = ActiveRenderInfo.rotationXZ;
+		Vec3 cloudV2 = Vec3.createVectorHelper(cloud.motionX, 0, cloud.motionZ);
+		Vec3 cloudP = Vec3.createVectorHelper(cloud.posX-Minecraft.getMinecraft().thePlayer.posX, 0, cloud.posZ-Minecraft.getMinecraft().thePlayer.motionZ);
+		//cloudP.normalize();
+		Vec3 playerV = Vec3.createVectorHelper(Minecraft.getMinecraft().thePlayer.motionX, 0, Minecraft.getMinecraft().thePlayer.motionZ);
+		Vec3 diff = cloudV2.subtract(playerV);
+		
+		//double pZ = Minecraft.getMinecraft().thePlayer.posZ-Minecraft.getMinecraft().thePlayer.lastTickPosZ;
+		//double mZ = cZ+pZ;
+		//double relX = mX/(1+pX*cX);
+		//double relZ = mZ/(1+pZ*cZ);
+		//Vec3 vel = Vec3.createVectorHelper(mX-cloud.motionX, mY-cloud.motionY, mZ-cloud.motionZ);
+		/*
+		if(Minecraft.getMinecraft().thePlayer.ticksExisted%20==0)
+		{
+			System.out.println("Displacement: "+playerV.lengthVector());
+		}
+		*/
+		//double rel = vel.lengthVector();
+		float brightness = 0;
+		double rel =diff.lengthVector();//relX+relZ;// Math.sqrt((Minecraft.getMinecraft().thePlayer.motionX-cloud.motionX)-(Minecraft.getMinecraft().thePlayer.motionZ-cloud.motionZ));
+		//if (rel>1f)
+		//{
+		//	brightness = 0.75F * cloud.colorMod;
+		//}
+		//if (rel<=1f)
+		{
+			brightness = (float) Math.max(0,(0.75F * cloud.colorMod));//*(rel/1));
+		}
+		//if(Minecraft.getMinecraft().thePlayer.ticksExisted%20==0)
+		//{
+		//	System.out.println("Displacement: "+(rel/10));
+		//}
+		/*if (mZ-cloud.motionZ<-1f)
+		{
+			brightness = 0.75F * cloud.colorMod;
+		}
+		if (mZ-cloud.motionZ>=-1f)
+		{
+			brightness = (float) Math.max(0,(0.75F * cloud.colorMod)*-(mZ-cloud.motionZ));
+		}*/
+		//System.out.println(rel);
+		Vec3 color = cloud.getInterpColor(interp);
+		tess.setColorRGBA_F((float)color.xCoord * brightness, (float)color.yCoord * brightness, (float)color.zCoord * brightness, alpha);
+
+		tess.addVertexWithUV((double) (posX - f1 * scale - f3 * scale), (double) (posY - f5 * scale), (double) (posZ - f2 * scale - f4 * scale), 1, 1);
+		tess.addVertexWithUV((double) (posX - f1 * scale + f3 * scale), (double) (posY + f5 * scale), (double) (posZ - f2 * scale + f4 * scale), 1, 0);
+		tess.addVertexWithUV((double) (posX + f1 * scale + f3 * scale), (double) (posY + f5 * scale), (double) (posZ + f2 * scale + f4 * scale), 0, 0);
+		tess.addVertexWithUV((double) (posX + f1 * scale - f3 * scale), (double) (posY - f5 * scale), (double) (posZ + f2 * scale - f4 * scale), 0, 1);
+
+	}
+	
 	protected void setColorFull(Entity e, Tessellator tessellator) {
 
 		if(e instanceof EntityVortex)
