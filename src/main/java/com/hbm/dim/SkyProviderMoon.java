@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.ResourceLocation;
@@ -14,6 +15,7 @@ import net.minecraft.util.Vec3;
 import net.minecraftforge.client.IRenderHandler;
 
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
 
 import com.hbm.extprop.HbmLivingProps;
 import com.hbm.handler.ImpactWorldHandler;
@@ -34,6 +36,7 @@ import com.hbm.util.PlanetaryTraitUtil.Hospitality;
 import java.util.Random;
 
 import javax.swing.text.Position;
+import javax.vecmath.Matrix4f;
 
 public class SkyProviderMoon extends IRenderHandler {
 	
@@ -49,7 +52,8 @@ public class SkyProviderMoon extends IRenderHandler {
 	private static final ResourceLocation ntexe = new ResourceLocation("hbm:textures/particle/cens.png");
 
 	Random random = new Random(42);
-
+    private Matrix4f viewMatrix;
+    private Matrix4f projectionMatrix;
 	public static boolean displayListsInitialized = false;
 	public static int starGLCallList;
 	public static int glSkyList;
@@ -58,6 +62,7 @@ public class SkyProviderMoon extends IRenderHandler {
 	protected double x;
 	protected double y;
 	protected double z;
+    private ShaderUtil skyboxShader;
 
 	public SkyProviderMoon() {
 	    if (!displayListsInitialized) {
@@ -325,7 +330,7 @@ public class SkyProviderMoon extends IRenderHandler {
 			GL11.glPopMatrix();
 
 		}
-		
+
 		GL11.glPushMatrix();
 		f7 = 0.0F;
 		f8 = 0.0F;
@@ -667,7 +672,23 @@ public class SkyProviderMoon extends IRenderHandler {
 		ResourceManager.sat_rail.renderAll();
 		GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 		GL11.glPopMatrix();
+		
+	    skyboxShader = new ShaderUtil();
 
+        skyboxShader.use();
+
+        
+        int width = mc.displayWidth;
+        int height = mc.displayHeight;
+        float mouseX = mc.mouseHelper.deltaX;
+        float mouseY = mc.mouseHelper.deltaY;
+        float time = (float) (mc.theWorld.getWorldTime() % 24000L) / 24000.0F * 2.0F * (float) Math.PI;
+        int textureUnit = 0;
+
+        skyboxShader.setUniforms(width, height, mouseX, mouseY, time, textureUnit);
+        renderBlackHole(mc, partialTicks);
+        
+        skyboxShader.stop();
 		
 		
 		GL11.glDepthMask(true);
@@ -788,4 +809,18 @@ public class SkyProviderMoon extends IRenderHandler {
 			GL11.glPopMatrix();
 
 		}
+		
+
+
+	    private void renderBlackHole(Minecraft mc, float partialTicks) {
+	        GL11.glPushMatrix();
+	        GL11.glTranslatef(0.0f, 0.0f, -220.0f);
+	        GL11.glBegin(GL11.GL_QUADS);
+	        GL11.glVertex3f(-500.0f, -500.0f, 0.0f);
+	        GL11.glVertex3f(500.0f, -500.0f, 0.0f);
+	        GL11.glVertex3f(500.0f, 500.0f, 0.0f);
+	        GL11.glVertex3f(-500.0f, 500.0f, 0.0f);
+	        GL11.glEnd();
+	        GL11.glPopMatrix();
+	    }
 }
