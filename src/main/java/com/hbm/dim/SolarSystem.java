@@ -363,7 +363,10 @@ public class SolarSystem {
 		double launchDV = SolarSystem.getLiftoffDeltaV(from, mass, thrust, fromDrag);
 		double travelDV = SolarSystem.getDeltaVBetween(from, to);
 		double landerDV = SolarSystem.getLandingDeltaV(to, mass, thrust, toDrag);
-		
+		System.out.println("launch " + launchDV);
+		System.out.println("travel: " + travelDV);
+		System.out.println("land: " + landerDV);
+
 		double totalDV = launchDV + travelDV + landerDV;
 
 		double g0 = 9.81;
