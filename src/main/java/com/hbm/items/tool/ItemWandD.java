@@ -93,15 +93,10 @@ public class ItemWandD extends Item {
 				} else {
 
 					CBT_War war = CelestialBody.getTrait(targetBody, CBT_War.class);
-					
-					if(war != null) {
-						war.Damage(20);
-						if(war.health < 0) {
-							war.health = 0;
-						}
+
+					CelestialBody.damage(20, targetBody);
 						System.out.println(war.health);
-					}
-	
+				
 					player.addChatMessage(new ChatComponentText("kidding"));
 				}
 			}

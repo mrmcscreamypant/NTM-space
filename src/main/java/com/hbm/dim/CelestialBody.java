@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.hbm.dim.trait.CBT_Atmosphere;
+import com.hbm.dim.trait.CBT_War;
 import com.hbm.dim.trait.CelestialBodyTrait;
 import com.hbm.dim.trait.CBT_Atmosphere.FluidEntry;
 import com.hbm.inventory.fluid.FluidType;
@@ -318,7 +319,21 @@ public class CelestialBody {
 
 	// /Terraforming
 
+	public static void damage(int dmg, World world) {
+		HashMap<Class<? extends CelestialBodyTrait>, CelestialBodyTrait> currentTraits = getTraits(world);
 
+		CBT_War war = (CBT_War) currentTraits.get(CBT_War.class);
+		if(war == null) {
+			war = new CBT_War();
+			currentTraits.put(CBT_War.class, war);
+		}
+
+		war.health -= dmg;
+		if(war.shield > 0) {
+			war.shield -= dmg;
+		}
+		setTraits(world, currentTraits);
+	}
 
 	// Static getters
 	// A lot of these are member getters but without having to check the celestial body exists

@@ -27,15 +27,7 @@ public class CBT_War extends CelestialBodyTrait {
 		this.shield = shield;
 	}
 	
-	public int Damage(int dmg) {
-		
-		int finaldmg = health -= dmg;
-		if(shield > 0) {
-			finaldmg = shield -= dmg;
-		}
-		return finaldmg;
-		
-	}
+
 	
 	@Override
 	public void writeToNBT(NBTTagCompound nbt) {
