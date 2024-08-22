@@ -1,6 +1,7 @@
 package com.hbm.dim;
 
 import com.hbm.dim.trait.CBT_Atmosphere;
+import com.hbm.dim.trait.CBT_War;
 import com.hbm.dim.trait.CBT_Atmosphere.FluidEntry;
 import com.hbm.dim.trait.CelestialBodyTrait.CBT_Destroyed;
 import com.hbm.handler.atmosphere.ChunkAtmosphereManager;
@@ -209,7 +210,12 @@ public abstract class WorldProviderCelestial extends WorldProvider {
 				color.zCoord + fluidColor.zCoord * percentage
 			);
 		}
-
+		if(CelestialBody.getBody(worldObj).hasTrait(CBT_War.class)) {
+			CBT_War wardat = CelestialBody.getTrait(worldObj, CBT_War.class);
+			System.out.println(wardat.health);
+			color.xCoord += wardat.health;
+			
+		}
 		// Lower pressure sky renders thinner
 		float pressureFactor = MathHelper.clamp_float(totalPressure, 0.0F, 1.0F);
 		color.xCoord *= pressureFactor;
@@ -308,6 +314,7 @@ public abstract class WorldProviderCelestial extends WorldProvider {
 	public float getSunBrightness(float par1) {
 		if(CelestialBody.getStar(worldObj).hasTrait(CBT_Destroyed.class))
 			return 0;
+
 
 		CBT_Atmosphere atmosphere = CelestialBody.getTrait(worldObj, CBT_Atmosphere.class);
 		float sunBrightness = super.getSunBrightness(par1);

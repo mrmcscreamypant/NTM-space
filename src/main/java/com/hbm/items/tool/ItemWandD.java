@@ -2,11 +2,13 @@ package com.hbm.items.tool;
 
 import java.util.List;
 
+import com.hbm.config.SpaceConfig;
 import com.hbm.dim.CelestialBody;
 import com.hbm.dim.DebugTeleporter;
 import com.hbm.dim.SolarSystem;
 import com.hbm.dim.trait.CBT_Atmosphere;
 import com.hbm.dim.trait.CBT_Atmosphere.FluidEntry;
+import com.hbm.dim.trait.CBT_War;
 import com.hbm.dim.trait.CelestialBodyTrait.CBT_Destroyed;
 import com.hbm.lib.Library;
 
@@ -18,6 +20,7 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
 
 public class ItemWandD extends Item {
 
@@ -76,27 +79,29 @@ public class ItemWandD extends Item {
 				if(isVacuum)
 					player.addChatMessage(new ChatComponentText("Atmosphere: NEAR VACUUM"));
 			} else {
-				CelestialBody star = CelestialBody.getStar(world);
-
-				if(!star.hasTrait(CBT_Destroyed.class)) {
+				// TESTING: END OF LIFE
+				World targetBody = DimensionManager.getWorld(SpaceConfig.dunaDimension);
+				
+				CelestialBody target = CelestialBody.getPlanet(targetBody);
+				
+				
+				if(!target.hasTrait(CBT_War.class)) {
 
 					// TESTING: END OF TIME
-					star.modifyTraits(new CBT_Destroyed());
-		
-					// TESTING: END OF LIFE
-					CelestialBody.degas(world);
-		
-					// GOD
-					// DAMN
-					player.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "GOD"));
-					player.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "DAMN"));
-					player.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "THE"));
-					player.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "" + EnumChatFormatting.OBFUSCATED + "SUN"));
+					target.setTraits(new CBT_War());		
+			
 				} else {
 
-					star.clearTraits();
-					CelestialBody.clearTraits(world);
+					CBT_War war = CelestialBody.getTrait(targetBody, CBT_War.class);
 					
+					if(war != null) {
+						war.Damage(20);
+						if(war.health < 0) {
+							war.health = 0;
+						}
+						System.out.println(war.health);
+					}
+	
 					player.addChatMessage(new ChatComponentText("kidding"));
 				}
 			}
