@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.hbm.config.GeneralConfig;
 import com.hbm.config.WorldConfig;
-import com.hbm.interfaces.IFluidAcceptor;
 import com.hbm.inventory.fluid.Fluids;
 import com.hbm.inventory.fluid.tank.FluidTank;
 import com.hbm.tileentity.INBTPacketReceiver;
@@ -47,7 +46,7 @@ public class TileEntityMachineTeleporter extends TileEntityLoadedBase implements
 	public int targetDim = 0;
 	public static final int maxPower = 1_500_000;
 	public static final int consumption = 1_000_000;
-	public static final int flucu = 900;
+	public static final int flucu = 100;
 
 	public FluidTank tank;
 
@@ -134,6 +133,10 @@ public class TileEntityMachineTeleporter extends TileEntityLoadedBase implements
 		if(this.power < consumption) return;
 		if(entity.dimension != this.targetDim && tank.getFill() < flucu) return; // N-MASS is required for cross-dimension teleporting
 		worldObj.playSoundEffect(xCoord + 0.5, yCoord + 1.5, zCoord + 0.5, "mob.endermen.portal", 1.0F, 1.0F);
+
+		if(entity.dimension != this.targetDim) {
+			this.tank.setFill(this.tank.getFill() - flucu);
+		}
 		
 		if((entity instanceof EntityPlayerMP)) {
 			
@@ -145,7 +148,6 @@ public class TileEntityMachineTeleporter extends TileEntityLoadedBase implements
 			}
 			
 		} else {
-			
 			
 			if(entity.dimension == this.targetDim) {
 				entity.setPositionAndRotation(this.targetX + 0.5D, this.targetY + 1.5D + entity.getYOffset(), this.targetZ + 0.5D, entity.rotationYaw, entity.rotationPitch);
@@ -169,14 +171,6 @@ public class TileEntityMachineTeleporter extends TileEntityLoadedBase implements
 		worldObj.playSoundEffect(entity.posX, entity.posY, entity.posZ, "mob.endermen.portal", 1.0F, 1.0F);
 		
 		this.power -= consumption;
-
-		//this.tank.setFill(this.tank.getFill() - 120);
-		if(entity.dimension != this.targetDim) {
-			int amountToBurn = Math.min(1000, this.tank.getFill());
-			if(amountToBurn > 0) {
-				this.tank.setFill(this.tank.getFill() - amountToBurn);
-			}	
-		}
 		this.markDirty();
 	}
 	

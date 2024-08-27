@@ -36,6 +36,7 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.Pre;
+import net.minecraftforge.common.ForgeChunkManager.Ticket;
 
 public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOverlay {
 
@@ -47,7 +48,7 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
 
 	private static final int WATCHABLE_STATE = 8;
 	private static final int WATCHABLE_DESTINATION = 9;
-	private static final int WATCHABLE_FUEL = 10;
+	private static final int WATCHABLE_TIMER = 10;
 
 	private static final int WATCHABLE_ROCKET = 11; // Variable size, must always be last!
 
@@ -71,6 +72,8 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
 
 	public EntityRideableRocket(World world) {
 		super(world);
+		setSize(2, 8);
+		sizeSet = false;
 	}
 
 	public EntityRideableRocket(World world, float x, float y, float z, ItemStack stack) {
@@ -238,7 +241,7 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
 			}
 		}
 
-		stateTimer++;
+		setStateTimer(++stateTimer);
 	}
 
 	@Override
@@ -316,8 +319,8 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
 			if(isEntityInvulnerable()) {
 				return false;
 			} else if(riddenByEntity == null && source.getEntity() instanceof EntityPlayer) {
-				// A pickaxe is required to break, unless it's just the capsule
-				if(getRocket().stages.size() == 0) {
+				// A pickaxe is required to break, unless it's just the capsule (or it has tipped over)
+				if(getRocket().stages.size() == 0 || getState() == RocketState.TIPPING) {
 					dropNDie(source);
 				} else {
 					ItemStack stack = ((EntityPlayer) source.getEntity()).getHeldItem();
@@ -369,6 +372,8 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
 
 		RocketStruct rocket = getRocket();
 		if(rocket.stages.size() == 0) {
+			if(state == RocketState.TIPPING) return;
+
 			double r = rocket.capsule.part.bottom.radius * 0.5;
 			ParticleUtil.spawnGasFlame(worldObj, posX + r, posY, posZ + r, 0.25, -0.75, 0.25);
 			ParticleUtil.spawnGasFlame(worldObj, posX - r, posY, posZ + r, -0.25, -0.75, 0.25);
@@ -395,16 +400,16 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
 			if(distanceToGround < 10) {
 				ExplosionLarge.spawnShock(worldObj, posX, groundHeight + 0.5, posZ, 1 + worldObj.rand.nextInt(3), 1 + worldObj.rand.nextGaussian());
 			}
-		} else {
+		} else if(state == RocketState.LAUNCHING || getStateTimer() < 200) {
 			spawnContraolWithOffset(0, 0, 0);
-		}
 
-		int cluster = stage.getCluster();
-		for(int c = 1; c < cluster; c++) {
-			float spin = (float)c / (float)(cluster - 1);
-			double ox = Math.cos(spin * Math.PI * 2) * stage.fuselage.part.bottom.radius;
-			double oz = Math.sin(spin * Math.PI * 2) * stage.fuselage.part.bottom.radius;
-			spawnContraolWithOffset(ox, 0, oz);
+			int cluster = stage.getCluster();
+			for(int c = 1; c < cluster; c++) {
+				float spin = (float)c / (float)(cluster - 1);
+				double ox = Math.cos(spin * Math.PI * 2) * stage.fuselage.part.bottom.radius;
+				double oz = Math.sin(spin * Math.PI * 2) * stage.fuselage.part.bottom.radius;
+				spawnContraolWithOffset(ox, 0, oz);
+			}
 		}
 	}
 
@@ -435,12 +440,12 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
 		dataWatcher.updateObject(WATCHABLE_DESTINATION, destination != null ? destination.dimensionId : -1);
 	}
 
-	public float getFuel() {
-		return dataWatcher.getWatchableObjectFloat(WATCHABLE_FUEL);
+	public int getStateTimer() {
+		return dataWatcher.getWatchableObjectInt(WATCHABLE_TIMER);
 	}
 
-	public void setFuel(float fuel) {
-		dataWatcher.updateObject(WATCHABLE_FUEL, fuel);
+	public void setStateTimer(int timer) {
+		dataWatcher.updateObject(WATCHABLE_TIMER, timer);
 	}
 
 	@Override
@@ -448,7 +453,7 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
 		super.entityInit();
 		dataWatcher.addObject(WATCHABLE_STATE, RocketState.AWAITING.ordinal());
 		dataWatcher.addObject(WATCHABLE_DESTINATION, 0);
-		dataWatcher.addObject(WATCHABLE_FUEL, 0.0F);
+		dataWatcher.addObject(WATCHABLE_TIMER, 0);
 		RocketStruct.setupDataWatcher(dataWatcher, WATCHABLE_ROCKET); // again, this MUST be the highest int!
 	}
 
@@ -456,7 +461,7 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
 	public void readEntityFromNBT(NBTTagCompound nbt) {
 		super.readEntityFromNBT(nbt);
 
-		setFuel(nbt.getFloat("fuel"));
+		setStateTimer(nbt.getInteger("timer"));
 		setState(RocketState.values()[nbt.getInteger("state")]);
 
 		setRocket(RocketStruct.readFromNBT(nbt.getCompoundTag("rocket")));
@@ -466,17 +471,13 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
 		} else {
 			navDrive = null;
 		}
-
-		// weird wacky position offset load fix
-		posX += 0.875;
-		posZ += 0.875;
 	}
 
 	@Override
 	public void writeEntityToNBT(NBTTagCompound nbt) {
 		super.writeEntityToNBT(nbt);
 
-		nbt.setFloat("fuel", getFuel());
+		nbt.setInteger("timer", getStateTimer());
 		nbt.setInteger("state", getState().ordinal());
 
 		NBTTagCompound rocketTag = new NBTTagCompound();
@@ -565,6 +566,11 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
 	public ItemStack getDebrisRareDrop() {
 		return null;
 	}
+
+	// Don't chunkload rockets, they are only useful in the presence of players anyway
+	@Override public void init(Ticket ticket) { }
+	@Override public void loadNeighboringChunks(int newChunkX, int newChunkZ) { }
+	@Override public void clearChunkLoader() { }
 
 	public static class EntityRideableRocketDummy extends Entity implements ILookOverlay {
 

@@ -93,11 +93,11 @@ public class CrucibleRecipes extends SerializableRecipe {
 				.outputs(new MaterialStack(Mats.MAT_FERRO, n * 3)));
 		
 		recipes.add(new CrucibleRecipe(5, "crucible.tcalloy", 9, new ItemStack(ModItems.ingot_tcalloy))
-				.inputs(new MaterialStack(Mats.MAT_STEEL, n * 8), new MaterialStack(Mats.MAT_TECHNIETIUM, n))
+				.inputs(new MaterialStack(Mats.MAT_STEEL, n * 8), new MaterialStack(Mats.MAT_TECHNETIUM, n))
 				.outputs(new MaterialStack(Mats.MAT_TCALLOY, i)));
 				
 		recipes.add(new CrucibleRecipe(12, "crucible.conglomerate", 6, DictFrame.fromOne(ModBlocks.stone_resource, EnumStoneType.CONGLOMERATE))
-				.inputs(new MaterialStack(Mats.MAT_CONGLOMERATE, i * 2), new MaterialStack(Mats.MAT_TECHNIETIUM, 0))
+				.inputs(new MaterialStack(Mats.MAT_CONGLOMERATE, i * 2), new MaterialStack(Mats.MAT_TECHNETIUM, 0))
 				.outputs(new MaterialStack(Mats.MAT_IRON, n * 7), new MaterialStack(Mats.MAT_NICKEL, n * 2)));
 		
 		recipes.add(new CrucibleRecipe(13, "crucible.cdalloy", 9, new ItemStack(ModItems.ingot_cdalloy))
@@ -127,6 +127,10 @@ public class CrucibleRecipes extends SerializableRecipe {
 		recipes.add(new CrucibleRecipe(20, "crucible.arse", 9, new ItemStack(ModItems.ingot_gaas))
 				.inputs(new MaterialStack(Mats.MAT_GALLIUM, n * 6), new MaterialStack(Mats.MAT_ARSENIC, n * 3 ))
 				.outputs(new MaterialStack(Mats.MAT_GAAS, i)));
+
+		recipes.add(new CrucibleRecipe(21, "crucible.stainless", 2, new ItemStack(ModItems.ingot_stainless))
+				.inputs(new MaterialStack(Mats.MAT_STEEL, n), new MaterialStack(Mats.MAT_NICKEL, n))
+				.outputs(new MaterialStack(Mats.MAT_STAINLESS, n * 2)));
 		
 		registerMoldsForNEI();
 	}
@@ -268,7 +272,7 @@ public class CrucibleRecipes extends SerializableRecipe {
 			int in = material.convIn;
 			int out = material.convOut;
 			NTMMaterial convert = material.smeltsInto;
-			for(MaterialShapes shape : MaterialShapes.allShapes) {
+			if(convert.smeltable == SmeltingBehavior.SMELTABLE || convert.smeltable == SmeltingBehavior.ADDITIVE) for(MaterialShapes shape : MaterialShapes.allShapes) {
 				//TODO: buffer these
 				
 				String name = shape.name() + material.names[0];
