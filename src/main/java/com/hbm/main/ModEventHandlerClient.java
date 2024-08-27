@@ -1000,7 +1000,7 @@ public class ModEventHandlerClient {
 	public static int lastBrightness = 0;
 
 	static boolean isRenderingItems = false;
-	
+
 	@SubscribeEvent
 	public void clientTick(ClientTickEvent event) {
 		
@@ -1123,32 +1123,9 @@ public class ModEventHandlerClient {
 				for(int i = 1; i < 4; i++) if(player.stepHeight == i + discriminator) player.stepHeight = defaultStepSize;
 			}
 		}
-		
-		if (event.phase == Phase.START) {
-		    CBT_War war = CelestialBody.getTrait(mc.theWorld, CBT_War.class);
-        	FlashUtil flashUtil = new FlashUtil();
 
-		    if (war != null) {
-		        for (int i = 0; i < war.getProjectiles().size(); i++) {
-		            CBT_War.Projectile projectile = war.getProjectiles().get(i);
-		            
-		            if (projectile != null && projectile.traveltime <= 0) {
-		            	flashUtil.flash();
-	                    }
-		            }
-		        }
-		    }
-		
 	}
 	
-	public float flash() {
-		float flashd = 0;
-        flashd += 0.1f;
-        flashd = Math.min(100.0f, flashd + 0.1f * (100.0f - flashd) * 0.15f);
-        System.out.println(flashd);
-        return flashd;
-	}
-	private int chargetime;
 	private float flashd;
 
 	

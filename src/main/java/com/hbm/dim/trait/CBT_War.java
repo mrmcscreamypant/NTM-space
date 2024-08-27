@@ -107,6 +107,7 @@ public class CBT_War extends CelestialBodyTrait {
 		public static int size;
 		public static int damage;
 		public static int animtime;
+		public static float flashtime;
 		public Projectile() {
 			
 		}
@@ -148,7 +149,12 @@ public class CBT_War extends CelestialBodyTrait {
         	else if (animtime <= 0 || animtime <= 200) {
     				animtime += 1;
     			}
-        	
+        	flashtime += 0.1f;
+        	flashtime = Math.min(100.0f, flashtime + 0.1f * (100.0f - flashtime) * 0.15f);
+        	if(flashtime >= 100f) {
+        		flashtime = 0;
+        	}
+            System.out.println(flashtime);
         	System.out.println(animtime);
         }
 	}
