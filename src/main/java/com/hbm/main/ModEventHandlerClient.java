@@ -15,8 +15,11 @@ import com.hbm.blocks.ILookOverlay;
 import com.hbm.blocks.ModBlocks;
 import com.hbm.blocks.generic.BlockAshes;
 import com.hbm.config.GeneralConfig;
+import com.hbm.config.SpaceConfig;
+import com.hbm.dim.CelestialBody;
 import com.hbm.dim.SkyProviderCelestial;
 import com.hbm.dim.WorldProviderCelestial;
+import com.hbm.dim.trait.CBT_War;
 import com.hbm.entity.mob.EntityHunterChopper;
 import com.hbm.entity.projectile.EntityChopperMine;
 import com.hbm.entity.train.EntityRailCarRidable;
@@ -55,6 +58,7 @@ import com.hbm.packet.GunButtonPacket;
 import com.hbm.packet.PacketDispatcher;
 import com.hbm.packet.SyncButtonsPacket;
 import com.hbm.potion.HbmPotion;
+import com.hbm.render.anim.FlashUtil;
 import com.hbm.render.anim.HbmAnimations;
 import com.hbm.render.anim.HbmAnimations.Animation;
 import com.hbm.render.block.ct.CTStitchReceiver;
@@ -95,6 +99,7 @@ import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.eventhandler.Event.Result;
 import cpw.mods.fml.common.gameevent.InputEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.common.gameevent.InputEvent.KeyInputEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.Phase;
@@ -152,6 +157,7 @@ import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.event.sound.PlaySoundEvent17;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 
@@ -1117,7 +1123,34 @@ public class ModEventHandlerClient {
 				for(int i = 1; i < 4; i++) if(player.stepHeight == i + discriminator) player.stepHeight = defaultStepSize;
 			}
 		}
+		
+		if (event.phase == Phase.START) {
+		    CBT_War war = CelestialBody.getTrait(mc.theWorld, CBT_War.class);
+        	FlashUtil flashUtil = new FlashUtil();
+
+		    if (war != null) {
+		        for (int i = 0; i < war.getProjectiles().size(); i++) {
+		            CBT_War.Projectile projectile = war.getProjectiles().get(i);
+		            
+		            if (projectile != null && projectile.traveltime <= 0) {
+		            	flashUtil.flash();
+	                    }
+		            }
+		        }
+		    }
+		
 	}
+	
+	public float flash() {
+		float flashd = 0;
+        flashd += 0.1f;
+        flashd = Math.min(100.0f, flashd + 0.1f * (100.0f - flashd) * 0.15f);
+        System.out.println(flashd);
+        return flashd;
+	}
+	private int chargetime;
+	private float flashd;
+
 	
 	public static ItemStack getMouseOverStack() {
 		

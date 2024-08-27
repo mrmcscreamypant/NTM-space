@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Stack;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class CBT_War extends CelestialBodyTrait {
@@ -105,6 +106,7 @@ public class CBT_War extends CelestialBodyTrait {
 		public static float traveltime;
 		public static int size;
 		public static int damage;
+		public static int animtime;
 		public Projectile() {
 			
 		}
@@ -137,6 +139,17 @@ public class CBT_War extends CelestialBodyTrait {
             damage = buf.readInt();
             traveltime = buf.readFloat();
             size = buf.readInt();
+        }
+        
+        public void impact() {
+        	if (animtime >= 200) {
+				animtime = 0;
+			} 
+        	else if (animtime <= 0 || animtime <= 200) {
+    				animtime += 1;
+    			}
+        	
+        	System.out.println(animtime);
         }
 	}
 

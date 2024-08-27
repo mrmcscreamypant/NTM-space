@@ -858,11 +858,18 @@ public class ModEventHandler {
 	                projectile.traveltime--;
 	                
 	                if (projectile.traveltime <= 0) {
-	                    war.destroyProjectile(projectile);
-	    				World targetBody = DimensionManager.getWorld(SpaceConfig.dunaDimension); //temp
-	    				CelestialBody.damage(20, targetBody);
-	                    i--;
-	                    System.out.println("damaged: " + targetBody + " health left: " + war.health);
+	                	projectile.traveltime = 0;
+		            	projectile.impact();
+		            	if(projectile.animtime >= 200) {
+		                    war.destroyProjectile(projectile);
+		    				World targetBody = DimensionManager.getWorld(SpaceConfig.dunaDimension); //temp
+		                    i--;
+		                    System.out.println("damaged: " + targetBody + " health left: " + war.health);
+		                    if(war.health > 0) {
+			    				CelestialBody.damage(20, targetBody);
+		                    }
+		            	}
+
 	                }
 	                System.out.println("Projectile travel time: " + projectile.traveltime);
 	            }

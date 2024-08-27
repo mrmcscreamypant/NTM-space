@@ -5,6 +5,7 @@
 	"misc.nullMine": {"category": "player", "sounds": [{"name": "misc/null", "stream": false}]},
 	"misc.rumble": {"category": "player", "sounds": [{"name": "misc/rumble", "stream": false}]},
 	"misc.flesh": {"category": "player", "sounds": [{"name": "misc/flesh", "stream": false}]},
+	"misc.impact": {"category": "player", "sounds": [{"name": "misc/cenimp", "stream": false}]},
 
 	"block.crateBreak": {"category": "block", "sounds": ["block/crateBreak1", "block/crateBreak2", "block/crateBreak3", "block/crateBreak4", "block/crateBreak5"]},
 	"block.shutdown": {"category": "block", "sounds": [{"name": "block/shutdown", "stream": true}]},

@@ -94,9 +94,9 @@ public class ItemWandD extends Item {
 
 					CBT_War war = CelestialBody.getTrait(targetBody, CBT_War.class);
 					war.launchProjectile(100, 20, 0);
-					CelestialBody.damage(20, targetBody);
-						System.out.println(war.health);
-				
+					if(war.health <= 0) {
+						war.health = 100;
+					}
 					player.addChatMessage(new ChatComponentText("kidding"));
 				}
 			}
