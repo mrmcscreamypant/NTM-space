@@ -94,7 +94,6 @@ public class ItemWandD extends Item {
 				} else {
 
 					CBT_War war = CelestialBody.getTrait(targetBody, CBT_War.class);
-					Projectile projectile = new Projectile(100, 20, 0);
 					war.launchProjectile(100, 20, 0);
 					if(war.health <= 0) {
 						war.health = 100;

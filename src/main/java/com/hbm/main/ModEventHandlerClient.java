@@ -1123,6 +1123,21 @@ public class ModEventHandlerClient {
 				for(int i = 1; i < 4; i++) if(player.stepHeight == i + discriminator) player.stepHeight = defaultStepSize;
 			}
 		}
+		
+		if (event.phase == Phase.START) {
+		    CBT_War war = CelestialBody.getTrait(mc.theWorld, CBT_War.class);
+
+		    if (war != null) {
+		        for (int i = 0; i < war.getProjectiles().size(); i++) {
+		            CBT_War.Projectile projectile = war.getProjectiles().get(i);
+		            
+		            if (projectile != null && projectile.getTravel() <= 0) {
+		            	
+	                    }
+		            }
+		        }
+		    }
+		
 
 	}
 	

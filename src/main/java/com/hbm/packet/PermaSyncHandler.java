@@ -9,6 +9,8 @@ import java.util.Map;
 import com.hbm.dim.CelestialBody;
 import com.hbm.dim.SolarSystemWorldSavedData;
 import com.hbm.dim.WorldProviderCelestial;
+import com.hbm.dim.trait.CBT_War;
+import com.hbm.dim.trait.CBT_War.Projectile;
 import com.hbm.dim.trait.CelestialBodyTrait;
 import com.hbm.handler.ImpactWorldHandler;
 import com.hbm.handler.pollution.PollutionHandler;
@@ -45,7 +47,8 @@ public class PermaSyncHandler {
 		buf.writeBoolean(data.impact);
 		buf.writeLong(data.time);
 		/// TOM IMPACT DATA ///
-		
+
+
 		/// SHITTY MEMES ///
 		List<Integer> ids = new ArrayList<Integer>();
 		for(Object o : world.playerEntities) {
@@ -121,6 +124,16 @@ public class PermaSyncHandler {
 			buf.writeInt(-1);
 		}
 		/// RIDING DESYNC FIX ///
+		
+        CBT_War war = CelestialBody.getTrait(world, CBT_War.class);
+        if (war != null) {
+            List<Projectile> projectiles = war.getProjectiles();
+            buf.writeInt(projectiles.size());
+            for (Projectile projectile : projectiles) {
+                buf.writeFloat(projectile.getFlashtime());
+                buf.writeInt(projectile.getAnimtime());
+            }
+        }
 	}
 	
 	public static void readPacket(ByteBuf buf, World world, EntityPlayer player) {
@@ -133,6 +146,7 @@ public class PermaSyncHandler {
 		ImpactWorldHandler.time = buf.readLong();
 		/// TOM IMPACT DATA ///
 
+	    
 		/// SHITTY MEMES ///
 		boykissers.clear();
 		int ids = buf.readShort();
@@ -201,5 +215,20 @@ public class PermaSyncHandler {
 			player.mountEntity(entity);
 		}
 		/// RIDING DESYNC FIX ///
-	}
+		
+	    CBT_War war = CelestialBody.getTrait(world, CBT_War.class);
+        if (war != null) {
+            int projectileCount = buf.readInt(); // Read number of projectiles
+            List<Projectile> projectiles = war.getProjectiles();
+            for (int i = 0; i < projectileCount; i++) {
+                if (i < projectiles.size()) {
+                    Projectile projectile = projectiles.get(i);
+                    float flashtime = buf.readFloat();
+                    projectile.setFlashtime(flashtime);
+                    int animtime = buf.readInt();
+                    projectile.setAnimtime(animtime);
+                }
+            }
+        }
+    }
 }

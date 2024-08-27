@@ -20,7 +20,7 @@ public class CBT_War extends CelestialBodyTrait {
 	public int health;
 	public int shield;
 	
-	public List<Projectile> projectiles;
+	public static List<Projectile> projectiles;
 	
 	public CBT_War() {
 		this.health = 100;
@@ -39,9 +39,6 @@ public class CBT_War extends CelestialBodyTrait {
 	}
 	public void launchProjectile(float traveltime, int size, int damage) {
 		Projectile projectile = new Projectile(traveltime, size, damage);
-		projectile.setTravel(traveltime);
-		projectile.setDamage(damage);
-		projectile.setSize(size);
 		projectiles.add(projectile);
 	}
 	
@@ -49,7 +46,7 @@ public class CBT_War extends CelestialBodyTrait {
 		projectiles.remove(proj);
 	}
 
-    public List<Projectile> getProjectiles() {
+    public static List<Projectile> getProjectiles() {
         return projectiles;
     }
 	@Override
@@ -105,107 +102,112 @@ public class CBT_War extends CelestialBodyTrait {
 
 	}
 	public static class Projectile {
-		private float traveltime;
-		private int size;
-		private int damage;
-		private static int animtime;
-		private static float flashtime;
-		
-		public Projectile() {
-			
-		}
-		public Projectile(float traveltime, int size, int damage) {
-			this.damage = damage;
-			this.size = size;
-			this.traveltime = traveltime;
-			
-		}
-		
-        public void writeToNBT(NBTTagCompound nbt) {
-            nbt.setInteger("damage", damage);
-            nbt.setFloat("traveltime", traveltime);
-            nbt.setInteger("size", size);
-        }
+	    private float traveltime;
+	    private int size;
+	    private int damage;
+	    private int animtime;    
+	    private float flashtime; 
 
-        public void readFromNBT(NBTTagCompound nbt) {
-            damage = nbt.getInteger("damage");
-            traveltime = nbt.getFloat("traveltime");
-            size = nbt.getInteger("size");
-        }
+	    public Projectile() {
+	        this.animtime = 0;
+	        this.flashtime = 0;
+	    }
 
-        public void writeToBytes(ByteBuf buf) {
-            buf.writeInt(damage);
-            buf.writeFloat(traveltime);
-            buf.writeInt(size);
-        }
+	    public Projectile(float traveltime, int size, int damage) {
+	        this.traveltime = traveltime;
+	        this.size = size;
+	        this.damage = damage;
+	        this.animtime = 0;
+	        this.flashtime = 0;
+	    }
 
-        public void readFromBytes(ByteBuf buf) {
-            damage = buf.readInt();
-            traveltime = buf.readFloat();
-            size = buf.readInt();
-        }
+	    public void writeToNBT(NBTTagCompound nbt) {
+	        nbt.setInteger("damage", damage);
+	        nbt.setFloat("traveltime", traveltime);
+	        nbt.setInteger("size", size);
+	    }
 
-        public static float getFlashtime() {
-            return flashtime;
-        }
-        public void update() {
-        	traveltime--;
-        	if(traveltime <= 0) {
-        		traveltime = 0;
-        		if (animtime >= 100) {
-    				animtime = 0;
-    			}   
-        		else if (animtime <= 0 || animtime <= 100) {
-    				animtime += 1;
-    			}     		
-        	}       
-        }
-        public static void impact() {
+	    public void readFromNBT(NBTTagCompound nbt) {
+	        damage = nbt.getInteger("damage");
+	        traveltime = nbt.getFloat("traveltime");
+	        size = nbt.getInteger("size");
+	    }
 
-        	flashtime += 0.1f;
+	    public void writeToBytes(ByteBuf buf) {
+	        buf.writeInt(damage);
+	        buf.writeFloat(traveltime);
+	        buf.writeInt(size);
+	    }
 
-    	    flashtime = Math.min(100.0f, flashtime + 0.1f * (100.0f - flashtime) * 0.15f);
-    			
-        	if(animtime >= 100) {
-        		flashtime = 0;
-        		return;
-        	}
-            System.out.println(animtime);
-        }
+	    public void readFromBytes(ByteBuf buf) {
+	        damage = buf.readInt();
+	        traveltime = buf.readFloat();
+	        size = buf.readInt();
+	    }
 
-        public int getSize() {
-            return size;
-        }
+	    public float getFlashtime() {
+	        return flashtime;
+	    }
 
-        public void setSize(int size) {
-            this.size = size;
-        }
+	    public void update() {
+	        if (traveltime > 0) {
+	            traveltime--;
+	        } else {
+	            traveltime = 0;
+	            if (animtime < 100) {
+	                animtime++;
+	            } else {
+	                animtime = 100; 
+	            }
+	        }
+	    }
 
-        public int getDamage() {
-            return damage;
-        }
-        public float getTravel() {
-            return traveltime;
-        }
-        public void setTravel(float travel) {
-            this.traveltime = travel;
-        }
-        public void setDamage(int damage) {
-            this.damage = damage;
-        }
+	    public void impact() {
+	        flashtime += 0.1f;
+	        flashtime = Math.min(100.0f, flashtime + 0.1f * (100.0f - flashtime) * 0.15f);
 
-        public static int getAnimtime() {
-            return animtime;
-        }
+	        if (flashtime >= 100) {
+	            flashtime = 100;
+	        }
 
-        public void setAnimtime(int animtime) {
-            this.animtime = animtime;
-        }
+	        System.out.println(animtime);
+	    }
 
+	    public int getSize() {
+	        return size;
+	    }
 
-        public void setFlashtime(float flashtime) {
-            this.flashtime = flashtime;
-        }
+	    public void setSize(int size) {
+	        this.size = size;
+	    }
+
+	    public int getDamage() {
+	        return damage;
+	    }
+
+	    public float getTravel() {
+	        return traveltime;
+	    }
+
+	    public void setTravel(float travel) {
+	        this.traveltime = travel;
+	    }
+
+	    public void setDamage(int damage) {
+	        this.damage = damage;
+	    }
+
+	    public int getAnimtime() {
+	        return animtime;
+	    }
+
+	    public void setAnimtime(int animtime) {
+	        this.animtime = animtime;
+	    }
+
+	    public void setFlashtime(float flashtime) {
+	        this.flashtime = flashtime;
+	    }
+	    
 	}
-
 }
