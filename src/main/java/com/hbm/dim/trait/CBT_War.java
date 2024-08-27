@@ -6,7 +6,6 @@ import java.util.Stack;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.NBTTagCompound;
-import scala.inline;
 
 public class CBT_War extends CelestialBodyTrait {
 	
@@ -54,7 +53,7 @@ public class CBT_War extends CelestialBodyTrait {
 		
         NBTTagCompound projectilesTag = new NBTTagCompound();
         for (int i = 0; i < projectiles.size(); i++) {
-            NBTTagCompound projTag = new NBTTagCompound();
+        	NBTTagCompound projTag = new NBTTagCompound();
             projectiles.get(i).writeToNBT(projTag);
             projectilesTag.setTag("projectile" + i, projTag);
         }
@@ -66,15 +65,14 @@ public class CBT_War extends CelestialBodyTrait {
 	public void readFromNBT(NBTTagCompound nbt) {
 		shield = nbt.getInteger("shield");
 		health = nbt.getInteger("health");
-	       NBTTagCompound projectilesTag = nbt.getCompoundTag("projectiles");
-	        projectiles = new ArrayList<>();
-	        for (int i = 0; projectilesTag.hasKey("projectile" + i); i++) {
-	            NBTTagCompound projTag = projectilesTag.getCompoundTag("projectile" + i);
-	            Projectile projectile = new Projectile();
-	            projectile.readFromNBT(projTag);
-	            projectiles.add(projectile);
-	        }
-
+	    NBTTagCompound projectilesTag = nbt.getCompoundTag("projectiles");
+	    projectiles = new ArrayList<>();
+	    for (int i = 0; projectilesTag.hasKey("projectile" + i); i++) {
+	        NBTTagCompound projTag = projectilesTag.getCompoundTag("projectile" + i);
+	        Projectile projectile = new Projectile();
+	        projectile.readFromNBT(projTag);
+	        projectiles.add(projectile);
+	    }	
 	}
 
 	@Override
