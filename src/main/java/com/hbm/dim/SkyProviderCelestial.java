@@ -234,34 +234,40 @@ public class SkyProviderCelestial extends IRenderHandler {
 	    CBT_War war = CelestialBody.getTrait(mc.theWorld, CBT_War.class);
 
 	    if (war != null) {
-			GL11.glPushMatrix();
+	        GL11.glPushMatrix();
 	        for (int i = 0; i < war.getProjectiles().size(); i++) {
 	            CBT_War.Projectile projectile = war.getProjectiles().get(i);
-	            
-	            if(projectile.traveltime <= 0) {
-		    		float alpd = 1.0F - Math.min(1.0F, projectile.flashtime / 100);
+	            float flash = projectile.getFlashtime();
 
-		    		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		    		GL11.glTranslated(21.5, 33, -28); 
-		    		GL11.glScaled(0 - alpd, 0 - alpd, 0 - alpd);
-		    		GL11.glRotated(90.0, -10.0, -1.0, 50.0);
-		    		GL11.glRotated(20.0, -0.0, -1.0, 1.0);
+	            if (projectile.getTravel() <= 0) {
+	            	projectile.impact();
+	                float alpd = 1.0F - Math.min(1.0F, flash / 100);
 
-		    		GL11.glColor4d(1, 1, 1,  alpd);
-		    		GL11.glEnable(GL11.GL_BLEND);
+	                GL11.glTranslated(21.5, 33, -28); 
+	                GL11.glScaled(flash, flash, flash);
+	                GL11.glRotated(90.0, -10.0, -1.0, 50.0);
+	                GL11.glRotated(20.0, -0.0, -1.0, 1.0);
+	                GL11.glColor4d(1, 1, 1, alpd);
+	                GL11.glEnable(GL11.GL_BLEND);
 
-
-		    		//GL11.glDepthMask(false);
-		    		
-		    		mc.renderEngine.bindTexture(this.shockwave);
-		    		ResourceManager.plane.renderAll();
+	                mc.renderEngine.bindTexture(this.shockwave);
+	                ResourceManager.plane.renderAll();
 	            }
-
 	        }
-			GL11.glPopMatrix();
-
+	        GL11.glPopMatrix();
 	    }
-		
+        GL11.glPushMatrix();
+        GL11.glTranslated(0, 70, -50); 
+        GL11.glScaled(10, 10, 10);
+		GL11.glRotatef(180.0F, 1.0F, 0.0F, 0.0F);
+		GL11.glRotatef(20.0F, 0.0F, 0.0F, 1.0F);
+
+        GL11.glColor4d(1, 1, 1, 1);
+
+        mc.renderEngine.bindTexture(this.shockwave);
+        ResourceManager.plane.renderAll();
+        GL11.glPopMatrix();
+
 		GL11.glPushMatrix();
 		{
 

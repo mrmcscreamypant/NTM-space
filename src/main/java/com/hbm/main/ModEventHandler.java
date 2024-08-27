@@ -574,7 +574,6 @@ public class ModEventHandler {
 			}
 		}
 	}
-	
 	@SubscribeEvent
 	public void onLivingUpdate(LivingUpdateEvent event) {
 		
@@ -855,23 +854,22 @@ public class ModEventHandler {
 	            for (int i = 0; i < war.getProjectiles().size(); i++) {
 	                CBT_War.Projectile projectile = war.getProjectiles().get(i);
 	                
-	                projectile.traveltime--;
-	                
-	                if (projectile.traveltime <= 0) {
-	                	projectile.traveltime = 0;
-		            	projectile.impact();
-		            	if(projectile.animtime >= 150) {
+	                projectile.update();
+
+	                if (projectile.getTravel() <= 0) {
+	                	if(projectile.getAnimtime() >= 100) {
 		                    war.destroyProjectile(projectile);
 		    				World targetBody = DimensionManager.getWorld(SpaceConfig.dunaDimension); //temp
 		                    i--;
 		                    System.out.println("damaged: " + targetBody + " health left: " + war.health);
 		                    if(war.health > 0) {
 			    				CelestialBody.damage(20, targetBody);
+		                    
 		                    }
-		            	}
+	                	}
 
 	                }
-	                System.out.println("Projectile travel time: " + projectile.traveltime);
+	                System.out.println("Projectile travel time: " + projectile.getTravel());
 	            }
 	        }
 	    }

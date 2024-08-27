@@ -39,7 +39,9 @@ public class CBT_War extends CelestialBodyTrait {
 	}
 	public void launchProjectile(float traveltime, int size, int damage) {
 		Projectile projectile = new Projectile(traveltime, size, damage);
-		
+		projectile.setTravel(traveltime);
+		projectile.setDamage(damage);
+		projectile.setSize(size);
 		projectiles.add(projectile);
 	}
 	
@@ -103,11 +105,12 @@ public class CBT_War extends CelestialBodyTrait {
 
 	}
 	public static class Projectile {
-		public static float traveltime;
-		public static int size;
-		public static int damage;
-		public static int animtime;
-		public static float flashtime;
+		private float traveltime;
+		private int size;
+		private int damage;
+		private static int animtime;
+		private static float flashtime;
+		
 		public Projectile() {
 			
 		}
@@ -141,22 +144,67 @@ public class CBT_War extends CelestialBodyTrait {
             traveltime = buf.readFloat();
             size = buf.readInt();
         }
-        
-        public void impact() {
-        	if (animtime >= 150) {
-				animtime = 0;
-        		flashtime = 0;
 
-			} 
-        	else if (animtime <= 0 || animtime <= 150) {
-        			flashtime += 0.1f;
+        public static float getFlashtime() {
+            return flashtime;
+        }
+        public void update() {
+        	traveltime--;
+        	if(traveltime <= 0) {
+        		traveltime = 0;
+        		if (animtime >= 100) {
+    				animtime = 0;
+    			}   
+        		else if (animtime <= 0 || animtime <= 100) {
     				animtime += 1;
-    	        	flashtime = Math.min(100.0f, flashtime + 0.1f * (100.0f - flashtime) * 0.15f);
-    			}
-        	
+    			}     		
+        	}       
+        }
+        public static void impact() {
 
-            System.out.println(flashtime);
-        	System.out.println(animtime);
+        	flashtime += 0.1f;
+
+    	    flashtime = Math.min(100.0f, flashtime + 0.1f * (100.0f - flashtime) * 0.15f);
+    			
+        	if(animtime >= 100) {
+        		flashtime = 0;
+        		return;
+        	}
+            System.out.println(animtime);
+        }
+
+        public int getSize() {
+            return size;
+        }
+
+        public void setSize(int size) {
+            this.size = size;
+        }
+
+        public int getDamage() {
+            return damage;
+        }
+        public float getTravel() {
+            return traveltime;
+        }
+        public void setTravel(float travel) {
+            this.traveltime = travel;
+        }
+        public void setDamage(int damage) {
+            this.damage = damage;
+        }
+
+        public static int getAnimtime() {
+            return animtime;
+        }
+
+        public void setAnimtime(int animtime) {
+            this.animtime = animtime;
+        }
+
+
+        public void setFlashtime(float flashtime) {
+            this.flashtime = flashtime;
         }
 	}
 
