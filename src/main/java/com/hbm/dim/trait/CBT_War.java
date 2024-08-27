@@ -45,7 +45,10 @@ public class CBT_War extends CelestialBodyTrait {
 	public void destroyProjectile(Projectile proj) {
 		projectiles.remove(proj);
 	}
-	
+
+    public List<Projectile> getProjectiles() {
+        return projectiles;
+    }
 	@Override
 	public void writeToNBT(NBTTagCompound nbt) {
 		nbt.setInteger("health", health);
@@ -99,9 +102,9 @@ public class CBT_War extends CelestialBodyTrait {
 
 	}
 	public static class Projectile {
-		float traveltime;
-		int size;
-		int damage;
+		public static float traveltime;
+		public static int size;
+		public static int damage;
 		public Projectile() {
 			
 		}

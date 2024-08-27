@@ -28,6 +28,8 @@ import com.hbm.dim.WorldProviderCelestial;
 import com.hbm.dim.WorldTypeTeleport;
 import com.hbm.dim.eve.WorldProviderEve;
 import com.hbm.dim.trait.CBT_Atmosphere;
+import com.hbm.dim.trait.CBT_War;
+import com.hbm.dim.trait.CBT_War.Projectile;
 import com.hbm.entity.mob.EntityCyberCrab;
 import com.hbm.entity.mob.EntityDuck;
 import com.hbm.entity.missile.EntityRideableRocket;
@@ -151,6 +153,7 @@ import net.minecraft.util.Vec3;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.AnvilUpdateEvent;
@@ -845,6 +848,26 @@ public class ModEventHandler {
 
 			updateWaterOpacity(event.world);
 		}
+	    if(event.phase == TickEvent.Phase.START) {
+	        CBT_War war = CelestialBody.getTrait(event.world, CBT_War.class);
+
+	        if (war != null) {
+	            for (int i = 0; i < war.getProjectiles().size(); i++) {
+	                CBT_War.Projectile projectile = war.getProjectiles().get(i);
+	                
+	                projectile.traveltime--;
+	                
+	                if (projectile.traveltime <= 0) {
+	                    war.destroyProjectile(projectile);
+	    				World targetBody = DimensionManager.getWorld(SpaceConfig.dunaDimension); //temp
+	    				CelestialBody.damage(20, targetBody);
+	                    i--;
+	                    System.out.println("damaged: " + targetBody + " health left: " + war.health);
+	                }
+	                System.out.println("Projectile travel time: " + projectile.traveltime);
+	            }
+	        }
+	    }
 	}
 
 	private void updateWaterOpacity(World world) {

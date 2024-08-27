@@ -93,7 +93,7 @@ public class ItemWandD extends Item {
 				} else {
 
 					CBT_War war = CelestialBody.getTrait(targetBody, CBT_War.class);
-
+					war.launchProjectile(100, 20, 0);
 					CelestialBody.damage(20, targetBody);
 						System.out.println(war.health);
 				
