@@ -8,6 +8,7 @@ import com.hbm.dim.DebugTeleporter;
 import com.hbm.dim.SolarSystem;
 import com.hbm.dim.trait.CBT_Atmosphere;
 import com.hbm.dim.trait.CBT_Atmosphere.FluidEntry;
+import com.hbm.dim.trait.CBT_War.Projectile;
 import com.hbm.dim.trait.CBT_War;
 import com.hbm.dim.trait.CelestialBodyTrait.CBT_Destroyed;
 import com.hbm.lib.Library;
@@ -93,7 +94,8 @@ public class ItemWandD extends Item {
 				} else {
 
 					CBT_War war = CelestialBody.getTrait(targetBody, CBT_War.class);
-					war.launchProjectile(100, 20, 0);
+					Projectile projectile = new Projectile(100, 20, 0);
+					war.launchProjectile(projectile);
 					if(war.health <= 0) {
 						war.health = 100;
 					}

@@ -143,17 +143,18 @@ public class CBT_War extends CelestialBodyTrait {
         }
         
         public void impact() {
-        	if (animtime >= 200) {
+        	if (animtime >= 150) {
 				animtime = 0;
-			} 
-        	else if (animtime <= 0 || animtime <= 200) {
-    				animtime += 1;
-    			}
-        	flashtime += 0.1f;
-        	flashtime = Math.min(100.0f, flashtime + 0.1f * (100.0f - flashtime) * 0.15f);
-        	if(flashtime >= 100f) {
         		flashtime = 0;
-        	}
+
+			} 
+        	else if (animtime <= 0 || animtime <= 150) {
+        			flashtime += 0.1f;
+    				animtime += 1;
+    	        	flashtime = Math.min(100.0f, flashtime + 0.1f * (100.0f - flashtime) * 0.15f);
+    			}
+        	
+
             System.out.println(flashtime);
         	System.out.println(animtime);
         }

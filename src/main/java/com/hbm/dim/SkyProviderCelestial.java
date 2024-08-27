@@ -237,26 +237,30 @@ public class SkyProviderCelestial extends IRenderHandler {
 			GL11.glPushMatrix();
 	        for (int i = 0; i < war.getProjectiles().size(); i++) {
 	            CBT_War.Projectile projectile = war.getProjectiles().get(i);
-	    		float alpd = 1.0F - Math.min(1.0F, projectile.flashtime / 100);
+	            
+	            if(projectile.traveltime <= 0) {
+		    		float alpd = 1.0F - Math.min(1.0F, projectile.flashtime / 100);
 
-	    		GL11.glEnable(GL11.GL_TEXTURE_2D);
-	    		GL11.glTranslated(21.5, 33, -28); 
-	    		GL11.glScaled(0 + alpd, 0 + alpd, 0 + alpd);
-	    		GL11.glRotated(90.0, -10.0, -1.0, 50.0);
-	    		GL11.glRotated(20.0, -0.0, -1.0, 1.0);
+		    		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		    		GL11.glTranslated(21.5, 33, -28); 
+		    		GL11.glScaled(0 - alpd, 0 - alpd, 0 - alpd);
+		    		GL11.glRotated(90.0, -10.0, -1.0, 50.0);
+		    		GL11.glRotated(20.0, -0.0, -1.0, 1.0);
 
-	    		GL11.glColor4d(1, 1, 1,  alpd);
-	    		GL11.glEnable(GL11.GL_BLEND);
+		    		GL11.glColor4d(1, 1, 1,  alpd);
+		    		GL11.glEnable(GL11.GL_BLEND);
 
 
-	    		//GL11.glDepthMask(false);
-	    		
-	    		mc.renderEngine.bindTexture(this.shockwave);
-	    		ResourceManager.plane.renderAll();
+		    		//GL11.glDepthMask(false);
+		    		
+		    		mc.renderEngine.bindTexture(this.shockwave);
+		    		ResourceManager.plane.renderAll();
 	            }
-			GL11.glPopMatrix();
 
 	        }
+			GL11.glPopMatrix();
+
+	    }
 		
 		GL11.glPushMatrix();
 		{

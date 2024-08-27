@@ -860,7 +860,7 @@ public class ModEventHandler {
 	                if (projectile.traveltime <= 0) {
 	                	projectile.traveltime = 0;
 		            	projectile.impact();
-		            	if(projectile.animtime >= 200) {
+		            	if(projectile.animtime >= 150) {
 		                    war.destroyProjectile(projectile);
 		    				World targetBody = DimensionManager.getWorld(SpaceConfig.dunaDimension); //temp
 		                    i--;
