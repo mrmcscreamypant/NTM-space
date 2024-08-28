@@ -22,6 +22,8 @@ import com.hbm.dim.trait.CBT_War;
 import com.hbm.dim.trait.CelestialBodyTrait.CBT_Destroyed;
 import com.hbm.extprop.HbmLivingProps;
 import com.hbm.lib.RefStrings;
+import com.hbm.main.ModEventHandler;
+import com.hbm.main.ModEventHandlerClient;
 import com.hbm.main.ResourceManager;
 import com.hbm.render.anim.FlashUtil;
 import com.hbm.render.shader.Shader;
@@ -234,27 +236,32 @@ public class SkyProviderCelestial extends IRenderHandler {
 	    CBT_War war = CelestialBody.getTrait(mc.theWorld, CBT_War.class);
 
 	    if (war != null) {
-	        GL11.glPushMatrix();
 	        for (int i = 0; i < war.getProjectiles().size(); i++) {
 	            CBT_War.Projectile projectile = war.getProjectiles().get(i);
 	            float flash = projectile.getFlashtime();
 
 	            if (projectile.getTravel() <= 0) {
-	            	projectile.impact();
+	                projectile.impact();
 	                float alpd = 1.0F - Math.min(1.0F, flash / 100);
+	                System.out.println(flash);
+	                GL11.glPushMatrix(); 
 
-	                GL11.glTranslated(21.5, 33, -28); 
+	                // Apply transformations for each projectile
+	                GL11.glTranslated(projectile.getTranslateX() + 33, 55, 26); 
 	                GL11.glScaled(flash, flash, flash);
 	                GL11.glRotated(90.0, -10.0, -1.0, 50.0);
 	                GL11.glRotated(20.0, -0.0, -1.0, 1.0);
+
 	                GL11.glColor4d(1, 1, 1, alpd);
 	                GL11.glEnable(GL11.GL_BLEND);
 
 	                mc.renderEngine.bindTexture(this.shockwave);
 	                ResourceManager.plane.renderAll();
+
+	                GL11.glPopMatrix();
 	            }
 	        }
-	        GL11.glPopMatrix();
+	    
 	    }
         GL11.glPushMatrix();
         GL11.glTranslated(0, 70, -50); 

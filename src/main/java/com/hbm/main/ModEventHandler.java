@@ -869,7 +869,6 @@ public class ModEventHandler {
 	                	}
 
 	                }
-	                System.out.println("Projectile travel time: " + projectile.getTravel());
 	            }
 	        }
 	    }

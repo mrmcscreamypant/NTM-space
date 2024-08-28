@@ -2,11 +2,13 @@ package com.hbm.dim.trait;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Stack;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
+import scala.reflect.internal.Trees.This;
 
 public class CBT_War extends CelestialBodyTrait {
 	
@@ -37,8 +39,8 @@ public class CBT_War extends CelestialBodyTrait {
 	public void launchProjectile(Projectile proj) {
 		projectiles.add(proj);
 	}
-	public void launchProjectile(float traveltime, int size, int damage) {
-		Projectile projectile = new Projectile(traveltime, size, damage);
+	public void launchProjectile(float traveltime, int size, int damage, float x, double y, double z) {
+		Projectile projectile = new Projectile(traveltime, size, damage, x, y, z);
 		projectiles.add(projectile);
 	}
 	
@@ -107,42 +109,54 @@ public class CBT_War extends CelestialBodyTrait {
 	    private int damage;
 	    private int animtime;    
 	    private float flashtime; 
+	    private double translateX;
+	    private double translateY;
+	    private double translateZ;
 
 	    public Projectile() {
 	        this.animtime = 0;
 	        this.flashtime = 0;
 	    }
 
-	    public Projectile(float traveltime, int size, int damage) {
+	    public Projectile(float traveltime, int size, int damage, float posX, double posY, double posZ) {
 	        this.traveltime = traveltime;
 	        this.size = size;
 	        this.damage = damage;
 	        this.animtime = 0;
 	        this.flashtime = 0;
+	        this.translateX = posX;
+	        this.translateY = posY;
+	        this.translateZ = posZ;
 	    }
 
 	    public void writeToNBT(NBTTagCompound nbt) {
 	        nbt.setInteger("damage", damage);
 	        nbt.setFloat("traveltime", traveltime);
 	        nbt.setInteger("size", size);
+	        nbt.setDouble("translateX", translateX);
+	        nbt.setInteger("animtime", animtime);
 	    }
 
 	    public void readFromNBT(NBTTagCompound nbt) {
 	        damage = nbt.getInteger("damage");
 	        traveltime = nbt.getFloat("traveltime");
 	        size = nbt.getInteger("size");
+	        translateX = nbt.getDouble("translateX");
+	        animtime = nbt.getInteger("animtime");
 	    }
 
 	    public void writeToBytes(ByteBuf buf) {
 	        buf.writeInt(damage);
 	        buf.writeFloat(traveltime);
 	        buf.writeInt(size);
+	        buf.writeDouble(translateX);
 	    }
 
 	    public void readFromBytes(ByteBuf buf) {
 	        damage = buf.readInt();
 	        traveltime = buf.readFloat();
 	        size = buf.readInt();
+	        translateX = buf.readDouble();
 	    }
 
 	    public float getFlashtime() {
@@ -150,6 +164,7 @@ public class CBT_War extends CelestialBodyTrait {
 	    }
 
 	    public void update() {
+
 	        if (traveltime > 0) {
 	            traveltime--;
 	        } else {
@@ -163,6 +178,7 @@ public class CBT_War extends CelestialBodyTrait {
 	    }
 
 	    public void impact() {
+	    	
 	        flashtime += 0.1f;
 	        flashtime = Math.min(100.0f, flashtime + 0.1f * (100.0f - flashtime) * 0.15f);
 
@@ -170,8 +186,8 @@ public class CBT_War extends CelestialBodyTrait {
 	            flashtime = 100;
 	        }
 
-	        System.out.println(animtime);
 	    }
+
 
 	    public int getSize() {
 	        return size;
@@ -208,6 +224,16 @@ public class CBT_War extends CelestialBodyTrait {
 	    public void setFlashtime(float flashtime) {
 	        this.flashtime = flashtime;
 	    }
-	    
+	    public double getTranslateX() {
+	        return translateX;
+	    }
+
+	    public double getTranslateY() {
+	        return translateY;
+	    }
+
+	    public double getTranslateZ() {
+	        return translateZ;
+	    }
 	}
 }

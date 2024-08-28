@@ -13,6 +13,7 @@ import com.hbm.dim.trait.CBT_War;
 import com.hbm.dim.trait.CelestialBodyTrait.CBT_Destroyed;
 import com.hbm.lib.Library;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -92,13 +93,16 @@ public class ItemWandD extends Item {
 					target.setTraits(new CBT_War());		
 			
 				} else {
-
+					
 					CBT_War war = CelestialBody.getTrait(targetBody, CBT_War.class);
-					war.launchProjectile(100, 20, 0);
+					float rand = Minecraft.getMinecraft().theWorld.rand.nextFloat();
+					System.out.println(rand);
+					war.launchProjectile(100, 20, 0, 28 * rand * 5, 33, 20);
 					if(war.health <= 0) {
 						war.health = 100;
 					}
-					player.addChatMessage(new ChatComponentText("kidding"));
+					player.addChatMessage(new ChatComponentText("projectile launched"));
+
 				}
 			}
 		}

@@ -1130,18 +1130,17 @@ public class ModEventHandlerClient {
 		    if (war != null) {
 		        for (int i = 0; i < war.getProjectiles().size(); i++) {
 		            CBT_War.Projectile projectile = war.getProjectiles().get(i);
-		            
-		            if (projectile != null && projectile.getTravel() <= 0) {
+		            if (projectile != null && projectile.getTravel() >= 18 && projectile.getTravel() <= 18) {
 		            	
+		            	  Minecraft.getMinecraft().thePlayer.playSound("hbm:misc.impact", 10F, 1F);
+
 	                    }
 		            }
 		        }
 		    }
-		
-
 	}
-	
-	private float flashd;
+	public static float toy;
+
 
 	
 	public static ItemStack getMouseOverStack() {
