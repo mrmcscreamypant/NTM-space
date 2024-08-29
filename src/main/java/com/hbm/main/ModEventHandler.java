@@ -856,14 +856,15 @@ public class ModEventHandler {
 	                
 	                projectile.update();
 
+
 	                if (projectile.getTravel() <= 0) {
 	                	if(projectile.getAnimtime() >= 100) {
 		                    war.destroyProjectile(projectile);
-		    				World targetBody = DimensionManager.getWorld(SpaceConfig.dunaDimension); //temp
+		    				World targetBody = MinecraftServer.getServer().worldServerForDimension(SpaceConfig.dunaDimension);
 		                    i--;
 		                    System.out.println("damaged: " + targetBody + " health left: " + war.health);
 		                    if(war.health > 0) {
-			    				CelestialBody.damage(20, targetBody);
+			    				CelestialBody.damage(projectile.getDamage(), targetBody);
 		                    
 		                    }
 	                	}

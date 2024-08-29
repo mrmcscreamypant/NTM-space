@@ -18,6 +18,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MovingObjectPosition;
@@ -82,9 +83,9 @@ public class ItemWandD extends Item {
 					player.addChatMessage(new ChatComponentText("Atmosphere: NEAR VACUUM"));
 			} else {
 				// TESTING: END OF LIFE
-				World targetBody = DimensionManager.getWorld(SpaceConfig.dunaDimension);
-				
-				CelestialBody target = CelestialBody.getPlanet(targetBody);
+				//World targetBody = DimensionManager.getWorld(SpaceConfig.dunaDimension);
+				World targetdBody = MinecraftServer.getServer().worldServerForDimension(SpaceConfig.dunaDimension);
+				CelestialBody target = CelestialBody.getPlanet(targetdBody);
 				
 				
 				if(!target.hasTrait(CBT_War.class)) {
@@ -94,10 +95,10 @@ public class ItemWandD extends Item {
 			
 				} else {
 					
-					CBT_War war = CelestialBody.getTrait(targetBody, CBT_War.class);
+					CBT_War war = CelestialBody.getTrait(targetdBody, CBT_War.class);
 					float rand = Minecraft.getMinecraft().theWorld.rand.nextFloat();
 					System.out.println(rand);
-					war.launchProjectile(100, 20, 0, 28 * rand * 5, 33, 20);
+					war.launchProjectile(100, 20, 1, 28 * rand * 5, 33, 20);
 					if(war.health <= 0) {
 						war.health = 100;
 					}

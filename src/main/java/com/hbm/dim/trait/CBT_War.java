@@ -150,6 +150,8 @@ public class CBT_War extends CelestialBodyTrait {
 	        buf.writeFloat(traveltime);
 	        buf.writeInt(size);
 	        buf.writeDouble(translateX);
+	        buf.writeInt(animtime);
+
 	    }
 
 	    public void readFromBytes(ByteBuf buf) {
@@ -157,6 +159,7 @@ public class CBT_War extends CelestialBodyTrait {
 	        traveltime = buf.readFloat();
 	        size = buf.readInt();
 	        translateX = buf.readDouble();
+	        animtime = buf.readInt();
 	    }
 
 	    public float getFlashtime() {
@@ -169,11 +172,8 @@ public class CBT_War extends CelestialBodyTrait {
 	            traveltime--;
 	        } else {
 	            traveltime = 0;
-	            if (animtime < 100) {
-	                animtime++;
-	            } else {
-	                animtime = 100; 
-	            }
+	            animtime = Math.min(100, animtime + 1);
+
 	        }
 	    }
 
