@@ -89,9 +89,8 @@ public class ItemWandD extends Item {
 				
 				
 				if(!target.hasTrait(CBT_War.class)) {
-
 					// TESTING: END OF TIME
-					target.setTraits(new CBT_War());		
+					target.modifyTraits(new CBT_War());		
 			
 				} else {
 					
