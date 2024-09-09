@@ -125,32 +125,22 @@ public class PermaSyncHandler {
 		}
 		/// RIDING DESYNC FIX ///
 		
+		// EFFECTS THAT I DONT KNOW HOW TO GET WORKING ELSEWHERE :P //
+
         CBT_War war = CelestialBody.getTrait(world, CBT_War.class);
         if (war != null) {
             List<Projectile> projectiles = war.getProjectiles();
-            buf.writeInt(projectiles.size());
             for (Projectile projectile : projectiles) {
                 buf.writeFloat(projectile.getFlashtime());
-                buf.writeInt(projectile.getAnimtime());
             }
         }
+		// EFFECTS THAT I DONT KNOW HOW TO GET WORKING ELSEWHERE :P //
+
 	}
 	
 	public static void readPacket(ByteBuf buf, World world, EntityPlayer player) {
-	    CBT_War war = CelestialBody.getTrait(world, CBT_War.class);
-        if (war != null) {
-            int projectileCount = buf.readInt(); // Read number of projectiles
-            List<Projectile> projectiles = war.getProjectiles();
-            for (int i = 0; i < projectileCount; i++) {
-                if (i < projectiles.size()) {
-                    Projectile projectile = projectiles.get(i);
-                    float flashtime = buf.readFloat();
-                    projectile.setFlashtime(flashtime);
-                    int animtime = buf.readInt();
-                    projectile.setAnimtime(animtime);
-                }
-            }
-        }
+
+        
 		/// TOM IMPACT DATA ///
 		ImpactWorldHandler.lastSyncWorld = player.worldObj;
 		ImpactWorldHandler.fire = buf.readFloat();
@@ -229,6 +219,17 @@ public class PermaSyncHandler {
 		}
 		/// RIDING DESYNC FIX ///
 		
+		// EFFECTS THAT I DONT KNOW HOW TO GET WORKING ELSEWHERE :P //
+	    CBT_War war = CelestialBody.getTrait(world, CBT_War.class);
+        if (war != null) {
+            List<Projectile> projectiles = war.getProjectiles();
+            for (Projectile projectile : projectiles){
+                    float flashtime = buf.readFloat();
+                    projectile.setFlashtime(flashtime);
+
+                }
+            }
+		// EFFECTS THAT I DONT KNOW HOW TO GET WORKING ELSEWHERE :P //
 
     }
 }
