@@ -26,7 +26,6 @@ import com.hbm.dim.DebugTeleporter;
 import com.hbm.dim.WorldGeneratorCelestial;
 import com.hbm.dim.WorldProviderCelestial;
 import com.hbm.dim.WorldTypeTeleport;
-import com.hbm.dim.eve.WorldProviderEve;
 import com.hbm.dim.trait.CBT_Atmosphere;
 import com.hbm.dim.trait.CBT_War;
 import com.hbm.dim.trait.CBT_War.Projectile;
@@ -53,7 +52,6 @@ import com.hbm.hazard.HazardSystem;
 import com.hbm.hazard.type.HazardTypeNeutron;
 import com.hbm.interfaces.IBomb;
 import com.hbm.handler.HTTPHandler;
-import com.hbm.handler.ImpactWorldHandler;
 import com.hbm.handler.HbmKeybinds.EnumKeybind;
 import com.hbm.handler.atmosphere.ChunkAtmosphereManager;
 import com.hbm.handler.pollution.PollutionHandler;
@@ -72,10 +70,10 @@ import com.hbm.items.weapon.ItemGunBase;
 import com.hbm.lib.HbmCollection;
 import com.hbm.lib.ModDamageSource;
 import com.hbm.lib.RefStrings;
-import com.hbm.packet.AuxParticlePacketNT;
+import com.hbm.packet.toclient.AuxParticlePacketNT;
 import com.hbm.packet.PacketDispatcher;
-import com.hbm.packet.PermaSyncPacket;
-import com.hbm.packet.PlayerInformPacket;
+import com.hbm.packet.toclient.PermaSyncPacket;
+import com.hbm.packet.toclient.PlayerInformPacket;
 import com.hbm.potion.HbmPotion;
 import com.hbm.saveddata.AuxSavedData;
 import com.hbm.tileentity.machine.TileEntityMachineRadarNT;
@@ -114,7 +112,6 @@ import net.minecraft.block.BlockFire;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -131,6 +128,7 @@ import net.minecraft.entity.passive.EntityMooshroom;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.projectile.EntityFishHook;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -150,10 +148,12 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.FoodStats;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
+import net.minecraft.util.WeightedRandomFishable;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.FishingHooks;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.AnvilUpdateEvent;
@@ -533,6 +533,7 @@ public class ModEventHandler {
 
 	@SubscribeEvent
 	public void onBlockPlaced(PlaceEvent event) {
+		if(event.world.isRemote) return;
 		boolean placeCancelled = ChunkAtmosphereManager.proxy.runEffectsOnBlock(event.world, event.block, event.x, event.y, event.z);
 
 		if(SpaceConfig.allowNetherPortals && !placeCancelled && event.world.provider.dimensionId > 1 && event.block instanceof BlockFire) {
@@ -1797,6 +1798,51 @@ public class ModEventHandler {
 					event.entityPlayer.attackEntityFrom(rand.nextBoolean() ? ModDamageSource.euthanizedSelf : ModDamageSource.euthanizedSelf2, 1000);
 				}
 			}
+		}
+	}
+
+	@SubscribeEvent
+	public void setFish(EntityJoinWorldEvent event) {
+		if(!(event.entity instanceof EntityFishHook)) return;
+
+		updateFish(event.world);
+	}
+
+	private static ArrayList<WeightedRandomFishable> overworldFish;
+	private static ArrayList<WeightedRandomFishable> overworldJunk;
+	private static ArrayList<WeightedRandomFishable> overworldTreasure;
+
+	// Removes all the existing values from the fishing loot tables and replaces them per dimension
+	public static void updateFish(World world) {
+		if(overworldFish == null) {
+			overworldFish = new ArrayList<>();
+			overworldJunk = new ArrayList<>();
+			overworldTreasure = new ArrayList<>();
+
+			FishingHooks.removeFish((fishable) -> { overworldFish.add(fishable); return false; });
+			FishingHooks.removeJunk((fishable) -> { overworldJunk.add(fishable); return false; });
+			FishingHooks.removeTreasure((fishable) -> { overworldTreasure.add(fishable); return false; });
+		} else {
+			FishingHooks.removeFish((fishable) -> { return false; });
+			FishingHooks.removeJunk((fishable) -> { return false; });
+			FishingHooks.removeTreasure((fishable) -> { return false; });
+		}
+
+		if(world.provider instanceof WorldProviderCelestial && world.provider.dimensionId != 0) {
+			WorldProviderCelestial provider = (WorldProviderCelestial) world.provider;
+			ArrayList<WeightedRandomFishable> fish = provider.getFish();
+			ArrayList<WeightedRandomFishable> junk = provider.getJunk();
+			ArrayList<WeightedRandomFishable> treasure = provider.getTreasure();
+			if(fish == null) fish = overworldFish;
+			if(junk == null) junk = overworldJunk;
+			if(treasure == null) treasure = overworldTreasure;
+			for(WeightedRandomFishable fishable : fish) FishingHooks.addFish(fishable);
+			for(WeightedRandomFishable fishable : junk) FishingHooks.addJunk(fishable);
+			for(WeightedRandomFishable fishable : treasure) FishingHooks.addTreasure(fishable);
+		} else {
+			for(WeightedRandomFishable fishable : overworldFish) FishingHooks.addFish(fishable);
+			for(WeightedRandomFishable fishable : overworldJunk) FishingHooks.addJunk(fishable);
+			for(WeightedRandomFishable fishable : overworldTreasure) FishingHooks.addTreasure(fishable);
 		}
 	}
 	
