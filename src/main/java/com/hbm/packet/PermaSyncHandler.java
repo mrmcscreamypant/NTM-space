@@ -220,6 +220,8 @@ public class PermaSyncHandler {
 		/// RIDING DESYNC FIX ///
 		
 		// EFFECTS THAT I DONT KNOW HOW TO GET WORKING ELSEWHERE :P //
+		
+		//this is something i *dont* want to do at all, if theres anyway to make this CLIENTONLY while respecting each instance of a projectile please dm me im so tired of sinking hours into this
 	    CBT_War war = CelestialBody.getTrait(world, CBT_War.class);
         if (war != null) {
             List<Projectile> projectiles = war.getProjectiles();
