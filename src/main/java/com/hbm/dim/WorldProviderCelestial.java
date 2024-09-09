@@ -217,7 +217,6 @@ public abstract class WorldProviderCelestial extends WorldProvider {
 		}
 		if(CelestialBody.getBody(worldObj).hasTrait(CBT_War.class)) {
 			CBT_War wardat = CelestialBody.getTrait(worldObj, CBT_War.class);
-			System.out.println(wardat.health);
 			color.xCoord += wardat.health;
 			
 		}
