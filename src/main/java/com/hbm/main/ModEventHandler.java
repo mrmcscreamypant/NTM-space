@@ -29,6 +29,7 @@ import com.hbm.dim.WorldTypeTeleport;
 import com.hbm.dim.trait.CBT_Atmosphere;
 import com.hbm.dim.trait.CBT_War;
 import com.hbm.dim.trait.CBT_War.Projectile;
+import com.hbm.dim.trait.CBT_War.ProjectileType;
 import com.hbm.entity.mob.EntityCyberCrab;
 import com.hbm.entity.mob.EntityDuck;
 import com.hbm.entity.missile.EntityRideableRocket;
@@ -109,6 +110,7 @@ import cpw.mods.fml.relauncher.ReflectionHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBed;
 import net.minecraft.block.BlockFire;
+import net.minecraft.client.Minecraft;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
@@ -856,20 +858,36 @@ public class ModEventHandler {
 	                CBT_War.Projectile projectile = war.getProjectiles().get(i);
 	                
 	                projectile.update();
-
-
-	                if (projectile.getTravel() <= 0) {
-	                	if(projectile.getAnimtime() >= 100) {
+	                float travel = projectile.getTravel();
+	                
+	                //currently kind of temp, there might be a better way to generalize this
+	                if(projectile.getType() == ProjectileType.SPLITSHOT) {
+	                	if (projectile.getTravel() <= 0) {
+	                		int amount = 4;
+	            		    for (int j = 0; j < amount; j++) {
+		            		    float rand = Minecraft.getMinecraft().theWorld.rand.nextFloat();
+	            		        war.launchProjectile(Math.abs(30 + j * 10), 
+	                                    projectile.getSize(), 
+	                                    projectile.getDamage(), 
+	                                    (float) (projectile.getTranslateX() * rand * j), 
+	                                    projectile.getTranslateY(), 
+	                                    projectile.getTranslateZ(), 
+	                                    ProjectileType.SMALL);
+	            		    }
+	                		war.destroyProjectile(projectile);
+	                		i--;
+	                	}
+	                	
+	                }
+	                
+	                if(projectile.getAnimtime() >= 100) {
 		                    war.destroyProjectile(projectile);
 		    				World targetBody = MinecraftServer.getServer().worldServerForDimension(SpaceConfig.dunaDimension);
 		                    i--;
 		                    System.out.println("damaged: " + targetBody + " health left: " + war.health);
 		                    if(war.health > 0) {
-			    				CelestialBody.damage(projectile.getDamage(), targetBody);
-		                    
-		                    }
+			    				CelestialBody.damage(projectile.getDamage(), targetBody);		                    
 	                	}
-
 	                }
 	            }
 	        }

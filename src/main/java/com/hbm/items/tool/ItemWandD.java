@@ -9,6 +9,7 @@ import com.hbm.dim.SolarSystem;
 import com.hbm.dim.trait.CBT_Atmosphere;
 import com.hbm.dim.trait.CBT_Atmosphere.FluidEntry;
 import com.hbm.dim.trait.CBT_War.Projectile;
+import com.hbm.dim.trait.CBT_War.ProjectileType;
 import com.hbm.dim.trait.CBT_War;
 import com.hbm.dim.trait.CelestialBodyTrait.CBT_Destroyed;
 import com.hbm.lib.Library;
@@ -97,7 +98,7 @@ public class ItemWandD extends Item {
 					CBT_War war = CelestialBody.getTrait(targetdBody, CBT_War.class);
 					float rand = Minecraft.getMinecraft().theWorld.rand.nextFloat();
 					System.out.println(rand);
-					war.launchProjectile(100, 20, 1, 28 * rand * 5, 33, 20);
+					war.launchProjectile(100, 20, 1, 28 * rand * 5, 33, 20, ProjectileType.SPLITSHOT);
 					if(war.health <= 0) {
 						war.health = 100;
 					}

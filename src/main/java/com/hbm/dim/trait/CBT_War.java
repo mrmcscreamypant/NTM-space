@@ -39,11 +39,11 @@ public class CBT_War extends CelestialBodyTrait {
 	public void launchProjectile(Projectile proj) {
 		projectiles.add(proj);
 	}
-	public void launchProjectile(float traveltime, int size, int damage, float x, double y, double z) {
-		Projectile projectile = new Projectile(traveltime, size, damage, x, y, z);
+	public void launchProjectile(float traveltime, int size, int damage, float x, double y, double z, ProjectileType type) {
+		Projectile projectile = new Projectile(traveltime, size, damage, x, y, z, type);
 		projectiles.add(projectile);
 	}
-	
+
 	public void destroyProjectile(Projectile proj) {
 		projectiles.remove(proj);
 	}
@@ -107,18 +107,20 @@ public class CBT_War extends CelestialBodyTrait {
 	    private float traveltime;
 	    private int size;
 	    private int damage;
-	    private int animtime;    
-	    private float flashtime; 
+	    private int animtime;
+	    private float flashtime;
 	    private double translateX;
 	    private double translateY;
 	    private double translateZ;
+	    private ProjectileType type; // New field for projectile type
 
 	    public Projectile() {
 	        this.animtime = 0;
 	        this.flashtime = 0;
+	        this.type = ProjectileType.MEDIUM; // Default type
 	    }
 
-	    public Projectile(float traveltime, int size, int damage, float posX, double posY, double posZ) {
+	    public Projectile(float traveltime, int size, int damage, float posX, double posY, double posZ, ProjectileType type) {
 	        this.traveltime = traveltime;
 	        this.size = size;
 	        this.damage = damage;
@@ -127,6 +129,7 @@ public class CBT_War extends CelestialBodyTrait {
 	        this.translateX = posX;
 	        this.translateY = posY;
 	        this.translateZ = posZ;
+	        this.type = type;
 	    }
 
 	    public void writeToNBT(NBTTagCompound nbt) {
@@ -135,6 +138,7 @@ public class CBT_War extends CelestialBodyTrait {
 	        nbt.setInteger("size", size);
 	        nbt.setDouble("translateX", translateX);
 	        nbt.setInteger("animtime", animtime);
+	        nbt.setString("type", type.name()); // Serialize the type
 	    }
 
 	    public void readFromNBT(NBTTagCompound nbt) {
@@ -143,6 +147,7 @@ public class CBT_War extends CelestialBodyTrait {
 	        size = nbt.getInteger("size");
 	        translateX = nbt.getDouble("translateX");
 	        animtime = nbt.getInteger("animtime");
+	        type = ProjectileType.valueOf(nbt.getString("type")); // Deserialize the type
 	    }
 
 	    public void writeToBytes(ByteBuf buf) {
@@ -151,7 +156,7 @@ public class CBT_War extends CelestialBodyTrait {
 	        buf.writeInt(size);
 	        buf.writeDouble(translateX);
 	        buf.writeInt(animtime);
-
+	        buf.writeByte(type.ordinal()); // Serialize the type
 	    }
 
 	    public void readFromBytes(ByteBuf buf) {
@@ -160,6 +165,16 @@ public class CBT_War extends CelestialBodyTrait {
 	        size = buf.readInt();
 	        translateX = buf.readDouble();
 	        animtime = buf.readInt();
+	        type = ProjectileType.values()[buf.readByte()]; // Deserialize the type
+	    }
+
+	    // Getter and setter for the type
+	    public ProjectileType getType() {
+	        return type;
+	    }
+
+	    public void setType(ProjectileType type) {
+	        this.type = type;
 	    }
 
 	    public float getFlashtime() {
@@ -171,9 +186,10 @@ public class CBT_War extends CelestialBodyTrait {
 	        if (traveltime > 0) {
 	            traveltime--;
 	        } else {
-	            traveltime = 0;
-	            animtime = Math.min(100, animtime + 1);
-
+		            traveltime = 0;
+		        	if(this.getType() != ProjectileType.SPLITSHOT) {
+		            animtime = Math.min(100, animtime + 1);	
+	        	}
 	        }
 	    }
 
@@ -235,5 +251,14 @@ public class CBT_War extends CelestialBodyTrait {
 	    public double getTranslateZ() {
 	        return translateZ;
 	    }
+	}
+	public enum ProjectileType {
+		SMALL,
+		MEDIUM,
+		HUGE,
+		INCENDIARY,
+		NUCLEAR,
+		SPLITSHOT
+	    // Add more types as needed
 	}
 }

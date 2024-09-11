@@ -459,7 +459,7 @@ public class SkyProviderCelestial extends IRenderHandler {
 
 		}
 		GL11.glPopMatrix();
-	    CBT_War war = CelestialBody.getTrait(mc.theWorld, CBT_War.class);
+	    CBT_War war = CelestialBody.getTrait(mc.getMinecraft().getMinecraft().getMinecraft().getMinecraft().getMinecraft().getMinecraft().getMinecraft().getMinecraft().getMinecraft().getMinecraft().getMinecraft().getMinecraft().getMinecraft().getMinecraft().theWorld, CBT_War.class);
 
 	    if (war != null) {
 	        for (int i = 0; i < war.getProjectiles().size(); i++) {
