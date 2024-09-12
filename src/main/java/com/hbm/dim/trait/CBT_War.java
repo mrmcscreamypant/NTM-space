@@ -137,6 +137,8 @@ public class CBT_War extends CelestialBodyTrait {
 	        nbt.setFloat("traveltime", traveltime);
 	        nbt.setInteger("size", size);
 	        nbt.setDouble("translateX", translateX);
+	        nbt.setDouble("translateY", translateY);
+	        nbt.setDouble("translateZ", translateZ);
 	        nbt.setInteger("animtime", animtime);
 	        nbt.setString("type", type.name()); // Serialize the type
 	    }
@@ -146,8 +148,10 @@ public class CBT_War extends CelestialBodyTrait {
 	        traveltime = nbt.getFloat("traveltime");
 	        size = nbt.getInteger("size");
 	        translateX = nbt.getDouble("translateX");
+	        translateY = nbt.getDouble("translateY");
+	        translateZ = nbt.getDouble("translateZ");
 	        animtime = nbt.getInteger("animtime");
-	        type = ProjectileType.valueOf(nbt.getString("type")); // Deserialize the type
+	        type = ProjectileType.valueOf(nbt.getString("type"));
 	    }
 
 	    public void writeToBytes(ByteBuf buf) {
@@ -155,8 +159,10 @@ public class CBT_War extends CelestialBodyTrait {
 	        buf.writeFloat(traveltime);
 	        buf.writeInt(size);
 	        buf.writeDouble(translateX);
+	        buf.writeDouble(translateY);
+	        buf.writeDouble(translateZ);
 	        buf.writeInt(animtime);
-	        buf.writeByte(type.ordinal()); // Serialize the type
+	        buf.writeByte(type.ordinal()); 
 	    }
 
 	    public void readFromBytes(ByteBuf buf) {
@@ -164,8 +170,10 @@ public class CBT_War extends CelestialBodyTrait {
 	        traveltime = buf.readFloat();
 	        size = buf.readInt();
 	        translateX = buf.readDouble();
+	        translateY = buf.readDouble();
+	        translateZ = buf.readDouble();
 	        animtime = buf.readInt();
-	        type = ProjectileType.values()[buf.readByte()]; // Deserialize the type
+	        type = ProjectileType.values()[buf.readByte()];
 	    }
 
 	    // Getter and setter for the type

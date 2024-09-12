@@ -230,9 +230,9 @@ public abstract class WorldProviderCelestial extends WorldProvider {
 
 			            int anim = projectile.getAnimtime();
 		                float alpd = 1.0F - Math.min(1.0F, flash / 100);
-						color.xCoord += invertedFlash;
-						color.yCoord += invertedFlash;
-						color.zCoord += invertedFlash;	
+						color.xCoord += invertedFlash * 0.5;
+						color.yCoord += invertedFlash * 0.5;
+						color.zCoord += invertedFlash * 0.5;	
 		            }
 		        }
 		    }

@@ -473,7 +473,7 @@ public class SkyProviderCelestial extends IRenderHandler {
 
 	                GL11.glPushMatrix(); 
 
-	                GL11.glTranslated(projectile.getTranslateX() + 33, 55, 56); 
+	                GL11.glTranslated(projectile.getTranslateX() + 30, 55, projectile.getTranslateZ() + 50); 
 	                GL11.glScaled(flash, flash, flash);
 	                GL11.glRotated(90.0, -10.0, -1.0, 50.0);
 	                GL11.glRotated(20.0, -0.0, -1.0, 1.0);
@@ -489,7 +489,7 @@ public class SkyProviderCelestial extends IRenderHandler {
 
 	                GL11.glPushMatrix(); 
 
-	                GL11.glTranslated(projectile.getTranslateX() + 33, 55, 56); 
+	                GL11.glTranslated(projectile.getTranslateX() + 30, 55, projectile.getTranslateZ() + 50); 
 	                GL11.glScaled(flash * 0.4f, flash * 0.4f, flash * 0.4f);
 	                GL11.glRotated(90.0, -10.0, -1.0, 50.0);
 	                GL11.glRotated(20.0, -0.0, -1.0, 1.0);

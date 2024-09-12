@@ -859,26 +859,7 @@ public class ModEventHandler {
 	                
 	                projectile.update();
 	                float travel = projectile.getTravel();
-	                
-	                //currently kind of temp, there might be a better way to generalize this
-	                if(projectile.getType() == ProjectileType.SPLITSHOT) {
-	                	if (projectile.getTravel() <= 0) {
-	                		int amount = 4;
-	            		    for (int j = 0; j < amount; j++) {
-		            		    float rand = Minecraft.getMinecraft().theWorld.rand.nextFloat();
-	            		        war.launchProjectile(Math.abs(30 + j * 10), 
-	                                    projectile.getSize(), 
-	                                    projectile.getDamage(), 
-	                                    (float) (projectile.getTranslateX() * rand * j), 
-	                                    projectile.getTranslateY(), 
-	                                    projectile.getTranslateZ(), 
-	                                    ProjectileType.SMALL);
-	            		    }
-	                		war.destroyProjectile(projectile);
-	                		i--;
-	                	}
-	                	
-	                }
+	          
 	                
 	                if(projectile.getAnimtime() >= 100) {
 		                    war.destroyProjectile(projectile);
@@ -888,6 +869,25 @@ public class ModEventHandler {
 		                    if(war.health > 0) {
 			    				CelestialBody.damage(projectile.getDamage(), targetBody);		                    
 	                	}
+	                }
+	                //currently kind of temp, there might be a better way to generalize this
+	                if(projectile.getType() == ProjectileType.SPLITSHOT) {
+	                	if (projectile.getTravel() <= 0) {
+	                		int amount = 4;
+	            		    for (int j = 0; j < amount; j++) {
+		            		    float rand = Minecraft.getMinecraft().theWorld.rand.nextFloat();
+	            		        war.launchProjectile(Math.abs(20 + j * 10), 
+	                                    projectile.getSize(), 
+	                                    projectile.getDamage(), 
+	                                    (float) (projectile.getTranslateX() * rand * j), 
+	                                    projectile.getTranslateY(), 
+	                                    projectile.getTranslateZ() * rand * j, 
+	                                    ProjectileType.SMALL);
+	            		    }
+	                		war.destroyProjectile(projectile);
+	                		i--;
+	                	}
+	                	
 	                }
 	            }
 	        }
