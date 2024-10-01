@@ -18,6 +18,7 @@ import com.hbm.blocks.test.*;
 import com.hbm.blocks.turret.*;
 import com.hbm.items.block.*;
 import com.hbm.items.bomb.ItemPrototypeBlock;
+import com.hbm.items.machine.ItemCassette.SoundType;
 import com.hbm.items.special.ItemOreBlock;
 import com.hbm.lib.ModDamageSource;
 import com.hbm.lib.RefStrings;
@@ -559,6 +560,8 @@ public class ModBlocks {
 	public static Block ore_tektite_osmiridium;
 	public static Block impact_dirt;
 	public static Block rubber_leaves;
+	public static Block rubber_grass;
+	public static Block rubber_silt;
 
 	
 	public static Block fallout;
@@ -1338,6 +1341,7 @@ public class ModBlocks {
 	
 	
 	public static Block pvc_log;
+	public static Block rubber_plant;
 
 	public static Block ff;
 
@@ -2586,7 +2590,10 @@ public class ModBlocks {
 		
 		pvc_log = new BlockLogTest().setBlockName("pvc_log").setStepSound(Block.soundTypeWood).setCreativeTab(MainRegistry.blockTab).setHardness(0.5F).setResistance(2.5F);
 		rubber_leaves = new BlockRubberLeaves(Material.leaves).setBlockName("rubber_leaves").setStepSound(Block.soundTypeGrass).setCreativeTab(MainRegistry.blockTab).setHardness(0.5F).setResistance(2.5F).setBlockTextureName(RefStrings.MODID + ":rubber_leaves");
-
+		rubber_grass = new RubberGrass(Material.grass, false).setBlockName("rubber_grass").setStepSound(Block.soundTypeGrass).setCreativeTab(MainRegistry.blockTab).setHardness(0.5F).setResistance(2.5F);
+		rubber_silt = new BlockGeneric(Material.sand).setBlockName("rubber_silt").setStepSound(Block.soundTypeGravel).setCreativeTab(MainRegistry.blockTab).setHardness(1.0F).setResistance(1.0F).setBlockTextureName(RefStrings.MODID + ":rubber_silt");
+		rubber_plant = new BlockRubberPlant().setBlockName("rubber_plant").setCreativeTab(MainRegistry.blockTab).setStepSound(Block.soundTypeGrass).setHardness(0.0F);
+		
 		//I MADE A NEW CLASS FOR FUCKING EACH OF THESE??? WHAT THE FUCK IS WRONG WITH YOU
 		lattice_log = new BlockLatticeLog().setBlockName("lattice_log").setStepSound(Block.soundTypeWood).setCreativeTab(MainRegistry.blockTab).setHardness(0.5F).setResistance(2.5F);
 		bf_log = new BlockBfLog().setBlockName("bf_log").setStepSound(Block.soundTypeWood).setCreativeTab(MainRegistry.blockTab).setHardness(0.5F).setResistance(2.5F);
@@ -3141,6 +3148,9 @@ public class ModBlocks {
 		
 		GameRegistry.registerBlock(pvc_log, pvc_log.getUnlocalizedName());
 		GameRegistry.registerBlock(rubber_leaves, rubber_leaves.getUnlocalizedName());
+		GameRegistry.registerBlock(rubber_grass, rubber_grass.getUnlocalizedName());
+		GameRegistry.registerBlock(rubber_silt, rubber_silt.getUnlocalizedName());
+		GameRegistry.registerBlock(rubber_plant, rubber_plant.getUnlocalizedName());
 
 		//RAD
 		register(sellafield_slaked);
