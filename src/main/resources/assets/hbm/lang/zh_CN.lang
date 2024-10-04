@@ -4964,6 +4964,7 @@ item.ore_density_scanner.verypoor=非常贫瘠
 item.rp_pod_20.name=复用式返回舱
 item.rp_sc_20.name=轨道空间站
 item.settings_tool.name=设置工具
+item.crystal_niobium.name=铌晶体
 
 itemGroup.tabBlocks=HBM 矿石和方块
 itemGroup.tabConsumable=HBM 食物和装备
