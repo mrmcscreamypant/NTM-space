@@ -562,6 +562,7 @@ public class ModBlocks {
 	public static Block rubber_leaves;
 	public static Block rubber_grass;
 	public static Block rubber_silt;
+	public static Block spike_cacti;
 
 	
 	public static Block fallout;
@@ -2593,6 +2594,7 @@ public class ModBlocks {
 		rubber_grass = new RubberGrass(Material.grass, false).setBlockName("rubber_grass").setStepSound(Block.soundTypeGrass).setCreativeTab(MainRegistry.blockTab).setHardness(0.5F).setResistance(2.5F);
 		rubber_silt = new BlockGeneric(Material.sand).setBlockName("rubber_silt").setStepSound(Block.soundTypeGravel).setCreativeTab(MainRegistry.blockTab).setHardness(1.0F).setResistance(1.0F).setBlockTextureName(RefStrings.MODID + ":rubber_silt");
 		rubber_plant = new BlockRubberPlant().setBlockName("rubber_plant").setCreativeTab(MainRegistry.blockTab).setStepSound(Block.soundTypeGrass).setHardness(0.0F);
+		spike_cacti = new BlockRubberCacti(Material.grass).setBlockName("spike_cacti").setBlockName("rubber_cacti").setCreativeTab(MainRegistry.blockTab).setStepSound(Block.soundTypeGrass).setHardness(0.0F).setBlockTextureName(RefStrings.MODID + ":rubber_cacti");
 		
 		//I MADE A NEW CLASS FOR FUCKING EACH OF THESE??? WHAT THE FUCK IS WRONG WITH YOU
 		lattice_log = new BlockLatticeLog().setBlockName("lattice_log").setStepSound(Block.soundTypeWood).setCreativeTab(MainRegistry.blockTab).setHardness(0.5F).setResistance(2.5F);
@@ -3151,6 +3153,7 @@ public class ModBlocks {
 		GameRegistry.registerBlock(rubber_grass, rubber_grass.getUnlocalizedName());
 		GameRegistry.registerBlock(rubber_silt, rubber_silt.getUnlocalizedName());
 		GameRegistry.registerBlock(rubber_plant, rubber_plant.getUnlocalizedName());
+		GameRegistry.registerBlock(spike_cacti, spike_cacti.getUnlocalizedName());
 
 		//RAD
 		register(sellafield_slaked);

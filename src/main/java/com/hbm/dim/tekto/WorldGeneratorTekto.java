@@ -1,5 +1,6 @@
 package com.hbm.dim.tekto;
 
+import java.util.Iterator;
 import java.util.Random;
 
 import com.hbm.blocks.ModBlocks;
@@ -42,7 +43,6 @@ public class WorldGeneratorTekto implements IWorldGenerator {
 			if(biome == BiomeGenBaseTekto.polyvinylPlains) {
 
 	        if (rand.nextInt(10) == 0) {
-	        	
 	            WorldGenAbstractTree customTreeGen = new TTree(false, 4, 2, 10, 2, 4);
 	            customTreeGen.generate(world, rand, x, y, z); 
 	        	}
@@ -55,6 +55,23 @@ public class WorldGeneratorTekto implements IWorldGenerator {
 	        			customTreeGen.generate(world, rand, x, y, z); 
 	        		}
             }
+		}
+		if(biome == BiomeGenBaseTekto.forest) {
+
+	    for (int i = 0; i < 8; i++) {
+	    int xe = cx + rand.nextInt(16);  
+	    int ze = cz + rand.nextInt(16);
+	    int ye = world.getHeightValue(xe, ze);  
+	        if (rand.nextInt(2) == 0) {
+        			WorldGenAbstractTree customTreeGen = new TTree(false, 3, 2, 20, 3, 5);
+        			customTreeGen.generate(world, rand, xe, ye, ze); 
+           	        	
+        			} 
+        		else {
+        	        	WorldGenAbstractTree tustomTreeGen = new TTree(false, 3, 1, 1, 3, 5);
+        	        	tustomTreeGen.generate(world, rand, xe, ye, ze); 
+        		}
+	    }
 		}
 	}
 }

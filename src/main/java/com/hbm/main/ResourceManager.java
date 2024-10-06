@@ -159,6 +159,9 @@ public class ResourceManager {
 	public static final IModelCustom chemplant_fluidcap = AdvancedModelLoader.loadModel(new ResourceLocation(RefStrings.MODID, "models/chemplant_new_fluidcap.hmf"));
 	public static final IModelCustom chemfac = new HFRWavefrontObject(new ResourceLocation(RefStrings.MODID, "models/machines/chemfac.obj"));
 	
+	public static final IModelCustom spike_plant = AdvancedModelLoader.loadModel(new ResourceLocation(RefStrings.MODID, "models/plant_spike.obj"));
+
+	
 	//Mixer
 	public static final IModelCustom mixer = new HFRWavefrontObject(new ResourceLocation(RefStrings.MODID, "models/machines/mixer.obj"));
 	
@@ -590,6 +593,9 @@ public class ResourceManager {
 	public static final ResourceLocation chemplant_fluid_tex = new ResourceLocation(RefStrings.MODID, "textures/models/lavabase_small.png");
 	public static final ResourceLocation chemfac_tex = new ResourceLocation(RefStrings.MODID, "textures/models/machines/chemfac.png");
 	
+	
+	public static final ResourceLocation spike_plant_tex = new ResourceLocation(RefStrings.MODID, "textures/models/rubber_cacti.png");
+
 	//Mixer
 	public static final ResourceLocation mixer_tex = new ResourceLocation(RefStrings.MODID, "textures/models/machines/mixer.png");
 	

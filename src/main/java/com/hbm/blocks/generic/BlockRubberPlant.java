@@ -20,6 +20,8 @@ public class BlockRubberPlant extends BlockEnumMulti {
 	
 	public static enum EnumRubberPlantType {
 		GRASS,
+		FERN,
+		SHRUB
 	}
 
 	@Override
