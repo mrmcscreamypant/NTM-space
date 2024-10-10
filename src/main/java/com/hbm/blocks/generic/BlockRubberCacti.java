@@ -1,7 +1,9 @@
 package com.hbm.blocks.generic;
 
+import com.hbm.blocks.BlockEnumMulti;
 import com.hbm.blocks.BlockMulti;
 import com.hbm.blocks.ModBlocks;
+import com.hbm.blocks.generic.BlockNTMFlower.EnumFlowerType;
 import com.hbm.entity.effect.EntityMist;
 import com.hbm.inventory.fluid.Fluids;
 import com.hbm.lib.RefStrings;
@@ -23,15 +25,18 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
-public class BlockRubberCacti extends Block {
+public class BlockRubberCacti extends BlockEnumMulti {
 	
-	protected String[] variants = new String[] {"scaffold_steel", "scaffold_red", "scaffold_white", "scaffold_yellow"};
-	@SideOnly(Side.CLIENT) protected IIcon[] icons;
+	//@SideOnly(Side.CLIENT) protected IIcon[] icons;
 
 	public BlockRubberCacti(Material material) {
-		super(material);
+		super(Material.plants, EnumBushType.class, false, true);
 	}
-
+	public static enum EnumBushType {
+		CACT,
+		BUSH,
+		FLOWER
+	}
 	public static int renderIDcact = RenderingRegistry.getNextAvailableRenderId();
 	
 	@Override
@@ -55,7 +60,7 @@ public class BlockRubberCacti extends Block {
 	}
 
 	protected boolean canPlaceBlockOn(Block block) {
-		return block == ModBlocks.rubber_grass;
+		return block == ModBlocks.vinyl_sand || block == ModBlocks.rubber_grass;
 	}
 
 	@Override
@@ -82,14 +87,17 @@ public class BlockRubberCacti extends Block {
 	}
 	@Override
 	public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity) {
-	    if (!world.isRemote && entity instanceof EntityPlayer) {
-	        world.createExplosion(entity, x, y, z, 4.0F, false); 
-	        world.setBlockToAir(x, y, z); 
-			EntityMist mist = new EntityMist(world);
-			mist.setType(Fluids.CHLORINE);
-			mist.setPosition(x, y, z);
-			mist.setArea(8, 5.5F);
-			world.spawnEntityInWorld(mist);
+		int meta = world.getBlockMetadata(x, y, z);
+		if(meta == EnumBushType.CACT.ordinal()) {
+			if (!world.isRemote && entity instanceof EntityPlayer) {
+				world.createExplosion(entity, x, y, z, 4.0F, false); 
+				world.setBlockToAir(x, y, z); 
+				EntityMist mist = new EntityMist(world);
+				mist.setType(Fluids.CHLORINE);
+				mist.setPosition(x, y, z);
+				mist.setArea(8, 5.5F);
+				world.spawnEntityInWorld(mist);
+			}
 	    
 	    }
 	}

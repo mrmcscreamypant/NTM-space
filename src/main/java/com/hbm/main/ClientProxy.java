@@ -1059,7 +1059,7 @@ public class ClientProxy extends ServerProxy {
 			double mX = data.getDouble("moX");
 			double mY = data.getDouble("moY");
 			double mZ = data.getDouble("moZ");
-			
+
 			/*ParticleContrail contrail = new ParticleContrail(man, world, x, y, z, 0, 0, 0, scale);
 			contrail.motionX = mX;
 			contrail.motionY = mY;
@@ -1071,6 +1071,10 @@ public class ClientProxy extends ServerProxy {
 			fx.motionY = mY;
 			fx.motionZ = mZ;
 			if(data.hasKey("maxAge")) fx.setMaxAge(data.getInteger("maxAge"));
+			if(data.hasKey("color")) {
+				Color color = new Color(data.getInteger("color"));
+				fx.setCustomColor(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F);
+			}
 			Minecraft.getMinecraft().effectRenderer.addEffect(fx);
 		}
 		

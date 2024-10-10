@@ -16,6 +16,7 @@ public abstract class BiomeGenBaseTekto extends BiomeGenBaseCelestial {
 	public static final BiomeGenBase halogenHills = new BiomeGenHalogenHills(SpaceConfig.HalogenHill).setTemperatureRainfall(1.0F, 0.5F);
 	public static final BiomeGenBase tetrachloricRiver = new BiomeGenTetrachloricRiver(SpaceConfig.TektoRiver).setTemperatureRainfall(1.0F, 0.5F);
 	public static final BiomeGenBase forest = new BiomeGenForest(103).setTemperatureRainfall(1.0F, 0.5F);
+	public static final BiomeGenBase vinylsands = new BiomeGenVinylSands(104).setTemperatureRainfall(1.0F, 0.5F);
 
 	public BiomeGenBaseTekto(int id) {
 		super(id);

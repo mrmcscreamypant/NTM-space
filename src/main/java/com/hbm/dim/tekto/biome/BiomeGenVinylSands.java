@@ -3,6 +3,7 @@ package com.hbm.dim.tekto.biome;
 import java.util.Random;
 
 import com.hbm.blocks.ModBlocks;
+import com.hbm.dim.BiomeGenBaseCelestial;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -10,13 +11,12 @@ import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 
-public class BiomeGenTetrachloricRiver extends BiomeGenBaseTekto {
+public class BiomeGenVinylSands extends BiomeGenBaseTekto {
+	public static final BiomeGenBase.Height height = new BiomeGenBase.Height(0.425F, 0.3F);
 
-	public static final BiomeGenBase.Height height = new BiomeGenBase.Height(-0.7F, 0.0F);
-
-	public BiomeGenTetrachloricRiver(int id) {
+	public BiomeGenVinylSands(int id) {
 		super(id);
-		this.setBiomeName("Tetrachloride River"); // muh freezing point
+		this.setBiomeName("Vinyl Desert");
 
 		this.setHeight(height);
 
@@ -44,12 +44,12 @@ public class BiomeGenTetrachloricRiver extends BiomeGenBaseTekto {
 				Block block2 = blocks[i2];
 
 				if(block2 != null && block2.getMaterial() != Material.air) {
-					if(block2 == ModBlocks.duna_rock) {
+					if(block2 == ModBlocks.basalt) {
 						if(k == -1) {
 							if(l <= 0) {
 								block = null;
 								b0 = 0;
-								block1 = ModBlocks.duna_rock;
+								block1 = ModBlocks.basalt;
 							} else if(l1 >= 59 && l1 <= 64) {
 								block = this.topBlock;
 								b0 = (byte) (this.field_150604_aj & 255);
@@ -73,11 +73,11 @@ public class BiomeGenTetrachloricRiver extends BiomeGenBaseTekto {
 								meta[i2] = b0;
 							} else if(l1 < 62) {
 								block = null;
-								block1 = ModBlocks.duna_rock;
+								block1 = ModBlocks.basalt;
 								if(Math.random() > 0.4) {
-									blocks[i2] = ModBlocks.duna_rock;
+									blocks[i2] = ModBlocks.basalt;
 								} else {
-									blocks[i2] = ModBlocks.duna_sands;
+									blocks[i2] = ModBlocks.basalt_smooth;
 								}
 							} else {
 								blocks[i2] = block1;
@@ -98,5 +98,6 @@ public class BiomeGenTetrachloricRiver extends BiomeGenBaseTekto {
 			}
 		}
 	}
+
 
 }

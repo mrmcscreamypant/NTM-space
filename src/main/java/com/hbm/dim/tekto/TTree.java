@@ -16,14 +16,16 @@ public class TTree extends WorldGenAbstractTree {
 	int tallest;
 	int xz;
 	int y;
+	boolean vines;
 	
-    public TTree(boolean notify, int offset, int smallest, int tallest, int xz, int y) {
+    public TTree(boolean notify, int offset, int smallest, int tallest, int xz, int y, boolean vines) {
         super(notify);
         this.offset = offset;
         this.smallest = smallest;
         this.tallest = tallest;
         this.xz = xz;
         this.y = y;
+        this.vines = vines;
     }
 
     @Override
@@ -39,7 +41,6 @@ public class TTree extends WorldGenAbstractTree {
             return false;
         }
 
-        // Generate taller trunk
         for (int i = 0; i < height; i++) {
             world.setBlock(x, y + i, z, ModBlocks.pvc_log, 0, 2); 
         }
@@ -58,6 +59,32 @@ public class TTree extends WorldGenAbstractTree {
                         Block block = world.getBlock(x + dx, bulbStartY + dy, z + dz);
                         if (block.isAir(world, x + dx, bulbStartY + dy, z + dz)) {
                             world.setBlock(x + dx, bulbStartY + dy, z + dz, ModBlocks.rubber_leaves, 0, 2);  
+                            if (vines) {
+                                for (int i = 0; i < 4; i++) { 
+                                    int vineX = x + dx + (i % 2 == 0 ? (i - 1) : 0); 
+                                    int vineZ = z + dz + (i % 2 == 1 ? (i - 2) : 0); 
+                                    
+                                    if (rand.nextInt(12) == 0) { 
+                                        for (int j = 0; j < rand.nextInt(15); j++) {
+                                            int vineY = bulbStartY + dy - j; 
+                                            if (world.isAirBlock(vineX, vineY, vineZ)) {
+                                                world.setBlock(vineX, vineY, vineZ, ModBlocks.vinyl_vines, 0, 2);
+                                                if (vineX > x + dx) {
+                                                    world.setBlockMetadataWithNotify(vineX, vineY, vineZ, 0x2, 2); 
+                                                } else if (vineX < x + dx) {
+                                                    world.setBlockMetadataWithNotify(vineX, vineY, vineZ, 0x1, 2); 
+                                                } else if (vineZ > z + dz) {
+                                                    world.setBlockMetadataWithNotify(vineX, vineY, vineZ, 0x4, 2); 
+                                                } else if (vineZ < z + dz) {
+                                                    world.setBlockMetadataWithNotify(vineX, vineY, vineZ, 0x3, 2); 
+                                                }
+                                            } else {
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
