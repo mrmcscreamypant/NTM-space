@@ -10,6 +10,7 @@ import com.hbm.config.SpaceConfig;
 import com.hbm.dim.trait.CBT_Atmosphere;
 import com.hbm.dim.trait.CBT_Temperature;
 import com.hbm.dim.trait.CBT_Water;
+import com.hbm.dim.trait.CelestialBodyTrait.CBT_BATTLEFIELD;
 import com.hbm.inventory.fluid.Fluids;
 import com.hbm.lib.RefStrings;
 import com.hbm.main.MainRegistry;
@@ -192,9 +193,30 @@ public class SolarSystem {
 						.withSemiMajorAxis(67_355)
 						.withRotationalPeriod(57_915)
 						.withAxialTilt(25F)
+						.withProcessingLevel(3)
 						.withTraits(new CBT_Atmosphere(Fluids.TEKTOAIR, 1.5F))
 
-				)
+				),
+
+				new CelestialBody("neidon")
+					.withMassRadius(2.1228e23F, 2_145)
+					.withSemiMajorAxis(409_355_192)
+					.withRotationalPeriod(40_250)
+					.withColor(1f, 0.6862f, 0.5882f)
+					.withSatellites(
+
+					new CelestialBody("thatmo", SpaceConfig.thatmoDimension, Body.THATMO)
+						.withMassRadius(2.788e21F, 286)
+						.withSemiMajorAxis(32_301)
+						.withRotationalPeriod(306_443)
+						.withTraits(new CBT_Atmosphere(Fluids.NITROGEN, 0.005F), new CBT_BATTLEFIELD()),
+
+					new CelestialBody("nissee")
+						.withMassRadius(5.951e18F, 30)
+						.withSemiMajorAxis(487_744)
+						.withRotationalPeriod(27_924)
+						.withProcessingLevel(3)
+					)
 			);
 
 		runTests();
@@ -212,7 +234,8 @@ public class SolarSystem {
 		EVE("eve"),
 		IKE("ike"),
 		LAYTHE("laythe"),
-		TEKTO("tekto");
+		TEKTO("tekto"),
+		THATMO("thatmo");
 
 		public String name;
 

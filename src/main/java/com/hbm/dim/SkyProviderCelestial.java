@@ -13,15 +13,22 @@ import net.minecraftforge.client.IRenderHandler;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.lwjgl.opengl.GL11;
 
 import com.hbm.dim.SolarSystem.AstroMetric;
 import com.hbm.dim.trait.CBT_Atmosphere;
+import com.hbm.dim.trait.CBT_Bees;
+import com.hbm.dim.trait.CelestialBodyTrait.CBT_BATTLEFIELD;
 import com.hbm.dim.trait.CelestialBodyTrait.CBT_Destroyed;
 import com.hbm.extprop.HbmLivingProps;
 import com.hbm.lib.RefStrings;
+import com.hbm.main.ResourceManager;
 import com.hbm.render.shader.Shader;
+import com.hbm.render.util.BeamPronter;
+import com.hbm.render.util.BeamPronter.EnumBeamType;
+import com.hbm.render.util.BeamPronter.EnumWaveType;
 import com.hbm.saveddata.SatelliteSavedData;
 import com.hbm.saveddata.satellites.Satellite;
 import com.hbm.util.BobMathUtil;
@@ -33,6 +40,7 @@ public class SkyProviderCelestial extends IRenderHandler {
 	private static final ResourceLocation nightTexture = new ResourceLocation(RefStrings.MODID, "textures/misc/space/night.png");
 	private static final ResourceLocation digammaStar = new ResourceLocation(RefStrings.MODID, "textures/misc/space/star_digamma.png");
 
+	
 	private static final ResourceLocation noise = new ResourceLocation(RefStrings.MODID, "shaders/iChannel1.png");
 
 	protected static final Shader planetShader = new Shader(new ResourceLocation(RefStrings.MODID, "shaders/crescent.frag"));
@@ -229,6 +237,8 @@ public class SkyProviderCelestial extends IRenderHandler {
 
 		}
 		GL11.glPopMatrix();
+		renderSpecialEffects(partialTicks, world, mc);
+
 
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		GL11.glDisable(GL11.GL_BLEND);
@@ -328,9 +338,9 @@ public class SkyProviderCelestial extends IRenderHandler {
 			OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ONE, GL11.GL_ZERO);
 
 		}
+		
 		GL11.glPopMatrix();
-
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		render3DModel(partialTicks, world, mc);
 		GL11.glDepthMask(true);
 
 	}
@@ -674,5 +684,37 @@ public class SkyProviderCelestial extends IRenderHandler {
 		tessellator.addVertexWithUV(100.0D, -100.0D, -100.0D, u + 0.3333333333333333D, v);
 		tessellator.draw();
 	}
+	protected void renderSpecialEffects(float partialTicks, WorldClient world, Minecraft mc) {
 
+	}
+	protected void render3DModel(float partialTicks, WorldClient world, Minecraft mc) {
+		CelestialBody body = CelestialBody.getBody(world);
+		CBT_BATTLEFIELD wared = body.getTrait(CBT_BATTLEFIELD.class);
+		if(wared != null) {
+			GL11.glPushMatrix();
+			GL11.glEnable(GL11.GL_DEPTH_TEST); 
+
+			GL11.glTranslated(-35, 4.5, 100); 
+			GL11.glScaled(10, 10, 10);
+			GL11.glRotated(180.0, 0.0, 5.0, 0.0);
+			GL11.glRotated(90.0, -12.0, 5.0, 0.0);
+
+			OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+			GL11.glEnable(GL11.GL_BLEND);
+			GL11.glDisable(GL11.GL_FOG);
+
+			GL11.glColor4f(0, 0, 0, 1);
+			GL11.glDepthRange(0.0, 1.0);
+
+			//GL11.glDepthMask(false);
+			
+			mc.renderEngine.bindTexture(ResourceManager.sat_rail_tex);
+			ResourceManager.sat_rail.renderAll();
+			GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+			GL11.glPopMatrix();
+
+		}
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
+
+	}
 }
