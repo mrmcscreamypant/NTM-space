@@ -16,8 +16,10 @@ import com.hbm.blocks.ModBlocks;
 import com.hbm.blocks.generic.BlockAshes;
 import com.hbm.config.GeneralConfig;
 import com.hbm.config.SpaceConfig;
+import com.hbm.dim.CelestialBody;
 import com.hbm.dim.SkyProviderCelestial;
 import com.hbm.dim.WorldProviderCelestial;
+import com.hbm.dim.trait.CBT_War;
 import com.hbm.entity.mob.EntityHunterChopper;
 import com.hbm.entity.projectile.EntityChopperMine;
 import com.hbm.entity.train.EntityRailCarRidable;
@@ -92,6 +94,8 @@ import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.eventhandler.Event.Result;
 import cpw.mods.fml.common.gameevent.InputEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
+import cpw.mods.fml.common.gameevent.InputEvent.KeyInputEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.Phase;
 import cpw.mods.fml.common.gameevent.TickEvent.WorldTickEvent;
@@ -149,6 +153,7 @@ import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.event.sound.PlaySoundEvent17;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 
@@ -945,7 +950,7 @@ public class ModEventHandlerClient {
 	public static int lastBrightness = 0;
 
 	static boolean isRenderingItems = false;
-	
+
 	@SubscribeEvent
 	public void clientTick(ClientTickEvent event) {
 		
@@ -1079,7 +1084,25 @@ public class ModEventHandlerClient {
 				}
 			}
 		}
+		
+		if (event.phase == Phase.START) {
+		    CBT_War war = CelestialBody.getTrait(mc.theWorld, CBT_War.class);
+
+		    if (war != null) {
+		        for (int i = 0; i < war.getProjectiles().size(); i++) {
+		            CBT_War.Projectile projectile = war.getProjectiles().get(i);
+		            if (projectile != null && projectile.getTravel() >= 18 && projectile.getTravel() <= 18) {
+		            	
+		            	  Minecraft.getMinecraft().thePlayer.playSound("hbm:misc.impact", 10F, 1F);
+
+	                    }
+		            }
+		        }
+		    }
 	}
+	public static float toy;
+
+
 	
 	public static ItemStack getMouseOverStack() {
 		

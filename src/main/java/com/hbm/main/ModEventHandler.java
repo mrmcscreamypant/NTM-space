@@ -29,6 +29,9 @@ import com.hbm.dim.WorldTypeTeleport;
 import com.hbm.dim.orbit.OrbitalStation;
 import com.hbm.dim.orbit.WorldProviderOrbit;
 import com.hbm.dim.trait.CBT_Atmosphere;
+import com.hbm.dim.trait.CBT_War;
+import com.hbm.dim.trait.CBT_War.Projectile;
+import com.hbm.dim.trait.CBT_War.ProjectileType;
 import com.hbm.entity.mob.EntityCyberCrab;
 import com.hbm.entity.mob.EntityDuck;
 import com.hbm.entity.missile.EntityRideableRocket;
@@ -143,6 +146,7 @@ import net.minecraft.util.WeightedRandomFishable;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.FishingHooks;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -565,7 +569,6 @@ public class ModEventHandler {
 			}
 		}
 	}
-	
 	@SubscribeEvent
 	public void onLivingUpdate(LivingUpdateEvent event) {
 		
@@ -853,6 +856,48 @@ public class ModEventHandler {
 				}
 			}
 		}
+	    if(event.phase == TickEvent.Phase.START) {
+	        CBT_War war = CelestialBody.getTrait(event.world, CBT_War.class);
+
+	        if (war != null) {
+	            for (int i = 0; i < war.getProjectiles().size(); i++) {
+	                CBT_War.Projectile projectile = war.getProjectiles().get(i);
+	                
+	                projectile.update();
+	                float travel = projectile.getTravel();
+	          
+	                
+	                if(projectile.getAnimtime() >= 100) {
+		                    war.destroyProjectile(projectile);
+		    				World targetBody = MinecraftServer.getServer().worldServerForDimension(SpaceConfig.dunaDimension);
+		                    i--;
+		                    System.out.println("damaged: " + targetBody + " health left: " + war.health);
+		                    if(war.health > 0) {
+			    				CelestialBody.damage(projectile.getDamage(), targetBody);		                    
+	                	}
+	                }
+	                //currently kind of temp, there might be a better way to generalize this
+	                if(projectile.getType() == ProjectileType.SPLITSHOT) {
+	                	if (projectile.getTravel() <= 0) {
+	                		int amount = 4;
+	            		    for (int j = 0; j < amount; j++) {
+		            		    float rand = Minecraft.getMinecraft().theWorld.rand.nextFloat();
+	            		        war.launchProjectile(Math.abs(20 + j * 10), 
+	                                    projectile.getSize(), 
+	                                    projectile.getDamage(), 
+	                                    (float) (projectile.getTranslateX() * rand * j), 
+	                                    projectile.getTranslateY(), 
+	                                    projectile.getTranslateZ() * rand * j, 
+	                                    ProjectileType.SMALL);
+	            		    }
+	                		war.destroyProjectile(projectile);
+	                		i--;
+	                	}
+	                	
+	                }
+	            }
+	        }
+	    }
 	}
 
 	private void updateWaterOpacity(World world) {

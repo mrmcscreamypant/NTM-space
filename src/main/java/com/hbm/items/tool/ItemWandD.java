@@ -10,18 +10,24 @@ import com.hbm.dim.SolarSystem;
 import com.hbm.dim.orbit.WorldProviderOrbit;
 import com.hbm.dim.trait.CBT_Atmosphere;
 import com.hbm.dim.trait.CBT_Atmosphere.FluidEntry;
+import com.hbm.dim.trait.CBT_War.Projectile;
+import com.hbm.dim.trait.CBT_War.ProjectileType;
+import com.hbm.dim.trait.CBT_War;
 import com.hbm.dim.trait.CelestialBodyTrait.CBT_Destroyed;
 import com.hbm.lib.Library;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
 
 public class ItemWandD extends Item {
 
@@ -87,28 +93,27 @@ public class ItemWandD extends Item {
 				if(isVacuum)
 					player.addChatMessage(new ChatComponentText("Atmosphere: NEAR VACUUM"));
 			} else {
-				CelestialBody star = CelestialBody.getStar(world);
-
-				if(!star.hasTrait(CBT_Destroyed.class)) {
-
+				// TESTING: END OF LIFE
+				//World targetBody = DimensionManager.getWorld(SpaceConfig.dunaDimension);
+				World targetdBody = MinecraftServer.getServer().worldServerForDimension(SpaceConfig.dunaDimension);
+				CelestialBody target = CelestialBody.getPlanet(targetdBody);
+				
+				
+				if(!target.hasTrait(CBT_War.class)) {
 					// TESTING: END OF TIME
-					star.modifyTraits(new CBT_Destroyed());
-		
-					// TESTING: END OF LIFE
-					CelestialBody.degas(world);
-		
-					// GOD
-					// DAMN
-					player.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "GOD"));
-					player.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "DAMN"));
-					player.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "THE"));
-					player.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "" + EnumChatFormatting.OBFUSCATED + "SUN"));
+					target.modifyTraits(new CBT_War());		
+			
 				} else {
-
-					star.clearTraits();
-					CelestialBody.clearTraits(world);
 					
-					player.addChatMessage(new ChatComponentText("kidding"));
+					CBT_War war = CelestialBody.getTrait(targetdBody, CBT_War.class);
+					float rand = Minecraft.getMinecraft().theWorld.rand.nextFloat();
+					System.out.println(rand);
+					war.launchProjectile(100, 20, 1, 28 * rand * 5, 33, 20, ProjectileType.SPLITSHOT);
+					if(war.health <= 0) {
+						war.health = 100;
+					}
+					player.addChatMessage(new ChatComponentText("projectile launched"));
+
 				}
 			}
 		} else {

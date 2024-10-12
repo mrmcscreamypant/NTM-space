@@ -9,6 +9,8 @@ import org.apache.commons.lang3.NotImplementedException;
 import com.hbm.config.SpaceConfig;
 import com.hbm.dim.trait.CBT_Atmosphere;
 import com.hbm.dim.trait.CBT_Temperature;
+import com.hbm.dim.trait.CBT_War.Projectile;
+import com.hbm.dim.trait.CelestialBodyTrait;
 import com.hbm.dim.trait.CBT_Water;
 import com.hbm.dim.trait.CelestialBodyTrait.CBT_BATTLEFIELD;
 import com.hbm.inventory.fluid.Fluids;
@@ -29,7 +31,6 @@ public class SolarSystem {
 	// How much to scale celestial objects when rendering
 	public static final double RENDER_SCALE = 180F;
 	public static final double SUN_RENDER_SCALE = 4F;
-
 
 	public static void init() {
 		// All values pulled directly from KSP, most values are auto-converted to MC friendly ones
