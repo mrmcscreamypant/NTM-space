@@ -1,5 +1,8 @@
 package com.hbm.dim.thatmo;
 
+import java.util.ArrayList;
+import java.util.Random;
+
 import com.hbm.blocks.ModBlocks;
 import com.hbm.config.SpaceConfig;
 import com.hbm.dim.WorldProviderCelestial;
@@ -10,6 +13,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.biome.WorldChunkManagerHell;
 import net.minecraft.world.chunk.IChunkProvider;
@@ -37,10 +41,14 @@ public class WorldProviderThatmo extends WorldProviderCelestial {
 	public static float nmass;
 	public static float shielde;
 	public static float csyw;
-	
+	public static ArrayList<Meteor> meteors = new ArrayList();
+	public static ArrayList<Meteor> fragments = new ArrayList();
+	public static ArrayList<Meteor> smoke = new ArrayList();
 	@Override
 	public void updateWeather() {
 		super.updateWeather();
+    	Random rand = new Random();
+
 		if(worldObj.isRemote) {
         if (chargetime <= 0 || chargetime <= 600) {
             chargetime += 1;
@@ -106,7 +114,29 @@ public class WorldProviderThatmo extends WorldProviderCelestial {
             altitude = 0;
             randPos = Minecraft.getMinecraft().theWorld.rand.nextFloat();
         }
+		for(Meteor meteor : meteors) {
+			if(!Minecraft.getMinecraft().isGamePaused())
+			meteor.update();
+		}
+		for(Meteor fragment : fragments) {
+			if(!Minecraft.getMinecraft().isGamePaused())
+			fragment.update();
+		}
+		for(Meteor smoke : smoke) {
+			if(!Minecraft.getMinecraft().isGamePaused())
+			smoke.update();
+		}	            
+		EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+		if(rand.nextInt(1)==0)
+    	{
+            	Meteor meteor = new Meteor((player.posX+rand.nextInt(16000))-8000, 2017, (player.posZ+rand.nextInt(16000))-8000);
+            	meteors.add(meteor);
+    	}
+		meteors.removeIf(x -> x.isDead);
+		fragments.removeIf(xx -> xx.isDead);
+		smoke.removeIf(xxx -> xxx.isDead);
 	}
+		
 	}
 	
 	@Override
@@ -153,5 +183,77 @@ public class WorldProviderThatmo extends WorldProviderCelestial {
         float alpha = (flashd <= 0) ? 0.0F : 1.0F - Math.min(1.0F, flashd / 100);
 		return imsuper * 0.1F + alpha + xalpha;
 	}
-
+	public class Meteor {
+		
+		public double posX;
+		public double posY;
+		public double posZ;
+		public double prevPosX;
+		public double prevPosY;
+		public double prevPosZ;
+		public double motionX;
+		public double motionY;
+		public double motionZ;
+		public boolean isDead = false;
+		public long age;
+		public MeteorType type;
+		
+		public Meteor(double posX, double posY, double posZ)
+		{
+			this(posX, posY, posZ, MeteorType.STANDARD, -31.2, -20.8, 20);
+		}
+		
+		public Meteor(double posX, double posY, double posZ, MeteorType type, double motionX, double motionY, double motionZ) {
+			this.posX = posX;
+			this.posY = posY;
+			this.posZ = posZ;
+			this.type = type;
+			this.motionX = motionX;
+			this.motionY = motionY;
+			this.motionZ = motionZ;
+			//System.out.println("Added"+this.posX+" "+this.posY+" "+this.posZ);
+		}
+		
+		private void update() {
+			Random rand = new Random();
+			if(this.type != MeteorType.SMOKE && this.type != MeteorType.FRAGMENT)
+			{
+				Meteor meteor = new Meteor((this.posX+rand.nextInt(16))-8, (this.posY+rand.nextInt(16)), (this.posZ+rand.nextInt(16))-8, MeteorType.SMOKE,0,0,0);
+	        	smoke.add(meteor);
+	        	/*
+            	if(rand.nextInt(4)==0)
+            	{
+            		//double spreadY = rand.nextDouble()*(Math.abs(this.motionY*0.05d))-0.5;
+            		//double spreadZ = rand.nextDouble()*(Math.abs(this.motionZ*0.05d))-0.5;
+    				Meteor frag = new Meteor((this.posX+rand.nextInt(16))-8, (this.posY+rand.nextInt(16)), (this.posZ+rand.nextInt(16))-8, MeteorType.FRAGMENT,this.motionX*0.5,(this.motionY*0.5),(this.motionZ*0.5));
+    				fragments.add(frag);
+            	}
+            	*/
+	        	
+			}
+			if(this.posY <=500 && this.type != MeteorType.SMOKE)
+			{
+				this.isDead=true;
+			}
+			if(this.type == MeteorType.SMOKE)
+			{
+				this.age++;
+				if(this.age >=60)
+				this.isDead=true;
+			}
+			
+			this.prevPosX = this.posX;
+			this.prevPosY = this.posY;
+			this.prevPosZ = this.posZ;
+			this.posX += this.motionX;
+			this.posY += this.motionY;
+			this.posZ += this.motionZ;
+		}
+	}
+	
+	public static enum MeteorType {
+		STANDARD,
+		FRAGMENT,
+		SMOKE
+	}
 }
