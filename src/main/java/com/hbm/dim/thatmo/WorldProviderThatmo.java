@@ -48,7 +48,13 @@ public class WorldProviderThatmo extends WorldProviderCelestial {
 	public void updateWeather() {
 		super.updateWeather();
     	Random rand = new Random();
-
+        if (altitude <= 400) {
+            altitude += 3;
+        }
+        if (altitude >= 400) {
+            altitude = 0;
+            randPos = Minecraft.getMinecraft().theWorld.rand.nextFloat();
+        }
 		if(worldObj.isRemote) {
         if (chargetime <= 0 || chargetime <= 600) {
             chargetime += 1;
@@ -66,12 +72,12 @@ public class WorldProviderThatmo extends WorldProviderCelestial {
             }
         }
 	    if(chargetime == 285) {
-            Minecraft.getMinecraft().thePlayer.playSound("hbm:misc.cenimp", 10F, 1F);
+            Minecraft.getMinecraft().thePlayer.playSound("hbm:misc.impact", 10F, 1F);
     	}
         if ( chargetime >= 300 &&chargetime <= 430) {
-    	if (scale <= 0 || scale <= 20) {
+        	if (scale <= 0 || scale <= 20) {
     	    scale += 1.5;
-    		}
+    	}
         
 
     	if (scale >= 20) {
@@ -91,39 +97,21 @@ public class WorldProviderThatmo extends WorldProviderCelestial {
     	    }
 
     	    if (cooldown >= 60) {
-    	        cooldown = 0;
-    	        shield = 0; 
-    	        scale = 0;  
-    	        nmass = 0;
-    	        shielde = 0;
-    	        csyw = 0;
-    	    }
-    	}
-        }else {
-	        cooldown = 0;
-	        shield = 0; 
-	        scale = 0;  
-	        nmass = 0;
-	        shielde = 0;
-	        csyw = 0;
-		}
-        if (altitude <= 400) {
-            altitude += 5;
+            	reset();
+
+    	    	}
+    		}
+        } else {
+        reset();
         }
-        if (altitude >= 400) {
-            altitude = 0;
-            randPos = Minecraft.getMinecraft().theWorld.rand.nextFloat();
-        }
+
 		for(Meteor meteor : meteors) {
-			if(!Minecraft.getMinecraft().isGamePaused())
 			meteor.update();
 		}
 		for(Meteor fragment : fragments) {
-			if(!Minecraft.getMinecraft().isGamePaused())
 			fragment.update();
 		}
 		for(Meteor smoke : smoke) {
-			if(!Minecraft.getMinecraft().isGamePaused())
 			smoke.update();
 		}	            
 		EntityPlayer player = Minecraft.getMinecraft().thePlayer;
@@ -135,10 +123,14 @@ public class WorldProviderThatmo extends WorldProviderCelestial {
 		meteors.removeIf(x -> x.isDead);
 		fragments.removeIf(xx -> xx.isDead);
 		smoke.removeIf(xxx -> xxx.isDead);
-	}
+		
+		}
 		
 	}
-	
+	private void reset() {
+	    cooldown = shield = scale = nmass = shielde = csyw = 0;
+	}
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public Vec3 getSkyColor(Entity camera, float partialTicks) {
