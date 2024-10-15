@@ -128,6 +128,16 @@ public class TileEntityOrbitalStation extends TileEntityMachineBase implements I
 		}
 	}
 
+	@Override
+	public void invalidate() {
+		super.invalidate();
+		
+		if(!worldObj.isRemote && station != null) {
+			if(!isCore()) station.removePort(this);
+			if(docked != null) docked.dropNDie(null);
+		}
+	}
+
 	public boolean isCore() {
 		return getBlockType() == ModBlocks.orbital_station;
 	}

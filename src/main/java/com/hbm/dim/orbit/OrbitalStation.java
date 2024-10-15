@@ -209,6 +209,10 @@ public class OrbitalStation {
 		if(port.getBlockType() == ModBlocks.orbital_station) mainPort = port;
 	}
 
+	public void removePort(TileEntityOrbitalStation port) {
+		ports.remove(new ThreeInts(port.xCoord, port.yCoord, port.zCoord));
+	}
+
 	public TileEntityOrbitalStation getPort() {
 		if(ports.size() == 0) return null;
 
