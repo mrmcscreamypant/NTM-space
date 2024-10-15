@@ -25,14 +25,6 @@ import com.hbm.dim.trait.CelestialBodyTrait.CBT_Destroyed;
 import com.hbm.extprop.HbmLivingProps;
 import com.hbm.lib.RefStrings;
 import com.hbm.main.ResourceManager;
-import com.hbm.dim.trait.CBT_War;
-import com.hbm.dim.trait.CelestialBodyTrait.CBT_Destroyed;
-import com.hbm.extprop.HbmLivingProps;
-import com.hbm.lib.RefStrings;
-import com.hbm.main.ModEventHandler;
-import com.hbm.main.ModEventHandlerClient;
-import com.hbm.main.ResourceManager;
-import com.hbm.render.anim.FlashUtil;
 import com.hbm.render.shader.Shader;
 import com.hbm.render.util.BeamPronter;
 import com.hbm.render.util.BeamPronter.EnumBeamType;
@@ -47,8 +39,6 @@ public class SkyProviderCelestial extends IRenderHandler {
 	private static final ResourceLocation flareTexture = new ResourceLocation(RefStrings.MODID, "textures/misc/space/sunspike.png");
 	private static final ResourceLocation nightTexture = new ResourceLocation(RefStrings.MODID, "textures/misc/space/night.png");
 	private static final ResourceLocation digammaStar = new ResourceLocation(RefStrings.MODID, "textures/misc/space/star_digamma.png");
-	private static final ResourceLocation ntexe = new ResourceLocation(RefStrings.MODID, "textures/misc/space/cens.png");
-	private static final ResourceLocation shockwave = new ResourceLocation(RefStrings.MODID + ":textures/particle/shockwave.png");
 
 	
 	private static final ResourceLocation noise = new ResourceLocation(RefStrings.MODID, "shaders/iChannel1.png");
@@ -199,9 +189,6 @@ public class SkyProviderCelestial extends IRenderHandler {
 		renderStars(partialTicks, world, mc, starBrightness, celestialAngle, body.axialTilt);
 
 		
-
-
-
 		GL11.glPushMatrix();
 		{
 
@@ -252,50 +239,6 @@ public class SkyProviderCelestial extends IRenderHandler {
 		GL11.glPopMatrix();
 		renderSpecialEffects(partialTicks, world, mc);
 
-	    CBT_War war = CelestialBody.getTrait(mc.getMinecraft().getMinecraft().getMinecraft().getMinecraft().getMinecraft().getMinecraft().getMinecraft().getMinecraft().getMinecraft().getMinecraft().getMinecraft().getMinecraft().getMinecraft().getMinecraft().theWorld, CBT_War.class);
-
-	    if (war != null) {
-	        for (int i = 0; i < war.getProjectiles().size(); i++) {
-	            CBT_War.Projectile projectile = war.getProjectiles().get(i);
-	            float flash = projectile.getFlashtime();
-	            int anim = projectile.getAnimtime();
-	            if (projectile.getTravel() <= 0) {
-	                projectile.impact();
-	                float alpd = 1.0F - Math.min(1.0F, flash / 100);
-
-
-	                GL11.glPushMatrix(); 
-
-	                GL11.glTranslated(projectile.getTranslateX() + 30, 55, projectile.getTranslateZ() + 50); 
-	                GL11.glScaled(flash, flash, flash);
-	                GL11.glRotated(90.0, -10.0, -1.0, 50.0);
-	                GL11.glRotated(20.0, -0.0, -1.0, 1.0);
-
-	                GL11.glColor4d(1, 1, 1, alpd);
-
-	                mc.renderEngine.bindTexture(this.shockwave);
-	                ResourceManager.plane.renderAll();
-	                
-
-	                GL11.glPopMatrix();
-	                
-
-	                GL11.glPushMatrix(); 
-
-	                GL11.glTranslated(projectile.getTranslateX() + 30, 55, projectile.getTranslateZ() + 50); 
-	                GL11.glScaled(flash * 0.4f, flash * 0.4f, flash * 0.4f);
-	                GL11.glRotated(90.0, -10.0, -1.0, 50.0);
-	                GL11.glRotated(20.0, -0.0, -1.0, 1.0);
-	                GL11.glColor4d(1, 1, 1, alpd);
-	                
-	                mc.renderEngine.bindTexture(this.ntexe);
-	                ResourceManager.plane.renderAll();
-
-	                GL11.glPopMatrix();
-
-	            }
-	        }
-	    }
 
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		GL11.glDisable(GL11.GL_BLEND);
