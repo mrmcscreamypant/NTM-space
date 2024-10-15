@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import com.hbm.blocks.BlockDummyable;
 import com.hbm.blocks.ModBlocks;
 import com.hbm.dim.CelestialBody;
+import com.hbm.dim.SolarSystem;
 import com.hbm.entity.missile.EntityRideableRocket;
 import com.hbm.extprop.HbmPlayerProps;
 import com.hbm.handler.CompatHandler;
@@ -296,6 +297,10 @@ public class TileEntityLaunchPadRocket extends TileEntityMachineBase implements 
 			return false;
 		}
 
+		SolarSystem.Body target = ItemVOTVdrive.getDestination(slots[1]).body;
+		if(target == SolarSystem.Body.ORBIT && rocket.capsule.part != ModItems.rp_capsule_20 && rocket.capsule.part != ModItems.rp_station_core_20)
+			return false;
+
 		Target from = CelestialBody.getTarget(worldObj, xCoord, zCoord);
 		Target to = ItemVOTVdrive.getTarget(slots[1], worldObj);
 
@@ -409,6 +414,12 @@ public class TileEntityLaunchPadRocket extends TileEntityMachineBase implements 
 
 		if(!ItemVOTVdrive.getProcessed(slots[1])) {
 			issues.add(EnumChatFormatting.RED + "Destination drive needs processing");
+			return issues;
+		}
+
+		SolarSystem.Body target = ItemVOTVdrive.getDestination(slots[1]).body;
+		if(target == SolarSystem.Body.ORBIT && rocket.capsule.part != ModItems.rp_capsule_20 && rocket.capsule.part != ModItems.rp_station_core_20) {
+			issues.add(EnumChatFormatting.RED + "Satellite target must be a planet");
 			return issues;
 		}
 
