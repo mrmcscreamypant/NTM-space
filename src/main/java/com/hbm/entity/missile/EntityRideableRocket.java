@@ -28,6 +28,7 @@ import com.hbm.util.CompatExternal;
 import com.hbm.util.I18nUtil;
 import com.hbm.util.ParticleUtil;
 
+import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.material.Material;
@@ -184,6 +185,11 @@ public class EntityRideableRocket extends EntityMissileBaseNT implements ILookOv
 					rocketVelocity += MathHelper.clamp_double(stateTimer / 120D * 0.05D, 0, 0.05);
 
 				rotationPitch = MathHelper.clamp_float((stateTimer - 60) * 0.3F, 0.0F, 45.0F);
+
+				// FUCK OPTIFINE
+				if(FMLClientHandler.instance().hasOptifine()) {
+					rotationPitch = 0;
+				}
 			} else if(state == RocketState.LANDING) {
 				double targetHeight = (double)worldObj.getHeightValue((int)posX, (int)posZ);
 				rocketVelocity = MathHelper.clamp_double((targetHeight - posY) * 0.005, -0.5, -0.005);
