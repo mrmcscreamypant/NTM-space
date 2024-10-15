@@ -4,7 +4,7 @@ import net.minecraftforge.common.config.Configuration;
 
 public class SpaceConfig {
 
-	//thanks minecraft, for making the biome id limit 128 because apparently anything after that spawns in the overworld.
+	//thanks minecraft, for making the biome id limit 127(!!) because apparently anything after that spawns in the overworld.
 	//THANKS MOJANG..
 	public static int dunaoilSpawn = 100;
 
@@ -19,32 +19,41 @@ public class SpaceConfig {
 	public static int orbitDimension = 23;
 	public static int tektoDimension = 24;
 
+	public static int orbitBiome = 42;
+
 	public static int minmusBiome = 40;
 	public static int minmusBasins = 41;
-	public static int orbitBiome = 42; // I wish we didn't have to, but alas
-	// why are we squished into the ceiling
+
 	public static int moonBiome = 111;
+
 	public static int dunaBiome = 112;
 	public static int dunaLowlandsBiome = 113;
 	public static int dunaPolarBiome = 114;
 	public static int dunaHillsBiome = 115;
 	public static int dunaPolarHillsBiome = 116;
+
 	public static int eveBiome = 117;
 	public static int eveMountainsBiome = 118;
 	public static int eveOceanBiome = 119;
+	public static int eveSeismicBiome = 125;
+	public static int eveRiverBiome = 110;
+
 	public static int dresBiome = 120;
 	public static int dresBasins = 121;
+
 	public static int mohoBiome = 122;
+	public static int mohoBasaltBiome = 43;
+
 	public static int laytheBiome = 123;
 	public static int laytheOceanBiome = 124;
-	public static int eveSeismicBiome = 125;
-	public static int laythePolarBiome = 126; //fuck my stupid chungus life
+	public static int laythePolarBiome = 126;
+
 	public static int ikeBiome = 127;
-	public static int tektoPolyvinyl = 100; //time is running out i pray i pray i pray
+
+	public static int tektoPolyvinyl = 100;
 	public static int HalogenHill = 101;
 	public static int TektoRiver = 102;
 
-	public static int mohoBasaltBiome = 43;
 
 	
 
