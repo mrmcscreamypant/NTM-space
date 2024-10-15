@@ -407,10 +407,6 @@ public class ModEventHandlerClient {
 		Tessellator tess = Tessellator.instance;
 		
 		if(!event.isCanceled() && event.type == ElementType.HEALTH) {
-			HbmPlayerProps props = HbmPlayerProps.getData(player);
-			if(props.maxShield > 0) {
-				RenderScreenOverlay.renderShieldBar(event.resolution, Minecraft.getMinecraft().ingameGUI);
-			}
 			if(player.isPotionActive(HbmPotion.nitan)) {
 				RenderScreenOverlay.renderTaintBar(event.resolution, Minecraft.getMinecraft().ingameGUI);
 			}
@@ -418,8 +414,7 @@ public class ModEventHandlerClient {
 
 		if (!event.isCanceled() && event.type == ElementType.ALL) {
 			long time = ImpactWorldHandler.getTimeForClient(player.worldObj);
-			if(time>0)
-			{
+			if(time > 0) {
 				RenderScreenOverlay.renderCountdown(event.resolution, Minecraft.getMinecraft().ingameGUI, Minecraft.getMinecraft().theWorld);	
 			}        	
 		}
