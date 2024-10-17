@@ -17,7 +17,7 @@ public class BiomeGenMoon extends BiomeGenBaseCelestial {
 
 	public BiomeGenMoon(int id) {
 		super(id);
-		this.setBiomeName("Moon");
+		this.setBiomeName("Mun");
 		this.setDisableRain();
 
 		this.theBiomeDecorator.generateLakes = false;
