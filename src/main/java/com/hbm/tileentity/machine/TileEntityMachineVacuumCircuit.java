@@ -51,6 +51,7 @@ public class TileEntityMachineVacuumCircuit extends TileEntityMachineBase implem
 		super(8);
 	}
 
+	
 	@Override
 	public String getName() {
 		return "container.machineVacuumCircuit";
@@ -73,7 +74,7 @@ public class TileEntityMachineVacuumCircuit extends TileEntityMachineBase implem
 			canOperate = atmosphere == null || atmosphere.getPressure() <= 0.001;
 
 			this.power = Library.chargeTEFromItems(slots, 5, this.getPower(), this.getMaxPower());
-			
+			this.updateConnections();
 			recipe = VacuumCircuitRecipes.getRecipe(new ItemStack[] {slots[0], slots[1], slots[2], slots[3]});
 			long intendedMaxPower;
 			
@@ -133,7 +134,11 @@ public class TileEntityMachineVacuumCircuit extends TileEntityMachineBase implem
 		
 		return true;
 	}
-	
+	private void updateConnections() {
+		for(DirPos pos : getConPos()) {
+			this.trySubscribe(worldObj, pos.getX(), pos.getY(), pos.getZ(), pos.getDir());
+		}
+	}
 	public void consumeItems(VacuumCircuitRecipe recipe) {
 		
 		for(AStack aStack : recipe.wafer) {
