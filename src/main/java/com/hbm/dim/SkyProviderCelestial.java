@@ -341,6 +341,7 @@ public class SkyProviderCelestial extends IRenderHandler {
 		
 		GL11.glPopMatrix();
 		render3DModel(partialTicks, world, mc);
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glDepthMask(true);
 
 	}
@@ -380,7 +381,6 @@ public class SkyProviderCelestial extends IRenderHandler {
 
 			}
 			GL11.glPopMatrix();
-
 			GL11.glShadeModel(GL11.GL_FLAT);
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
 		}
@@ -687,34 +687,8 @@ public class SkyProviderCelestial extends IRenderHandler {
 	protected void renderSpecialEffects(float partialTicks, WorldClient world, Minecraft mc) {
 
 	}
+	
 	protected void render3DModel(float partialTicks, WorldClient world, Minecraft mc) {
-		CelestialBody body = CelestialBody.getBody(world);
-		CBT_BATTLEFIELD wared = body.getTrait(CBT_BATTLEFIELD.class);
-		if(wared != null) {
-			GL11.glPushMatrix();
-			GL11.glEnable(GL11.GL_DEPTH_TEST); 
-
-			GL11.glTranslated(-35, 4.5, 100); 
-			GL11.glScaled(10, 10, 10);
-			GL11.glRotated(180.0, 0.0, 5.0, 0.0);
-			GL11.glRotated(90.0, -12.0, 5.0, 0.0);
-
-			OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-			GL11.glEnable(GL11.GL_BLEND);
-			GL11.glDisable(GL11.GL_FOG);
-
-			GL11.glColor4f(0, 0, 0, 1);
-			GL11.glDepthRange(0.0, 1.0);
-
-			//GL11.glDepthMask(false);
-			
-			mc.renderEngine.bindTexture(ResourceManager.sat_rail_tex);
-			ResourceManager.sat_rail.renderAll();
-			GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-			GL11.glPopMatrix();
-
-		}
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
-
+	
 	}
 }
