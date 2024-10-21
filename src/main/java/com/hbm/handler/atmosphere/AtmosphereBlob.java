@@ -20,6 +20,7 @@ import com.hbm.util.AdjacencyGraph;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFarmland;
+import net.minecraft.block.BlockFence;
 import net.minecraft.block.material.Material;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
@@ -73,6 +74,7 @@ public class AtmosphereBlob implements Runnable {
 
 		if(block.isAir(world, x, y, z)) return false; // Air obviously doesn't seal
 		if(block instanceof BlockFarmland) return false;
+		if(block instanceof BlockFence) return false;
 		if(block instanceof IBlockSealable) { // Custom semi-sealables, like doors
 			return ((IBlockSealable)block).isSealed(world, x, y, z);
 		}
@@ -85,7 +87,13 @@ public class AtmosphereBlob implements Runnable {
 		Boolean isFull = fullBounds.get(block);
 		if(isFull != null) return isFull;
 
-		AxisAlignedBB bb = block.getCollisionBoundingBoxFromPool(world, x, y, z);
+		AxisAlignedBB bb = null;
+		try {
+			// In the most common case, blocks don't use the passed World, only when they need to check neighbours to modify their bounding box
+			// we just want to check that it attempts to change its bounding box at all, resulting in null if it does so by checking neighbours
+			// anything that modifies its own bounding box safely (like half slabs) will still work as normal
+			bb = block.getCollisionBoundingBoxFromPool(null, x, y, z);
+		} catch(Exception ex) {}
 
 		if(bb == null) {
 			fullBounds.put(block, false);
