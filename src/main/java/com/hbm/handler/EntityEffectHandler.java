@@ -12,6 +12,7 @@ import com.hbm.dim.trait.CBT_Atmosphere;
 import com.hbm.entity.missile.EntityRideableRocket;
 import com.hbm.entity.mob.EntityCyberCrab;
 import com.hbm.entity.mob.glyphid.EntityGlyphid;
+import com.hbm.entity.mob.siege.EntitySiegeSkeleton;
 import com.hbm.explosion.ExplosionNukeSmall;
 import com.hbm.extprop.HbmLivingProps;
 import com.hbm.extprop.HbmPlayerProps;
@@ -316,6 +317,8 @@ public class EntityEffectHandler {
 		if(entity.worldObj.isRemote) return;
 		if(entity instanceof EntityGlyphid) return; // can't suffocate the bastards
 		if(entity instanceof EntityCyberCrab) return; // machines
+		if(entity instanceof EntitySiegeSkeleton) return; 
+
 		if(entity.ridingEntity != null && entity.ridingEntity instanceof EntityRideableRocket) return; // breathe easy in your ship
 
 		if (!ArmorUtil.checkForOxy(entity, atmosphere)) {
