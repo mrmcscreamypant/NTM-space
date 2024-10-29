@@ -1,9 +1,16 @@
 package com.hbm.entity.mob;
 
+import java.util.List;
+
 import com.hbm.entity.mob.ai.EntityAIBehemothGun;
 import com.hbm.entity.mob.ai.EntityAIMaskmanMinigun;
 import com.hbm.entity.mob.ai.EntityAIStepTowardsTarget;
 import com.hbm.entity.mob.ai.EntityAITest;
+import com.hbm.explosion.ExplosionNukeSmall;
+import com.hbm.items.ModItems;
+import com.hbm.main.MainRegistry;
+import com.hbm.particle.helper.ExplosionCreator;
+import com.hbm.util.ParticleUtil;
 
 import net.minecraft.command.IEntitySelector;
 import net.minecraft.entity.Entity;
@@ -11,6 +18,7 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.EntityAIAttackOnCollide;
 import net.minecraft.entity.ai.EntityAIFleeSun;
 import net.minecraft.entity.ai.EntityAIHurtByTarget;
 import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
@@ -20,6 +28,7 @@ import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityEgg;
+import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSourceIndirect;
@@ -27,7 +36,8 @@ import net.minecraft.world.World;
 
 public class EntityTankbot extends EntityMob implements IRangedAttackMob {
     private int stepTimer = 0;
-
+	public double headTargetYaw; 
+	double currentHeadYaw; 
     private static final IEntitySelector selector = new IEntitySelector() {
 		public boolean isEntityApplicable(Entity p_82704_1_) {
 			return !(p_82704_1_ instanceof EntityTankbot);
@@ -39,15 +49,31 @@ public class EntityTankbot extends EntityMob implements IRangedAttackMob {
         super(p_i1733_1_);
         this.setSize(0.75F, 1.35F);
         this.getNavigator().setAvoidsWater(true);
-                
+        this.deathTime = -50;
         this.targetTasks.addTask(1, new EntityAINearestAttackableTarget(this, EntityPlayer.class, 0, true));
         this.tasks.addTask(5, new EntityAIWander(this, 0.2D));
         this.targetTasks.addTask(2, new EntityAINearestAttackableTarget(this, EntityLiving.class, 0, true, true, selector));
-		this.targetTasks.addTask(5, new EntityAIHurtByTarget(this, false));
-        this.tasks.addTask(3, new EntityAIStepTowardsTarget(this, 20, 0.2D, 20, 20, 0.6));
-
-
+		this.targetTasks.addTask(3, new EntityAIHurtByTarget(this, false));
+        //this.tasks.addTask(3, new EntityAIStepTowardsTarget(this, 20, 0.2D, 20, 20, 0.6));
+        //this.tasks.addTask(4, new EntityAIAttackOnCollide(this, 0.2D, false));
     }
+	protected void onDeathUpdate() {
+		
+		if(this.deathTime == -30) {
+			worldObj.playSoundAtEntity(this, "hbm:entity.chopperDamage", 10.0F, 1.0F);
+		}
+		if(this.deathTime >= -30 && !worldObj.isRemote) {
+		ParticleUtil.spawnGasFlame(worldObj, this.posX, this.posY + 1, this.posZ, rand.nextGaussian(), 0.4, rand.nextGaussian());
+		}
+		if(this.deathTime == -5 && !worldObj.isRemote) {
+			worldObj.newExplosion(this, posX, posY, posZ, 10F, true, true);
+			ExplosionCreator.composeEffectSmall(worldObj, this.posX, this.posY, this.posZ);
+			this.setDead();
+
+		}
+		
+		super.onDeathUpdate();
+	}
 	@Override
 	protected Entity findPlayerToAttack() {
 		if(this.isPotionActive(Potion.blindness)) return null;
@@ -60,6 +86,9 @@ public class EntityTankbot extends EntityMob implements IRangedAttackMob {
 		// TODO Auto-generated method stub
 		
 	}
+	
+
+	
 	@Override
 	public boolean attackEntityFrom(DamageSource source, float amount) {
 		
@@ -103,10 +132,12 @@ public class EntityTankbot extends EntityMob implements IRangedAttackMob {
 	public boolean isAIEnabled() {
 		return true;
 	}
+	
     @Override
     public void onUpdate() {
         super.onUpdate();
     }
+    
     public double getMaxTargetRange() {
         return 64;
     }

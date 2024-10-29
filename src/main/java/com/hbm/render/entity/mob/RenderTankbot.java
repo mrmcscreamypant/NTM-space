@@ -2,6 +2,7 @@ package com.hbm.render.entity.mob;
 
 import org.lwjgl.opengl.GL11;
 
+import com.hbm.entity.mob.EntityTankbot;
 import com.hbm.entity.mob.glyphid.EntityGlyphid;
 import com.hbm.lib.RefStrings;
 import com.hbm.main.ResourceManager;
@@ -10,6 +11,7 @@ import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 
@@ -37,12 +39,28 @@ public class RenderTankbot extends RenderLiving {
 	}
 	
 	public static class ModelTankbot extends ModelBase {
-		
+
+
 		double bite = 0;
 
 		@Override
 		public void setLivingAnimations(EntityLivingBase entity, float limbSwing, float limbSwingAmount, float interp) {
-			bite = entity.getSwingProgress(interp);
+		    if (entity instanceof EntityTankbot) {
+		        EntityTankbot tankbot = (EntityTankbot) entity; 
+		        
+		        bite = tankbot.getSwingProgress(interp);
+		        
+		        if (tankbot.worldObj != null) {
+		            EntityPlayer player = tankbot.worldObj.getClosestPlayerToEntity(tankbot, 20);
+		            if (player != null) {
+		                double dx = player.posX - tankbot.posX;
+		                double dz = player.posZ - tankbot.posZ;
+
+		                double targetYaw = Math.atan2(dz, dx) * (180 / Math.PI) - 90;
+		                tankbot.headTargetYaw += (targetYaw - tankbot.headTargetYaw) * 0.5 * interp; 
+		            }
+		        }
+		    }
 		}
 
 		@Override
@@ -55,7 +73,8 @@ public class RenderTankbot extends RenderLiving {
 			GL11.glDisable(GL11.GL_CULL_FACE);
 			
 			this.renderModel(entity, limbSwing);
-			
+			//GL11.glRotatef((float) headTargetYaw, 1, 0, 0);
+
 			GL11.glPopMatrix();
 		}
 		
@@ -67,7 +86,8 @@ public class RenderTankbot extends RenderLiving {
 			GL11.glScaled(s, s, s);
 			
 			EntityLivingBase living = (EntityLivingBase) entity;
-			
+	        EntityTankbot tankbot = (EntityTankbot) entity; 
+
 			double walkCycle = limbSwing;
 
 			double cy0 = Math.sin(walkCycle % (Math.PI * 2) * 2);
@@ -76,7 +96,7 @@ public class RenderTankbot extends RenderLiving {
 			double cy3 = Math.sin(walkCycle % (Math.PI * 2) - Math.PI * 0.75);
 			double cy4 = Math.sin(walkCycle % (Math.PI * 2) - Math.PI * 1.25);
 
-			double bite = MathHelper.clamp_double(Math.sin(this.bite * Math.PI * 2 - Math.PI * 0.5), 0, 1) * 20;
+			double bite = tankbot.headTargetYaw;
 			double headTilt = Math.sin(this.bite * Math.PI) * 30;
 			
 			ResourceManager.tankbot.renderPart("body");
@@ -133,8 +153,9 @@ public class RenderTankbot extends RenderLiving {
 			GL11.glPopMatrix();
 			
 			GL11.glPushMatrix();
-
-			GL11.glRotated(bite, 0, 1, 0);
+			double bier = entity.getRotationYawHead();
+			GL11.glRotated(-bite, 0, 1, 0);
+			GL11.glRotated(bier, 0, 1, 0);
 			GL11.glRotated(-90, 0, 1, 0);
 
 			ResourceManager.tankbot.renderPart("head");
