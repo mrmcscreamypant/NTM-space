@@ -7,10 +7,13 @@ import com.hbm.entity.mob.glyphid.EntityGlyphid;
 import com.hbm.lib.RefStrings;
 import com.hbm.main.ResourceManager;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
@@ -37,7 +40,7 @@ public class RenderTankbot extends RenderLiving {
 		}
 			return -1;
 	}
-	
+
 	public static class ModelTankbot extends ModelBase {
 
 
@@ -47,14 +50,16 @@ public class RenderTankbot extends RenderLiving {
 		public void setLivingAnimations(EntityLivingBase entity, float limbSwing, float limbSwingAmount, float interp) {
 		    if (entity instanceof EntityTankbot) {
 		        EntityTankbot tankbot = (EntityTankbot) entity; 
-		        
 		        bite = tankbot.getSwingProgress(interp);
 		        
+		        int targetId = tankbot.getDataWatcher().getWatchableObjectInt(20);
+
+		        EntityLivingBase targetBase = (EntityLivingBase) tankbot.worldObj.getEntityByID(targetId);
+		        
 		        if (tankbot.worldObj != null) {
-		            EntityPlayer player = tankbot.worldObj.getClosestPlayerToEntity(tankbot, 20);
-		            if (player != null) {
-		                double dx = player.posX - tankbot.posX;
-		                double dz = player.posZ - tankbot.posZ;
+		            if (targetBase != null) {
+		                double dx = targetBase.posX - tankbot.posX;
+		                double dz = targetBase.posZ - tankbot.posZ;
 
 		                double targetYaw = Math.atan2(dz, dx) * (180 / Math.PI) - 90;
 		                tankbot.headTargetYaw += (targetYaw - tankbot.headTargetYaw) * 0.5 * interp; 
@@ -153,6 +158,8 @@ public class RenderTankbot extends RenderLiving {
 			GL11.glPopMatrix();
 			
 			GL11.glPushMatrix();
+			//this makes NO SENSE but its working okay for some reason...
+			//someone help me :(
 			double bier = entity.getRotationYawHead();
 			GL11.glRotated(-bite, 0, 1, 0);
 			GL11.glRotated(bier, 0, 1, 0);

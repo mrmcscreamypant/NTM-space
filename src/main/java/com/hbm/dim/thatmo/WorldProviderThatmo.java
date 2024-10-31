@@ -48,13 +48,7 @@ public class WorldProviderThatmo extends WorldProviderCelestial {
 	public void updateWeather() {
 		super.updateWeather();
     	Random rand = new Random();
-        if (altitude <= 400) {
-            altitude += 3;
-        }
-        if (altitude >= 400) {
-            altitude = 0;
-            randPos = Minecraft.getMinecraft().theWorld.rand.nextFloat();
-        }
+
 		if(worldObj.isRemote) {
         if (chargetime <= 0 || chargetime <= 600) {
             chargetime += 1;
@@ -104,7 +98,13 @@ public class WorldProviderThatmo extends WorldProviderCelestial {
         } else {
         reset();
         }
-
+        if (altitude <= 400) {
+            altitude += 5;
+        }
+        if (altitude >= 400) {
+            altitude = 0;
+            randPos = Minecraft.getMinecraft().theWorld.rand.nextFloat();
+        }
 		for(Meteor meteor : meteors) {
 			meteor.update();
 		}
