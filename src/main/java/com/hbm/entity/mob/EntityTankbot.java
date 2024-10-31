@@ -58,7 +58,7 @@ public class EntityTankbot extends EntityMob implements IRangedAttackMob, IRadia
         this.tasks.addTask(5, new EntityAIWander(this, 0.2D));
         this.targetTasks.addTask(2, new EntityAINearestAttackableTarget(this, EntityLiving.class, 0, true, true, selector));
 		this.targetTasks.addTask(3, new EntityAIHurtByTarget(this, false));
-        this.tasks.addTask(3, new EntityAIStepTowardsTarget(this, 20, 0.2D, 20, 20, 0.6));
+		this.tasks.addTask(3, new EntityAIStepTowardsTarget(this, 50, 0.2D, 200, 20, 0.6));
         //this.tasks.addTask(4, new EntityAIAttackOnCollide(this, 0.2D, false));
 		this.tasks.addTask(4, new EntityAITankshell(this, true, true, 2, 20, 40));
     }
@@ -152,6 +152,24 @@ public class EntityTankbot extends EntityMob implements IRangedAttackMob, IRadia
     @Override
     public void onUpdate() {
         super.onUpdate();
+        
+        float targetYaw = this.rotationYawHead; // The direction entity wants to face
+        float currentYaw = this.rotationYaw;
+        float maxYawChange = 1f; // Max degrees per tick
+
+        // Calculate the yaw difference
+        float yawDifference = targetYaw - currentYaw;
+
+        // Normalize the yaw difference to the range -180 to 180
+        while (yawDifference < -180.0F) yawDifference += 360.0F;
+        while (yawDifference >= 180.0F) yawDifference -= 360.0F;
+
+        // Limit yaw change
+        if (yawDifference > maxYawChange) yawDifference = maxYawChange;
+        if (yawDifference < -maxYawChange) yawDifference = -maxYawChange;
+
+        // Apply the limited yaw change
+        this.rotationYaw += yawDifference;
     }
     
     public double getMaxTargetRange() {

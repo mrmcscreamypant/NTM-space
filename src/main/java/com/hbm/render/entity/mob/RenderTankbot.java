@@ -62,7 +62,8 @@ public class RenderTankbot extends RenderLiving {
 		                double dz = targetBase.posZ - tankbot.posZ;
 
 		                double targetYaw = Math.atan2(dz, dx) * (180 / Math.PI) - 90;
-		                tankbot.headTargetYaw += (targetYaw - tankbot.headTargetYaw) * 0.5 * interp; 
+		                double deltaYaw = MathHelper.wrapAngleTo180_double(targetYaw - tankbot.headTargetYaw);
+		                tankbot.headTargetYaw += deltaYaw * 0.1; // Adjust the multiplier for smoothing effect
 		            }
 		        }
 		    }
@@ -161,10 +162,9 @@ public class RenderTankbot extends RenderLiving {
 			//this makes NO SENSE but its working okay for some reason...
 			//someone help me :(
 			double bier = entity.getRotationYawHead();
-			GL11.glRotated(-bite, 0, 1, 0);
-			GL11.glRotated(bier, 0, 1, 0);
+			//GL11.glRotated(bier, 0, 1, 0);
+			GL11.glRotated(-bite + bier, 0, 1, 0);
 			GL11.glRotated(-90, 0, 1, 0);
-
 			ResourceManager.tankbot.renderPart("head");
 			ResourceManager.tankbot.renderPart("barrelbottom");
 			ResourceManager.tankbot.renderPart("barreltop");
