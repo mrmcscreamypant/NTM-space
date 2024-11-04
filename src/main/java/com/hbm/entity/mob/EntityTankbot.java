@@ -6,7 +6,6 @@ import com.hbm.entity.mob.ai.EntityAIBehemothGun;
 import com.hbm.entity.mob.ai.EntityAIMaskmanMinigun;
 import com.hbm.entity.mob.ai.EntityAIStepTowardsTarget;
 import com.hbm.entity.mob.ai.EntityAITankshell;
-import com.hbm.entity.mob.ai.EntityAITest;
 import com.hbm.explosion.ExplosionNukeSmall;
 import com.hbm.items.ModItems;
 import com.hbm.main.MainRegistry;
