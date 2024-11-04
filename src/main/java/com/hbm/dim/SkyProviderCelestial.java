@@ -491,7 +491,7 @@ public class SkyProviderCelestial extends IRenderHandler {
 			CBT_Atmosphere atmosphere = body.getTrait(CBT_Atmosphere.class);
 
 			if(atmosphere != null) {
-				if(atmosphere.getPressure(Fluids.TEKTOAIR) > 0.01) {
+				if(atmosphere.getMainFluid() == Fluids.TEKTOAIR) {
 					GL11.glColor4f(1.0F + (float) atmosphere.getPressure(Fluids.TEKTOAIR), 0.1F, 0.1F, visibility);
 				}
 			}else {
@@ -507,7 +507,7 @@ public class SkyProviderCelestial extends IRenderHandler {
 
 			// Draw a big ol' spiky flare! Less so when there is an atmosphere
 			if(atmosphere != null) {
-				if(atmosphere.getPressure(Fluids.TEKTOAIR) > 0.01) {
+				if(atmosphere.getMainFluid() == Fluids.TEKTOAIR) {
 					GL11.glColor4f( 1.0F + (float) atmosphere.getPressure(Fluids.TEKTOAIR), 0.1F, 0.1F, 1 - MathHelper.clamp_float(pressure, 0.0F, 1.0F) * 0.75F);
 				}
 			}else {
