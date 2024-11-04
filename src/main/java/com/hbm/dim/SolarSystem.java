@@ -194,7 +194,7 @@ public class SolarSystem {
 						.withRotationalPeriod(57_915)
 						.withAxialTilt(25F)
 						.withProcessingLevel(3)
-						.withTraits(new CBT_Atmosphere(Fluids.TEKTOAIR, 1.5F))
+						.withTraits(new CBT_Atmosphere(Fluids.TEKTOAIR, 1.5F), new CBT_Water(Fluids.CCL)) // :)
 
 				),
 
@@ -211,7 +211,7 @@ public class SolarSystem {
 						.withRotationalPeriod(306_443)
 						.withTraits(new CBT_Atmosphere(Fluids.NITROGEN, 0.005F), new CBT_BATTLEFIELD()),
 
-					new CelestialBody("nissee")
+					new CelestialBody("nissee") // words cannot express how much i actually fear this moon whenever im passing by it when playing opm. theres more that meets the eye and no one is brave enough to admit that
 						.withMassRadius(5.951e18F, 30)
 						.withSemiMajorAxis(487_744)
 						.withRotationalPeriod(27_924)

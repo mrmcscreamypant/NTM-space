@@ -23,6 +23,8 @@ import com.hbm.dim.trait.CBT_Bees;
 import com.hbm.dim.trait.CelestialBodyTrait.CBT_BATTLEFIELD;
 import com.hbm.dim.trait.CelestialBodyTrait.CBT_Destroyed;
 import com.hbm.extprop.HbmLivingProps;
+import com.hbm.inventory.fluid.FluidType;
+import com.hbm.inventory.fluid.Fluids;
 import com.hbm.lib.RefStrings;
 import com.hbm.main.ResourceManager;
 import com.hbm.render.shader.Shader;
@@ -484,9 +486,17 @@ public class SkyProviderCelestial extends IRenderHandler {
 
 			// Draw the MIGHTY SUN
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
-			GL11.glColor4f(1.0F, 1.0F, 1.0F, visibility);
-
 			mc.renderEngine.bindTexture(SolarSystem.kerbol.texture);
+			CelestialBody body = CelestialBody.getBody(world);
+			CBT_Atmosphere atmosphere = body.getTrait(CBT_Atmosphere.class);
+
+			if(atmosphere != null) {
+				if(atmosphere.getPressure(Fluids.TEKTOAIR) > 0.01) {
+					GL11.glColor4f(1.0F + (float) atmosphere.getPressure(Fluids.TEKTOAIR), 0.1F, 0.1F, visibility);
+				}
+			}else {
+			GL11.glColor4f(1.0F, 1.0F, 1.0F, visibility);
+			}
 
 			tessellator.startDrawingQuads();
 			tessellator.addVertexWithUV(-sunSize, 100.0D, -sunSize, 0.0D, 0.0D);
@@ -496,8 +506,13 @@ public class SkyProviderCelestial extends IRenderHandler {
 			tessellator.draw();
 
 			// Draw a big ol' spiky flare! Less so when there is an atmosphere
-			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1 - MathHelper.clamp_float(pressure, 0.0F, 1.0F) * 0.75F);
-
+			if(atmosphere != null) {
+				if(atmosphere.getPressure(Fluids.TEKTOAIR) > 0.01) {
+					GL11.glColor4f( 1.0F + (float) atmosphere.getPressure(Fluids.TEKTOAIR), 0.1F, 0.1F, 1 - MathHelper.clamp_float(pressure, 0.0F, 1.0F) * 0.75F);
+				}
+			}else {
+				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1 - MathHelper.clamp_float(pressure, 0.0F, 1.0F) * 0.75F);
+			}
 			mc.renderEngine.bindTexture(flareTexture);
 
 			tessellator.startDrawingQuads();
