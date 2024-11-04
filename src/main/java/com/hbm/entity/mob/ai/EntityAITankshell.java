@@ -45,8 +45,10 @@ public class EntityAITankshell extends EntityAIBase {
             } else {
                 artilleryMode = false;
             }
+
             return dist > 2 && dist < 50;
         }
+        
 	}
 	
 	@Override
@@ -76,6 +78,11 @@ public class EntityAITankshell extends EntityAIBase {
 			reloadTimer = reloadDelay;
 		} else {
 			reloadTimer--;
+		}
+		System.out.println(reloadTimer);
+		if(reloadTimer == 20) {
+			owner.worldObj.playSoundEffect(owner.posX, owner.posY, owner.posZ, "hbm:turret.jeremy_reload", 3.0F, 1.0F);
+
 		}
 	}
 

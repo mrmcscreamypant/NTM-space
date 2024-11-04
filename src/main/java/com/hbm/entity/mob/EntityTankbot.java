@@ -54,13 +54,14 @@ public class EntityTankbot extends EntityMob implements IRangedAttackMob, IRadia
         this.getNavigator().setAvoidsWater(true);
         this.deathTime = -50;
         this.isImmuneToFire = true;
+        this.renderDistanceWeight = 15.0D;
         this.targetTasks.addTask(1, new EntityAINearestAttackableTarget(this, EntityPlayer.class, 0, true));
         this.tasks.addTask(5, new EntityAIWander(this, 0.2D));
         this.targetTasks.addTask(2, new EntityAINearestAttackableTarget(this, EntityLiving.class, 0, true, true, selector));
 		this.targetTasks.addTask(3, new EntityAIHurtByTarget(this, false));
 		this.tasks.addTask(3, new EntityAIStepTowardsTarget(this, 50, 0.2D, 200, 20, 0.6));
         //this.tasks.addTask(4, new EntityAIAttackOnCollide(this, 0.2D, false));
-		this.tasks.addTask(4, new EntityAITankshell(this, true, true, 2, 20, 40));
+		this.tasks.addTask(4, new EntityAITankshell(this, true, true, 2, 10, 30));
     }
 	protected void onDeathUpdate() {
 		
@@ -96,6 +97,10 @@ public class EntityTankbot extends EntityMob implements IRangedAttackMob, IRadia
 	protected void entityInit() {
 		super.entityInit();
 		this.dataWatcher.addObject(20, (int) 0);
+	}
+	
+	protected boolean canDespawn() {
+		return false;
 	}
 	
     @Override
@@ -153,22 +158,18 @@ public class EntityTankbot extends EntityMob implements IRangedAttackMob, IRadia
     public void onUpdate() {
         super.onUpdate();
         
-        float targetYaw = this.rotationYawHead; // The direction entity wants to face
+        float targetYaw = this.rotationYawHead; 
         float currentYaw = this.rotationYaw;
-        float maxYawChange = 1f; // Max degrees per tick
+        float maxYawChange = 1f; 
 
-        // Calculate the yaw difference
         float yawDifference = targetYaw - currentYaw;
 
-        // Normalize the yaw difference to the range -180 to 180
         while (yawDifference < -180.0F) yawDifference += 360.0F;
         while (yawDifference >= 180.0F) yawDifference -= 360.0F;
 
-        // Limit yaw change
         if (yawDifference > maxYawChange) yawDifference = maxYawChange;
         if (yawDifference < -maxYawChange) yawDifference = -maxYawChange;
 
-        // Apply the limited yaw change
         this.rotationYaw += yawDifference;
     }
     
