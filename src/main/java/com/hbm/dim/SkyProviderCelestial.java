@@ -1,5 +1,22 @@
 package com.hbm.dim;
 
+import java.util.List;
+import java.util.Map;
+
+import org.lwjgl.opengl.GL11;
+
+import com.hbm.dim.SolarSystem.AstroMetric;
+import com.hbm.dim.trait.CBT_Atmosphere;
+import com.hbm.dim.trait.CBT_Atmosphere.FluidEntry;
+import com.hbm.dim.trait.CelestialBodyTrait.CBT_Destroyed;
+import com.hbm.extprop.HbmLivingProps;
+import com.hbm.inventory.fluid.Fluids;
+import com.hbm.lib.RefStrings;
+import com.hbm.render.shader.Shader;
+import com.hbm.saveddata.SatelliteSavedData;
+import com.hbm.saveddata.satellites.Satellite;
+import com.hbm.util.BobMathUtil;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.GLAllocation;
@@ -11,36 +28,13 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.client.IRenderHandler;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
-import org.lwjgl.opengl.GL11;
-
-import com.hbm.dim.SolarSystem.AstroMetric;
-import com.hbm.dim.trait.CBT_Atmosphere;
-import com.hbm.dim.trait.CBT_Bees;
-import com.hbm.dim.trait.CelestialBodyTrait.CBT_BATTLEFIELD;
-import com.hbm.dim.trait.CelestialBodyTrait.CBT_Destroyed;
-import com.hbm.extprop.HbmLivingProps;
-import com.hbm.inventory.fluid.FluidType;
-import com.hbm.inventory.fluid.Fluids;
-import com.hbm.lib.RefStrings;
-import com.hbm.main.ResourceManager;
-import com.hbm.render.shader.Shader;
-import com.hbm.render.util.BeamPronter;
-import com.hbm.render.util.BeamPronter.EnumBeamType;
-import com.hbm.render.util.BeamPronter.EnumWaveType;
-import com.hbm.saveddata.SatelliteSavedData;
-import com.hbm.saveddata.satellites.Satellite;
-import com.hbm.util.BobMathUtil;
-
 public class SkyProviderCelestial extends IRenderHandler {
 	
 	private static final ResourceLocation planetTexture = new ResourceLocation(RefStrings.MODID, "textures/misc/space/planet.png");
 	private static final ResourceLocation flareTexture = new ResourceLocation(RefStrings.MODID, "textures/misc/space/sunspike.png");
 	private static final ResourceLocation nightTexture = new ResourceLocation(RefStrings.MODID, "textures/misc/space/night.png");
 	private static final ResourceLocation digammaStar = new ResourceLocation(RefStrings.MODID, "textures/misc/space/star_digamma.png");
+	private static final ResourceLocation ringTexture = new ResourceLocation(RefStrings.MODID, "textures/misc/space/rings.png");
 
 	
 	private static final ResourceLocation noise = new ResourceLocation(RefStrings.MODID, "shaders/iChannel1.png");
@@ -458,6 +452,11 @@ public class SkyProviderCelestial extends IRenderHandler {
 			int textureUnit = 0;
 
 			mc.renderEngine.bindTexture(noise);
+
+			GL11.glPushMatrix();
+
+			// Fix orbital plane
+			GL11.glRotatef(-90.0F, 0, 1, 0);
 	
 			shader.setTime(time);
 			shader.setTextureUnit(textureUnit);
@@ -470,6 +469,8 @@ public class SkyProviderCelestial extends IRenderHandler {
 			tessellator.draw();
 	
 			shader.stop();
+
+			GL11.glPopMatrix();
 
 			OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ONE, GL11.GL_ZERO);
 		} else {
@@ -490,13 +491,25 @@ public class SkyProviderCelestial extends IRenderHandler {
 			CelestialBody body = CelestialBody.getBody(world);
 			CBT_Atmosphere atmosphere = body.getTrait(CBT_Atmosphere.class);
 
+			float[] sunColor = {1.0F, 1.0F, 1.0F};
+
+			// Adjust the sun colour based on atmospheric composition
 			if(atmosphere != null) {
-				if(atmosphere.getMainFluid() == Fluids.TEKTOAIR) {
-					GL11.glColor4f(1.0F + (float) atmosphere.getPressure(Fluids.TEKTOAIR), 0.1F, 0.1F, visibility);
+				for(FluidEntry entry : atmosphere.fluids) {
+					// Chlorines all redden the sun by absorbing blue and green
+					if(entry.fluid == Fluids.TEKTOAIR
+					|| entry.fluid == Fluids.CHLORINE
+					|| entry.fluid == Fluids.CHLOROMETHANE
+					|| entry.fluid == Fluids.RADIOSOLVENT
+					|| entry.fluid == Fluids.CCL) {
+						float absorption = MathHelper.clamp_float(1.0F - (float)entry.pressure * 0.5F, 0.0F, 1.0F);
+						sunColor[1] *= absorption;
+						sunColor[2] *= absorption;
+					}
 				}
-			}else {
-			GL11.glColor4f(1.0F, 1.0F, 1.0F, visibility);
 			}
+
+			GL11.glColor4f(sunColor[0], sunColor[1], sunColor[2], visibility);
 
 			tessellator.startDrawingQuads();
 			tessellator.addVertexWithUV(-sunSize, 100.0D, -sunSize, 0.0D, 0.0D);
@@ -506,13 +519,7 @@ public class SkyProviderCelestial extends IRenderHandler {
 			tessellator.draw();
 
 			// Draw a big ol' spiky flare! Less so when there is an atmosphere
-			if(atmosphere != null) {
-				if(atmosphere.getMainFluid() == Fluids.TEKTOAIR) {
-					GL11.glColor4f( 1.0F + (float) atmosphere.getPressure(Fluids.TEKTOAIR), 0.1F, 0.1F, 1 - MathHelper.clamp_float(pressure, 0.0F, 1.0F) * 0.75F);
-				}
-			}else {
-				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1 - MathHelper.clamp_float(pressure, 0.0F, 1.0F) * 0.75F);
-			}
+			GL11.glColor4f(sunColor[0], sunColor[1], sunColor[2], 1 - MathHelper.clamp_float(pressure, 0.0F, 1.0F) * 0.75F);
 			mc.renderEngine.bindTexture(flareTexture);
 
 			tessellator.startDrawingQuads();
@@ -546,6 +553,13 @@ public class SkyProviderCelestial extends IRenderHandler {
 				double size = MathHelper.clamp_double(metric.apparentSize, 0, maxSize);
 				boolean renderAsPoint = size < minSize;
 
+				if(metric.body == tidalLockedBody) {
+					GL11.glRotated(celestialAngle * -360.0 - 60.0, 1.0, 0.0, 0.0);
+				} else {
+					GL11.glRotated(metric.angle, 1.0, 0.0, 0.0);
+				}
+				GL11.glRotatef(axialTilt + 90.0F, 0.0F, 1.0F, 0.0F);
+
 				if(renderAsPoint) {
 					float alpha = MathHelper.clamp_float((float)size * 100.0F, 0.0F, 1.0F);
 					GL11.glColor4f(metric.body.color[0], metric.body.color[1], metric.body.color[2], alpha * visibility);
@@ -553,17 +567,34 @@ public class SkyProviderCelestial extends IRenderHandler {
 
 					size = minSize;
 				} else {
+					// Draw the back half of the ring (obscured by body)
+					if(metric.body.hasRings) {
+						GL11.glPushMatrix();
+						{
+
+							GL11.glColor4f(metric.body.ringColor[0], metric.body.ringColor[1], metric.body.ringColor[2], visibility);
+							mc.renderEngine.bindTexture(ringTexture);
+	
+							double ringSize = size * 2;
+	
+							GL11.glTranslatef(0.0F, 100.0F, 0.0F);
+							GL11.glRotatef(90.0F - metric.body.ringTilt, 1, 0, 0);
+	
+							tessellator.startDrawingQuads();
+							tessellator.addVertexWithUV(-ringSize, 0, -ringSize, 0.0D, 0.0D);
+							tessellator.addVertexWithUV(ringSize, 0, -ringSize, 1.0D, 0.0D);
+							tessellator.addVertexWithUV(ringSize, 0, 0, 1.0D, 0.5D);
+							tessellator.addVertexWithUV(-ringSize, 0, 0, 0.0D, 0.5D);
+							tessellator.draw();
+
+						}
+						GL11.glPopMatrix();
+					}
+
 					GL11.glDisable(GL11.GL_BLEND);
 					GL11.glColor4f(1.0F, 1.0F, 1.0F, visibility);
 					mc.renderEngine.bindTexture(metric.body.texture);
 				}
-
-				if(metric.body == tidalLockedBody) {
-					GL11.glRotated(celestialAngle * -360.0 - 60.0, 1.0, 0.0, 0.0);
-				} else {
-					GL11.glRotated(metric.angle, 1.0, 0.0, 0.0);
-				}
-				GL11.glRotatef(axialTilt + 90.0F, 0.0F, 1.0F, 0.0F);
 
 				tessellator.startDrawingQuads();
 				tessellator.addVertexWithUV(-size, 100.0D, -size, 0.0D + uvOffset, 0.0D);
@@ -608,6 +639,25 @@ public class SkyProviderCelestial extends IRenderHandler {
 					tessellator.draw();
 
 					GL11.glEnable(GL11.GL_TEXTURE_2D);
+
+
+					// Draw the front half of the ring (unobscured)
+					if(metric.body.hasRings) {
+						GL11.glColor4f(metric.body.ringColor[0], metric.body.ringColor[1], metric.body.ringColor[2], visibility);
+						mc.renderEngine.bindTexture(ringTexture);
+
+						double ringSize = size * 2;
+
+						GL11.glTranslatef(0.0F, 100.0F, 0.0F);
+						GL11.glRotatef(90.0F - metric.body.ringTilt, 1, 0, 0);
+
+						tessellator.startDrawingQuads();
+						tessellator.addVertexWithUV(-ringSize, 0, 0, 0.0D, 0.5D);
+						tessellator.addVertexWithUV(ringSize, 0, 0, 1.0D, 0.5D);
+						tessellator.addVertexWithUV(ringSize, 0, ringSize, 1.0D, 1.0D);
+						tessellator.addVertexWithUV(-ringSize, 0, ringSize, 0.0D, 1.0D);
+						tessellator.draw();
+					}
 				}
 
 			}

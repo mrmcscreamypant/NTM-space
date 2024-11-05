@@ -166,6 +166,7 @@ public class SolarSystem {
 					.withSemiMajorAxis(125_798_522)
 					.withRotationalPeriod(28_500)
 					.withColor(1f, 0.6862f, 0.5882f)
+					.withRings(20.0F, 0.8F, 0.4F, 0.4F)
 					.withSatellites(
 							
 					new CelestialBody("hale") //no

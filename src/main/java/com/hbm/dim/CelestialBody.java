@@ -52,6 +52,10 @@ public class CelestialBody {
 	public float[] color = new float[] {0.4F, 0.4F, 0.4F}; // When too small to render the texture
 
 	public String tidallyLockedTo = null;
+
+	public boolean hasRings = false; // put a ring on it
+	public float ringTilt = 0;
+	public float[] ringColor = new float[] {0.5F, 0.5F, 0.5F};
 	
 	public List<CelestialBody> satellites = new ArrayList<CelestialBody>(); // moon boyes
 	public CelestialBody parent = null;
@@ -131,6 +135,13 @@ public class CelestialBody {
 		return this;
 	}
 
+	public CelestialBody withRings(float tilt, float... color) {
+		this.hasRings = true;
+		this.ringTilt = tilt;
+		this.ringColor = color;
+		return this;
+	}
+
 	public CelestialBody withSatellites(CelestialBody... bodies) {
 		Collections.addAll(satellites, bodies);
 		for(CelestialBody body : bodies) {
@@ -147,8 +158,7 @@ public class CelestialBody {
 	public CelestialBody withShader(ResourceLocation fragmentShader) {
 		return withShader(fragmentShader, 1);
 	}
-	
-	
+
 	public CelestialBody withShader(ResourceLocation fragmentShader, float scale) {
 		if(FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER) return this;
 
