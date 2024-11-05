@@ -825,6 +825,11 @@ public class ModEventHandler {
 				EntityRailCarBase.updateMotion(event.world);
 
 				DebugTeleporter.runQueuedTeleport();
+
+				// Once per second, run atmospheric chemistry
+				if(event.world.getTotalWorldTime() % 20 == 0) {
+					CelestialBody.updateChemistry(event.world);
+				}
 			}
 
 			// Tick our per celestial body timer
