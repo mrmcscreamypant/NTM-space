@@ -344,6 +344,7 @@ public class CelestialBody {
 
 				if(pressure > 0.2D) {
 					currentTraits.put(CBT_Water.class, new CBT_Water());
+					hasUpdated = true;
 				}
 			}
 		}
