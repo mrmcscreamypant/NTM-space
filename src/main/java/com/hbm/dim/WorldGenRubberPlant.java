@@ -48,7 +48,7 @@ public class WorldGenRubberPlant extends WorldGenerator {
 	        } else if ((!world.provider.hasNoSky || py < 254) && world.getBlock(px, py - 1, pz) == ModBlocks.vinyl_sand) {
 	        	if(rand.nextInt(64) == 0) {
 	        		
-		            world.setBlock(px, py, pz, ModBlocks.spike_cacti, EnumBushType.CACT.ordinal(), 2);
+		            world.setBlock(px, world.getTopSolidOrLiquidBlock(px, pz), pz, ModBlocks.spike_cacti, EnumBushType.CACT.ordinal(), 2);
 	        		
 	        	}
 
