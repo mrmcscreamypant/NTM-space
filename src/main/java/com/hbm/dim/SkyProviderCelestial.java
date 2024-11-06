@@ -233,6 +233,8 @@ public class SkyProviderCelestial extends IRenderHandler {
 
 		}
 		GL11.glPopMatrix();
+		render3DModel(partialTicks, world, mc);
+
 		renderSpecialEffects(partialTicks, world, mc);
 
 
@@ -336,7 +338,6 @@ public class SkyProviderCelestial extends IRenderHandler {
 		}
 		
 		GL11.glPopMatrix();
-		render3DModel(partialTicks, world, mc);
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glDepthMask(true);
 

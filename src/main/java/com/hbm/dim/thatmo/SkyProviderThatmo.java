@@ -70,29 +70,29 @@ public class SkyProviderThatmo extends SkyProviderCelestial {
 	
 
 		for(Meteor meteor : WorldProviderThatmo.meteors) {
-			GL11.glPushMatrix();
-			GL11.glDisable(GL11.GL_FOG);
-			GL11.glEnable(GL11.GL_TEXTURE_2D);
-			double dx = mc.thePlayer.prevPosX + (mc.thePlayer.posX - mc.thePlayer.prevPosX) * partialTicks;
-			double dy = mc.thePlayer.prevPosY + (mc.thePlayer.posY - mc.thePlayer.prevPosY) * partialTicks;
-			double dz = mc.thePlayer.prevPosZ + (mc.thePlayer.posZ - mc.thePlayer.prevPosZ) * partialTicks;
-			Vec3 vec = Vec3.createVectorHelper(meteor.posX - dx, meteor.posY - dy, meteor.posZ - dz);
-			Vec3 vec2 = Vec3.createVectorHelper(meteor.posX - dx, meteor.posY - dy, meteor.posZ - dz);
-			double l = Math.min(Minecraft.getMinecraft().gameSettings.renderDistanceChunks*16, vec.lengthVector());
-			double sf = Math.max(0.2,(312.5/(vec2.lengthVector()/l)));
-			vec = vec.normalize();
-			Vec3 vecd = Vec3.createVectorHelper(vec.xCoord*l, vec.yCoord*l, vec.zCoord*l);
-			GL11.glTranslated( vecd.xCoord, vecd.yCoord , vecd.zCoord);
-			double descent = 2017d-meteor.posY;
-			double quadratic = (-1*Math.pow(descent, 2)+(1517*descent))/41;
-			//float scalar = (float) (7000f/vec2.lengthVector()); 
-			float scalar = (float) (quadratic/vec2.lengthVector()); 
-			GL11.glScaled(scalar, scalar, scalar);
-				//System.out.println("scalar "+scalar);
-			renderGlow(new ResourceLocation(RefStrings.MODID + ":textures/particle/flare.png"), 1, 1, 1, partialTicks);
-			GL11.glDisable(GL11.GL_TEXTURE_2D);
-			GL11.glEnable(GL11.GL_FOG);
-			GL11.glPopMatrix();
+		GL11.glPushMatrix();
+		GL11.glDisable(GL11.GL_FOG);
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		double dx = mc.thePlayer.prevPosX + (mc.thePlayer.posX - mc.thePlayer.prevPosX) * partialTicks;
+		double dy = mc.thePlayer.prevPosY + (mc.thePlayer.posY - mc.thePlayer.prevPosY) * partialTicks;
+		double dz = mc.thePlayer.prevPosZ + (mc.thePlayer.posZ - mc.thePlayer.prevPosZ) * partialTicks;
+		Vec3 vec = Vec3.createVectorHelper(meteor.posX - dx, meteor.posY - dy, meteor.posZ - dz);
+		Vec3 vec2 = Vec3.createVectorHelper(meteor.posX - dx, meteor.posY - dy, meteor.posZ - dz);
+		double l = Math.min(Minecraft.getMinecraft().gameSettings.renderDistanceChunks*16, vec.lengthVector());
+		double sf = Math.max(0.2,(312.5/(vec2.lengthVector()/l)));
+		vec = vec.normalize();
+		Vec3 vecd = Vec3.createVectorHelper(vec.xCoord*l, vec.yCoord*l, vec.zCoord*l);
+		GL11.glTranslated( vecd.xCoord, vecd.yCoord , vecd.zCoord);
+		double descent = 2017d-meteor.posY;
+		double quadratic = (-1*Math.pow(descent, 2)+(1517*descent))/41;
+		//float scalar = (float) (7000f/vec2.lengthVector()); 
+		float scalar = (float) (quadratic/vec2.lengthVector()); 
+		GL11.glScaled(scalar, scalar, scalar);
+			//System.out.println("scalar "+scalar);
+		renderGlow(new ResourceLocation(RefStrings.MODID + ":textures/particle/flare.png"), 1, 1, 1, partialTicks);
+		GL11.glDisable(GL11.GL_TEXTURE_2D);
+		GL11.glEnable(GL11.GL_FOG);
+		GL11.glPopMatrix();
 	}
 	for(Meteor fragment : WorldProviderThatmo.fragments) {
 		GL11.glPushMatrix();
@@ -152,7 +152,7 @@ public class SkyProviderThatmo extends SkyProviderCelestial {
 		//another thing, this is a thatmo exclusive, when the war update rolls out there will be a better way to render a beam from a sattelite
 		//help me i beg
 		//:(
-		GL11.glTranslated(-35, 2.5, 100); 
+		GL11.glTranslated(16.5, 28.5, 100); 
 		GL11.glScaled(10, 10, 10);
 		GL11.glRotated(-63.5, 0.0, 0.0, 1.0);
 		BeamPronter.prontBeam(Vec3.createVectorHelper(0, WorldProviderThatmo.flashd * 0.5, 0), EnumWaveType.SPIRAL, EnumBeamType.SOLID, 0x202060, 0x202060, 0, 1, 0F, 6, (float)0.2 * 0.2F, alpha );
@@ -327,14 +327,12 @@ public class SkyProviderThatmo extends SkyProviderCelestial {
 		if(wared != null) {
 			GL11.glPushMatrix();
 			GL11.glEnable(GL11.GL_DEPTH_TEST); 
-
+			GL11.glDisable(GL11.GL_BLEND);
 			GL11.glTranslated(-35, 4.5, 100); 
 			GL11.glScaled(10, 10, 10);
 			GL11.glRotated(180.0, 0.0, 5.0, 0.0);
 			GL11.glRotated(90.0, -12.0, 5.0, 0.0);
 
-			OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-			GL11.glEnable(GL11.GL_BLEND);
 			GL11.glDisable(GL11.GL_FOG);
 
 			GL11.glColor4f(0, 0, 0, 1);
@@ -345,6 +343,7 @@ public class SkyProviderThatmo extends SkyProviderCelestial {
 			mc.renderEngine.bindTexture(ResourceManager.sat_rail_tex);
 			ResourceManager.sat_rail.renderAll();
 			GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+			GL11.glEnable(GL11.GL_BLEND);
 			GL11.glPopMatrix();
 
 		}
