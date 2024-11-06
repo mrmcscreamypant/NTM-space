@@ -125,7 +125,7 @@ public class SolarSystem {
 					
 
 				new CelestialBody("jool")
-					.withMassRadius(4.233e24F, 3_000) // was radius 6_000 but that just rendered too large, so density is currently incorrect
+					.withMassRadius(4.233e24F, 6_000)
 					.withSemiMajorAxis(68_773_560)
 					.withRotationalPeriod(36_000)
 					.withColor(0.4588f, 0.6784f, 0.3059f)
@@ -484,7 +484,7 @@ public class SolarSystem {
 	}
 
 	private static double getApparentSize(double radius, double distance) {
-		return 2D * (float)Math.atan((2D * radius) / (2D * distance)) * RENDER_SCALE;
+		return 2D * (float)Math.atan((2D * Math.min(radius, 3_000)) / (2D * distance)) * RENDER_SCALE;
 	}
 
 	private static double getApparentAngleDegrees(Vec3 from, Vec3 to) {

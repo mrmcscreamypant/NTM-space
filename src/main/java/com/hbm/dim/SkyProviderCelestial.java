@@ -183,7 +183,6 @@ public class SkyProviderCelestial extends IRenderHandler {
 		renderSunset(partialTicks, world, mc);
 
 		renderStars(partialTicks, world, mc, starBrightness, celestialAngle, body.axialTilt);
-
 		
 		GL11.glPushMatrix();
 		{
@@ -214,7 +213,7 @@ public class SkyProviderCelestial extends IRenderHandler {
 			// Get our orrery of bodies
 			List<AstroMetric> metrics = SolarSystem.calculateMetricsFromBody(world, partialTicks, longitude, body);
 			
-			renderCelestials(partialTicks, world, mc, metrics, celestialAngle, tidalLockedBody, planetTint, visibility, blendAmount, null, 24);
+			renderCelestials(partialTicks, world, mc, metrics, celestialAngle, tidalLockedBody, planetTint, visibility, blendAmount, null, 32);
 
 			GL11.glEnable(GL11.GL_BLEND);
 
@@ -233,8 +232,22 @@ public class SkyProviderCelestial extends IRenderHandler {
 
 		}
 		GL11.glPopMatrix();
-		renderSpecialEffects(partialTicks, world, mc);
+		
+		if(body.hasRings) {
+			GL11.glPushMatrix();
+			{
 
+				GL11.glRotatef(body.axialTilt - body.ringTilt, 1.0F, 0.0F, 0.0F);
+				GL11.glTranslatef(0, -50, 0);
+				GL11.glRotatef(-90.0F, 0.0F, 1.0F, 0.0F);
+	
+				renderRings(partialTicks, world, mc, body.ringTilt, body.ringColor, 100, visibility);
+	
+			}
+			GL11.glPopMatrix();
+		}
+		
+		renderSpecialEffects(partialTicks, world, mc);
 
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		GL11.glDisable(GL11.GL_BLEND);
@@ -665,6 +678,20 @@ public class SkyProviderCelestial extends IRenderHandler {
 		}
 	}
 
+	protected void renderRings(float partialTicks, WorldClient world, Minecraft mc, float ringTilt, float[] ringColor, float ringSize, float visibility) {
+		Tessellator tessellator = Tessellator.instance;
+
+		GL11.glColor4f(ringColor[0], ringColor[1], ringColor[2], visibility);
+		mc.renderEngine.bindTexture(ringTexture);
+
+		tessellator.startDrawingQuads();
+		tessellator.addVertexWithUV(-10.0D, -ringSize, -ringSize, 0.0D, 0.0D);
+		tessellator.addVertexWithUV(-10.0D, ringSize, -ringSize, 1.0D, 0.0D);
+		tessellator.addVertexWithUV(-10.0D, ringSize, ringSize, 1.0D, 1.0D);
+		tessellator.addVertexWithUV(-10.0D, -ringSize, ringSize, 0.0D, 1.0D);
+		tessellator.draw();
+	}
+
 	protected void renderDigamma(float partialTicks, WorldClient world, Minecraft mc, float celestialAngle) {
 		Tessellator tessellator = Tessellator.instance;
 
@@ -749,6 +776,7 @@ public class SkyProviderCelestial extends IRenderHandler {
 		tessellator.addVertexWithUV(100.0D, -100.0D, -100.0D, u + 0.3333333333333333D, v);
 		tessellator.draw();
 	}
+
 	protected void renderSpecialEffects(float partialTicks, WorldClient world, Minecraft mc) {
 
 	}
@@ -756,4 +784,5 @@ public class SkyProviderCelestial extends IRenderHandler {
 	protected void render3DModel(float partialTicks, WorldClient world, Minecraft mc) {
 	
 	}
+
 }
