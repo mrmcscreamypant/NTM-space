@@ -484,7 +484,11 @@ public class SolarSystem {
 	}
 
 	private static double getApparentSize(double radius, double distance) {
-		return 2D * (float)Math.atan((2D * Math.min(radius, 3_000)) / (2D * distance)) * RENDER_SCALE;
+		return getApparentSizeUnscaled(Math.min(radius, 3_000), distance);
+	}
+
+	private static double getApparentSizeUnscaled(double radius, double distance) {
+		return 2D * (float)Math.atan((2D * radius) / (2D * distance)) * RENDER_SCALE;
 	}
 
 	private static double getApparentAngleDegrees(Vec3 from, Vec3 to) {
@@ -498,7 +502,7 @@ public class SolarSystem {
 	public static double calculateSunSize(CelestialBody from) {
 		if(from.parent == null) return 0;
 		if(from.parent.parent != null) return calculateSunSize(from.parent);
-		return getApparentSize(from.parent.radiusKm, from.semiMajorAxisKm) * SUN_RENDER_SCALE;
+		return getApparentSizeUnscaled(from.parent.radiusKm, from.semiMajorAxisKm) * SUN_RENDER_SCALE;
 	}
 
 	// Gets angle for a single planet, good for locking tidal bodies
