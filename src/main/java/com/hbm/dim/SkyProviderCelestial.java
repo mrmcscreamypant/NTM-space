@@ -589,11 +589,15 @@ public class SkyProviderCelestial extends IRenderHandler {
 
 							GL11.glColor4f(metric.body.ringColor[0], metric.body.ringColor[1], metric.body.ringColor[2], visibility);
 							mc.renderEngine.bindTexture(ringTexture);
+
+							GL11.glDisable(GL11.GL_CULL_FACE);
 	
-							double ringSize = size * 2;
+							double ringSize = size * metric.body.ringSize;
 	
 							GL11.glTranslatef(0.0F, 100.0F, 0.0F);
+							GL11.glRotated(-metric.angle, 0, 0, 1);
 							GL11.glRotatef(90.0F - metric.body.ringTilt, 1, 0, 0);
+							GL11.glRotated(metric.angle, 0, 1, 0);
 	
 							tessellator.startDrawingQuads();
 							tessellator.addVertexWithUV(-ringSize, 0, -ringSize, 0.0D, 0.0D);
@@ -601,6 +605,8 @@ public class SkyProviderCelestial extends IRenderHandler {
 							tessellator.addVertexWithUV(ringSize, 0, 0, 1.0D, 0.5D);
 							tessellator.addVertexWithUV(-ringSize, 0, 0, 0.0D, 0.5D);
 							tessellator.draw();
+
+							GL11.glEnable(GL11.GL_CULL_FACE);
 
 						}
 						GL11.glPopMatrix();
@@ -661,10 +667,14 @@ public class SkyProviderCelestial extends IRenderHandler {
 						GL11.glColor4f(metric.body.ringColor[0], metric.body.ringColor[1], metric.body.ringColor[2], visibility);
 						mc.renderEngine.bindTexture(ringTexture);
 
-						double ringSize = size * 2;
+						double ringSize = size * metric.body.ringSize;
+
+						GL11.glDisable(GL11.GL_CULL_FACE);
 
 						GL11.glTranslatef(0.0F, 100.0F, 0.0F);
+						GL11.glRotated(-metric.angle, 0, 0, 1);
 						GL11.glRotatef(90.0F - metric.body.ringTilt, 1, 0, 0);
+						GL11.glRotated(metric.angle, 0, 1, 0);
 
 						tessellator.startDrawingQuads();
 						tessellator.addVertexWithUV(-ringSize, 0, 0, 0.0D, 0.5D);
@@ -672,6 +682,8 @@ public class SkyProviderCelestial extends IRenderHandler {
 						tessellator.addVertexWithUV(ringSize, 0, ringSize, 1.0D, 1.0D);
 						tessellator.addVertexWithUV(-ringSize, 0, ringSize, 0.0D, 1.0D);
 						tessellator.draw();
+
+						GL11.glEnable(GL11.GL_CULL_FACE);
 					}
 				}
 
