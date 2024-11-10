@@ -3,6 +3,7 @@ package com.hbm.render.model;
 import org.lwjgl.opengl.GL11;
 
 import com.hbm.lib.RefStrings;
+import com.hbm.util.RenderUtil;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelCow;
@@ -38,38 +39,7 @@ public class ModelMoonCow extends ModelCow {
 
 			GL11.glScalef(0.7F, 0.7F, 0.7F);
 
-			Tessellator tessellator = Tessellator.instance;
-			tessellator.startDrawingQuads();
-			tessellator.addVertexWithUV(-0.5, -0.5, -0.5, 1, 0);
-			tessellator.addVertexWithUV(+0.5, -0.5, -0.5, 0, 0);
-			tessellator.addVertexWithUV(+0.5, +0.5, -0.5, 0, 1);
-			tessellator.addVertexWithUV(-0.5, +0.5, -0.5, 1, 1);
-			
-			tessellator.addVertexWithUV(-0.5, -0.5, +0.5, 1, 0);
-			tessellator.addVertexWithUV(-0.5, -0.5, -0.5, 0, 0);
-			tessellator.addVertexWithUV(-0.5, +0.5, -0.5, 0, 1);
-			tessellator.addVertexWithUV(-0.5, +0.5, +0.5, 1, 1);
-			
-			tessellator.addVertexWithUV(+0.5, -0.5, +0.5, 1, 0);
-			tessellator.addVertexWithUV(-0.5, -0.5, +0.5, 0, 0);
-			tessellator.addVertexWithUV(-0.5, +0.5, +0.5, 0, 1);
-			tessellator.addVertexWithUV(+0.5, +0.5, +0.5, 1, 1);
-			
-			tessellator.addVertexWithUV(+0.5, -0.5, -0.5, 1, 0);
-			tessellator.addVertexWithUV(+0.5, -0.5, +0.5, 0, 0);
-			tessellator.addVertexWithUV(+0.5, +0.5, +0.5, 0, 1);
-			tessellator.addVertexWithUV(+0.5, +0.5, -0.5, 1, 1);
-			
-			tessellator.addVertexWithUV(-0.5, -0.5, +0.5, 1, 0);
-			tessellator.addVertexWithUV(+0.5, -0.5, +0.5, 0, 0);
-			tessellator.addVertexWithUV(+0.5, -0.5, -0.5, 0, 1);
-			tessellator.addVertexWithUV(-0.5, -0.5, -0.5, 1, 1);
-			
-			tessellator.addVertexWithUV(+0.5, +0.5, +0.5, 1, 0);
-			tessellator.addVertexWithUV(-0.5, +0.5, +0.5, 0, 0);
-			tessellator.addVertexWithUV(-0.5, +0.5, -0.5, 0, 1);
-			tessellator.addVertexWithUV(+0.5, +0.5, -0.5, 1, 1);
-			tessellator.draw();
+			RenderUtil.renderBlock(Tessellator.instance);
 
 		}
 		GL11.glPopMatrix();
