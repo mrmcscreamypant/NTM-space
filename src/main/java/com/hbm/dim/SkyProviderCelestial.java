@@ -548,8 +548,10 @@ public class SkyProviderCelestial extends IRenderHandler {
 
 	protected void renderCelestials(float partialTicks, WorldClient world, Minecraft mc, List<AstroMetric> metrics, float celestialAngle, CelestialBody tidalLockedBody, Vec3 planetTint, float visibility, float blendAmount, CelestialBody orbiting, float maxSize) {
 		Tessellator tessellator = Tessellator.instance;
-		double minSize = 1D;
 		float blendDarken = 0.1F;
+
+		double transitionMinSize = 0.1D;
+		double transitionMaxSize = 0.5D;
 
 		for(AstroMetric metric : metrics) {
 
@@ -566,7 +568,8 @@ public class SkyProviderCelestial extends IRenderHandler {
 			{
 
 				double size = MathHelper.clamp_double(metric.apparentSize, 0, maxSize);
-				boolean renderAsPoint = size < minSize;
+				boolean renderPoint = size < transitionMaxSize;
+				boolean renderBody = size > transitionMinSize;
 
 				if(metric.body == tidalLockedBody) {
 					GL11.glRotated(celestialAngle * -360.0 - 60.0, 1.0, 0.0, 0.0);
@@ -575,13 +578,7 @@ public class SkyProviderCelestial extends IRenderHandler {
 				}
 				GL11.glRotatef(axialTilt + 90.0F, 0.0F, 1.0F, 0.0F);
 
-				if(renderAsPoint) {
-					float alpha = MathHelper.clamp_float((float)size * 100.0F, 0.0F, 1.0F);
-					GL11.glColor4f(metric.body.color[0], metric.body.color[1], metric.body.color[2], alpha * visibility);
-					mc.renderEngine.bindTexture(planetTexture);
-
-					size = minSize;
-				} else {
+				if(renderBody) {
 					// Draw the back half of the ring (obscured by body)
 					if(metric.body.hasRings) {
 						GL11.glPushMatrix();
@@ -615,16 +612,15 @@ public class SkyProviderCelestial extends IRenderHandler {
 					GL11.glDisable(GL11.GL_BLEND);
 					GL11.glColor4f(1.0F, 1.0F, 1.0F, visibility);
 					mc.renderEngine.bindTexture(metric.body.texture);
-				}
+					
+					tessellator.startDrawingQuads();
+					tessellator.addVertexWithUV(-size, 100.0D, -size, 0.0D + uvOffset, 0.0D);
+					tessellator.addVertexWithUV(size, 100.0D, -size, 1.0D + uvOffset, 0.0D);
+					tessellator.addVertexWithUV(size, 100.0D, size, 1.0D + uvOffset, 1.0D);
+					tessellator.addVertexWithUV(-size, 100.0D, size, 0.0D + uvOffset, 1.0D);
+					tessellator.draw();
 
-				tessellator.startDrawingQuads();
-				tessellator.addVertexWithUV(-size, 100.0D, -size, 0.0D + uvOffset, 0.0D);
-				tessellator.addVertexWithUV(size, 100.0D, -size, 1.0D + uvOffset, 0.0D);
-				tessellator.addVertexWithUV(size, 100.0D, size, 1.0D + uvOffset, 1.0D);
-				tessellator.addVertexWithUV(-size, 100.0D, size, 0.0D + uvOffset, 1.0D);
-				tessellator.draw();
 
-				if(!renderAsPoint) {
 					GL11.glEnable(GL11.GL_BLEND);
 					
 					// Draw a shader on top to render celestial phase
@@ -685,6 +681,20 @@ public class SkyProviderCelestial extends IRenderHandler {
 
 						GL11.glEnable(GL11.GL_CULL_FACE);
 					}
+				}
+
+				if(renderPoint) {
+					float alpha = MathHelper.clamp_float((float)size * 100.0F, 0.0F, 1.0F);
+					alpha *= 1 - BobMathUtil.remap01_clamp((float)size, (float)transitionMinSize, (float)transitionMaxSize);
+					GL11.glColor4f(metric.body.color[0], metric.body.color[1], metric.body.color[2], alpha * visibility);
+					mc.renderEngine.bindTexture(planetTexture);
+					
+					tessellator.startDrawingQuads();
+					tessellator.addVertexWithUV(-1.0D, 100.0D, -1.0D, 0.0D, 0.0D);
+					tessellator.addVertexWithUV(1.0D, 100.0D, -1.0D, 1.0D, 0.0D);
+					tessellator.addVertexWithUV(1.0D, 100.0D, 1.0D, 1.0D, 1.0D);
+					tessellator.addVertexWithUV(-1.0D, 100.0D, 1.0D, 0.0D, 1.0D);
+					tessellator.draw();
 				}
 
 			}
