@@ -14,6 +14,7 @@ import net.minecraft.util.IProgressUpdate;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.ChunkPosition;
+import net.minecraft.world.SpawnerAnimals;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.biome.BiomeGenBase.SpawnListEntry;
@@ -345,6 +346,8 @@ public abstract class ChunkProviderCelestial implements IChunkProvider {
 		rand.setSeed((long) x * i1 + (long) z * j1 ^ worldObj.getSeed());
 
 		biomegenbase.decorate(worldObj, rand, k, l);
+
+		SpawnerAnimals.performWorldGenSpawning(this.worldObj, biomegenbase, k + 8, l + 8, 16, 16, this.rand);
 
 		BlockFalling.fallInstantly = false;
 	}
