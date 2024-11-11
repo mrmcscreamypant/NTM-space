@@ -85,7 +85,7 @@ public class ItemWandD extends Item {
 			} else {
 				// TESTING: END OF LIFE
 				//World targetBody = DimensionManager.getWorld(SpaceConfig.dunaDimension);
-				World targetdBody = MinecraftServer.getServer().worldServerForDimension(SpaceConfig.dunaDimension);
+				World targetdBody = MinecraftServer.getServer().worldServerForDimension(SpaceConfig.laytheDimension);
 				CelestialBody target = CelestialBody.getPlanet(targetdBody);
 				
 				
@@ -94,15 +94,22 @@ public class ItemWandD extends Item {
 					target.modifyTraits(new CBT_War());		
 			
 				} else {
-					
 					CBT_War war = CelestialBody.getTrait(targetdBody, CBT_War.class);
-					float rand = Minecraft.getMinecraft().theWorld.rand.nextFloat();
-					System.out.println(rand);
-					war.launchProjectile(100, 20, 1, 28 * rand * 5, 33, 20, ProjectileType.SPLITSHOT);
-					if(war.health <= 0) {
-						war.health = 100;
+					if(war != null) {
+						float rand = Minecraft.getMinecraft().theWorld.rand.nextFloat();
+						System.out.println(rand);
+						war.launchProjectile(100, 20, 1, 28 * rand * 5, 33, 20, ProjectileType.SMALL);
+						System.out.println(war);
+						if(war.health <= 0) {
+							war.health = 100;
+						}
+						player.addChatMessage(new ChatComponentText("projectile launched"));
+
+					} else {
+						target.modifyTraits(targetdBody, new CBT_War());		
+
+						System.out.println(target.getTraits());
 					}
-					player.addChatMessage(new ChatComponentText("projectile launched"));
 
 				}
 			}

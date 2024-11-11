@@ -863,7 +863,7 @@ public class ModEventHandler {
 	                
 	                if(projectile.getAnimtime() >= 100) {
 		                    war.destroyProjectile(projectile);
-		    				World targetBody = MinecraftServer.getServer().worldServerForDimension(SpaceConfig.dunaDimension);
+		    				World targetBody = MinecraftServer.getServer().worldServerForDimension(SpaceConfig.laytheDimension);
 		                    i--;
 		                    System.out.println("damaged: " + targetBody + " health left: " + war.health);
 		                    if(war.health > 0) {
