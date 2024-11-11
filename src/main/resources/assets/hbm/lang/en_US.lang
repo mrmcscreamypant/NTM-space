@@ -1216,6 +1216,7 @@ entity.entity_taint_crab.name=Taint Crab
 entity.entity_tesla_crab.name=Tesla Crab
 entity.entity_rideable_rocket.name=Rocket
 entity.entity_rideable_rocket_dummy.name=Rocket
+entity.entity_moon_cow.name=Mun Cow
 entity.hbm.entity_balls_o_tron.name=Balls-O-Tron Prime
 entity.hbm.entity_balls_o_tron_seg.name=Balls-O-Tron Segment
 entity.hbm.entity_bullet.name=Bullet
