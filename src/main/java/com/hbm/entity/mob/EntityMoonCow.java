@@ -32,7 +32,6 @@ public class EntityMoonCow extends EntityCow {
 		return ModItems.cheese;
 	}
 
-	// Pretty much unchanged, just having it here in case we want more loot
 	@Override
 	protected void dropFewItems(boolean hitByPlayer, int looting) {
 		int j = this.rand.nextInt(3) + this.rand.nextInt(1 + looting);
@@ -45,11 +44,7 @@ public class EntityMoonCow extends EntityCow {
 		j = this.rand.nextInt(3) + 1 + this.rand.nextInt(1 + looting);
 
 		for(k = 0; k < j; ++k) {
-			if(this.isBurning()) {
-				this.dropItem(Items.cooked_beef, 1);
-			} else {
-				this.dropItem(Items.beef, 1);
-			}
+			this.dropItem(ModItems.cheese, 1);
 		}
 	}
 
