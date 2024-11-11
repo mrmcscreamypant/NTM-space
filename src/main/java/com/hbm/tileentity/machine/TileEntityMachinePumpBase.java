@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonWriter;
 import com.hbm.blocks.ModBlocks;
 import com.hbm.dim.CelestialBody;
+import com.hbm.dim.orbit.WorldProviderOrbit;
 import com.hbm.dim.trait.CBT_Water;
 import com.hbm.inventory.fluid.tank.FluidTank;
 import com.hbm.lib.Library;
@@ -126,6 +127,7 @@ public abstract class TileEntityMachinePumpBase extends TileEntityLoadedBase imp
 	protected boolean checkGround() {
 		
 		if(worldObj.provider.hasNoSky) return false;
+		if(worldObj.provider instanceof WorldProviderOrbit) return false;
 		CBT_Water table = CelestialBody.getTrait(worldObj, CBT_Water.class);
 		if(table == null) return false;
 
