@@ -105,6 +105,7 @@ public class TileEntityMachineStardar extends TileEntityMachineBase implements I
 			}
 
 			networkPackNT(250);
+			updateHeightmap = false;
 		} else {
 			float yawOffset = MathHelper.wrapAngleTo180_float(targetYaw - dishYaw);
 			float moveYaw = MathHelper.clamp_float(yawOffset, -maxSpeedYaw, maxSpeedYaw);
@@ -183,7 +184,6 @@ public class TileEntityMachineStardar extends TileEntityMachineBase implements I
 				buf.writeInt(0);
 			}
 		}
-		updateHeightmap = false;
 	}
 
 	@Override

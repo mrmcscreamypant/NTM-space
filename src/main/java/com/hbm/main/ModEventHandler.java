@@ -825,6 +825,11 @@ public class ModEventHandler {
 				EntityRailCarBase.updateMotion(event.world);
 
 				DebugTeleporter.runQueuedTeleport();
+
+				// Once per second, run atmospheric chemistry
+				if(event.world.getTotalWorldTime() % 20 == 0) {
+					CelestialBody.updateChemistry(event.world);
+				}
 			}
 
 			// Tick our per celestial body timer
@@ -868,7 +873,7 @@ public class ModEventHandler {
 
 	@SubscribeEvent
 	public void onGenerateOre(GenerateMinable event) {
-		if(event.world.provider instanceof WorldProviderCelestial) {
+		if(event.world.provider instanceof WorldProviderCelestial && event.world.provider.dimensionId != 0) {
 			WorldGeneratorCelestial.onGenerateOre(event);
 		}
 	}

@@ -11,8 +11,10 @@ import com.hbm.config.SpaceConfig;
 import com.hbm.dim.orbit.OrbitalStation;
 import com.hbm.dim.trait.CBT_Atmosphere;
 import com.hbm.dim.trait.CBT_Atmosphere.FluidEntry;
+import com.hbm.dim.trait.CBT_Water;
 import com.hbm.dim.trait.CelestialBodyTrait;
 import com.hbm.inventory.fluid.FluidType;
+import com.hbm.inventory.fluid.Fluids;
 import com.hbm.items.ItemVOTVdrive.Target;
 import com.hbm.render.shader.Shader;
 import com.hbm.util.AstronomyUtil;
@@ -329,6 +331,37 @@ public class CelestialBody {
 		}
 
 		setTraits(world, currentTraits);
+	}
+
+	// Checks if we need to update any traits based on the current atmospheric constituents
+	public static void updateChemistry(World world) {
+		boolean hasUpdated = false;
+		HashMap<Class<? extends CelestialBodyTrait>, CelestialBodyTrait> currentTraits = getTraits(world);
+
+		CBT_Water water = (CBT_Water) currentTraits.get(CBT_Water.class);
+		if(water == null) {
+			CBT_Atmosphere atmosphere = (CBT_Atmosphere) currentTraits.get(CBT_Atmosphere.class);
+
+			if(atmosphere != null) {
+				double pressure = 0;
+				for(FluidEntry entry : atmosphere.fluids) {
+					if(entry.fluid == Fluids.STEAM
+					|| entry.fluid == Fluids.HOTSTEAM
+					|| entry.fluid == Fluids.SUPERHOTSTEAM
+					|| entry.fluid == Fluids.ULTRAHOTSTEAM
+					|| entry.fluid == Fluids.SPENTSTEAM) {
+						pressure += entry.pressure;
+					}
+				}
+
+				if(pressure > 0.2D) {
+					currentTraits.put(CBT_Water.class, new CBT_Water());
+					hasUpdated = true;
+				}
+			}
+		}
+
+		if(hasUpdated) setTraits(world, currentTraits);
 	}
 
 	// /Terraforming

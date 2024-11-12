@@ -1,12 +1,20 @@
+## Added
+* Mun cows! These rare cows are found on the Mun, they moonwalk and drop cheese. Directly inspired by the 2023 April Fools update
+* Basic atmospheric chemistry
+    * Currently just water table chem, adding 0.2atm of water vapor (steam) to an atmosphere will allow infinite water tanks to function
+
 ## Changed
-* Fans no longer work in a vacuum
-* Drop pods no longer look like valid rocket parts (they're standalone)
-* Stardar SLF button now produces a drive for the station you're currently on if in orbit
-* Atmosphere fog fades with altitude again, but higher than the sky color
+* Infinite water tanks now check the water table of the celestial body you're on, rather than atmospheric pressure
+    * It was confusing everyone, since most players assumed they could just increase the air pressure of the room they're in to make them function
 
 ## Fixed
-* Rocket pad crash on unexpected items
-* Beds can be used in orbit (doesn't currently skip time)
-* Gas giant harvesters now work in Laythe orbit
-* Fix missing Alkyl Bromide fluid and tank texture
-* Attempt at fixing thruster deregistration issue
+* Missing biome ID configs
+* Mun was called Moon in some places
+* Remove future biomes (they'll be back in the WAR update)
+* No more cascading issues for atmosphere blobs (pressurised rooms should always report correct pressure now)
+* Stations now play space music instead of overworld music
+* Remove duck spawning
+* Fix scutterblood coker recipe
+* Add missing fluid textures
+* Fix groundwater pumps working in space
+* Fix vacuum solderer not receiving power
