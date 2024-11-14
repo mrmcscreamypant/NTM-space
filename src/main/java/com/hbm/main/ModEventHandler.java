@@ -568,6 +568,73 @@ public class ModEventHandler {
 	
 	@SubscribeEvent
 	public void onLivingUpdate(LivingUpdateEvent event) {
+
+		if(!event.entity.worldObj.isRemote && event.entityLiving.isPotionActive(HbmPotion.slippery.id)) {
+			if (event.entityLiving.onGround) {
+				double slipperiness = 0.6; 
+				double inertia = 0.1;
+				boolean isMoving = event.entityLiving.moveForward != 0.0 || event.entityLiving.moveStrafing != 0.0;
+
+				double angle = Math.atan2(event.entityLiving.motionZ, event.entityLiving.motionX);
+
+				double targetXMotion = Math.cos(angle) * slipperiness;
+				double targetZMotion = Math.sin(angle) * slipperiness;
+
+				double diffX = targetXMotion - event.entityLiving.motionX;
+				double diffZ = targetZMotion - event.entityLiving.motionZ;
+
+				event.entityLiving.motionX += diffX * inertia; //god weeps
+				event.entityLiving.motionZ += diffZ * inertia;
+				
+				if (!isMoving) {
+					event.entityLiving.motionX *= (1.0 - 0.1);
+
+					double totalVelocity = Math.sqrt(event.entityLiving.motionX * event.entityLiving.motionX + event.entityLiving.motionZ * event.entityLiving.motionZ);
+					double smoothingAmount = totalVelocity * 0.02;
+						event.entityLiving.motionX -= event.entityLiving.motionX / totalVelocity * smoothingAmount;
+						event.entityLiving.motionZ -= event.entityLiving.motionZ / totalVelocity * smoothingAmount;
+				}
+			}
+		}
+	
+		boolean isFlying = event.entity instanceof EntityPlayer ? ((EntityPlayer) event.entity).capabilities.isFlying : false;
+
+		if(!isFlying) {
+			if(event.entity.worldObj.provider instanceof WorldProviderOrbit && !HbmLivingProps.hasGravity(event.entityLiving)) {
+				event.entityLiving.motionY /= 0.98F;
+				event.entityLiving.motionY += (AstronomyUtil.STANDARD_GRAVITY / 20F);
+				if(event.entity instanceof EntityPlayer) {
+					EntityPlayer player = (EntityPlayer) event.entity;
+					if(player.isSneaking()) {
+						event.entityLiving.motionY -= 0.01F;
+					}
+					if(player.isJumping) {
+						event.entityLiving.motionY += 0.01F;
+					}
+				}
+				event.entityLiving.motionY *= 0.91F;
+			} else {
+				CelestialBody body = CelestialBody.getBody(event.entity.worldObj);
+				float gravity = body.getSurfaceGravity() * AstronomyUtil.PLAYER_GRAVITY_MODIFIER;
+		
+				// If gravity is basically the same as normal, do nothing
+				// Also do nothing in water, or if we've been alive less than a second (so we don't glitch into the ground)
+				if(!event.entityLiving.isInWater() && event.entityLiving.ticksExisted > 20 && (gravity < 1.5F || gravity > 1.7F)) {
+		
+					// Minimum gravity to prevent floating bug
+					if(gravity < 0.2F) gravity = 0.2F;
+		
+					// Undo falling, and add our intended falling speed
+					// On high gravity planets, only apply falling speed when descending, so we can still jump up single blocks
+					if (gravity < 1.5F || event.entityLiving.motionY < 0) {
+						event.entityLiving.motionY /= 0.98F;
+						event.entityLiving.motionY += (AstronomyUtil.STANDARD_GRAVITY / 20F);
+						event.entityLiving.motionY -= (gravity / 20F);
+						event.entityLiving.motionY *= 0.98F;
+					}
+				}
+			}
+		}
 		
 		ItemStack[] prevArmor = event.entityLiving.previousEquipment;
 
@@ -1192,76 +1259,7 @@ public class ModEventHandler {
 			}
 		}
 	}
-	@SubscribeEvent
-	public void onEntityTick(LivingUpdateEvent event) {
-		if(!event.entity.worldObj.isRemote && event.entityLiving.isPotionActive(HbmPotion.slippery.id)) {
-			if (event.entityLiving.onGround) {
-				double slipperiness = 0.6; 
-				double inertia = 0.1;
-				boolean isMoving = event.entityLiving.moveForward != 0.0 || event.entityLiving.moveStrafing != 0.0;
 
-				double angle = Math.atan2(event.entityLiving.motionZ, event.entityLiving.motionX);
-
-				double targetXMotion = Math.cos(angle) * slipperiness;
-				double targetZMotion = Math.sin(angle) * slipperiness;
-
-				double diffX = targetXMotion - event.entityLiving.motionX;
-				double diffZ = targetZMotion - event.entityLiving.motionZ;
-
-				event.entityLiving.motionX += diffX * inertia; //god weeps
-				event.entityLiving.motionZ += diffZ * inertia;
-				
-				if (!isMoving) {
-					event.entityLiving.motionX *= (1.0 - 0.1);
-
-					double totalVelocity = Math.sqrt(event.entityLiving.motionX * event.entityLiving.motionX + event.entityLiving.motionZ * event.entityLiving.motionZ);
-					double smoothingAmount = totalVelocity * 0.02;
-						event.entityLiving.motionX -= event.entityLiving.motionX / totalVelocity * smoothingAmount;
-						event.entityLiving.motionZ -= event.entityLiving.motionZ / totalVelocity * smoothingAmount;
-				}
-			}
-		}
-	
-		boolean isFlying = event.entity instanceof EntityPlayer ? ((EntityPlayer) event.entity).capabilities.isFlying : false;
-
-		if(!isFlying) {
-			if(event.entity.worldObj.provider instanceof WorldProviderOrbit && !HbmLivingProps.hasGravity(event.entityLiving)) {
-				event.entityLiving.motionY /= 0.98F;
-				event.entityLiving.motionY += (AstronomyUtil.STANDARD_GRAVITY / 20F);
-				if(event.entity instanceof EntityPlayer) {
-					EntityPlayer player = (EntityPlayer) event.entity;
-					if(player.isSneaking()) {
-						event.entityLiving.motionY -= 0.01F;
-					}
-					if(player.isJumping) {
-						event.entityLiving.motionY += 0.01F;
-					}
-				}
-				event.entityLiving.motionY *= 0.91F;
-			} else {
-				CelestialBody body = CelestialBody.getBody(event.entity.worldObj);
-				float gravity = body.getSurfaceGravity() * AstronomyUtil.PLAYER_GRAVITY_MODIFIER;
-		
-				// If gravity is basically the same as normal, do nothing
-				// Also do nothing in water, or if we've been alive less than a second (so we don't glitch into the ground)
-				if(!event.entityLiving.isInWater() && event.entityLiving.ticksExisted > 20 && (gravity < 1.5F || gravity > 1.7F)) {
-		
-					// Minimum gravity to prevent floating bug
-					if(gravity < 0.2F) gravity = 0.2F;
-		
-					// Undo falling, and add our intended falling speed
-					// On high gravity planets, only apply falling speed when descending, so we can still jump up single blocks
-					if (gravity < 1.5F || event.entityLiving.motionY < 0) {
-						event.entityLiving.motionY /= 0.98F;
-						event.entityLiving.motionY += (AstronomyUtil.STANDARD_GRAVITY / 20F);
-						event.entityLiving.motionY -= (gravity / 20F);
-						event.entityLiving.motionY *= 0.98F;
-					}
-				}
-			}
-		}
-	}
-	
 	@SubscribeEvent
 	public void onPlayerTick(TickEvent.PlayerTickEvent event) {
 
