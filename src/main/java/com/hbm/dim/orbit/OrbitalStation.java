@@ -44,6 +44,8 @@ public class OrbitalStation {
 	public List<ThreeInts> errorsAt = new ArrayList<ThreeInts>();
 	public int errorTimer;
 
+	public float gravityMultiplier = 1;
+
 	public enum StationState {
 		ORBIT, // big chillin
 		LEAVING, // prepare engines for transfer
@@ -322,6 +324,7 @@ public class OrbitalStation {
 		buf.writeInt(stateTimer);
 		buf.writeInt(maxStateTimer);
 		buf.writeBoolean(hasEngines);
+		buf.writeFloat(gravityMultiplier);
 
 		BufferUtil.writeString(buf, name);
 
@@ -340,6 +343,7 @@ public class OrbitalStation {
 		station.stateTimer = buf.readInt();
 		station.maxStateTimer = buf.readInt();
 		station.hasEngines = buf.readBoolean();
+		station.gravityMultiplier = buf.readFloat();
 
 		station.name = BufferUtil.readString(buf);
 

@@ -600,19 +600,29 @@ public class ModEventHandler {
 		boolean isFlying = event.entity instanceof EntityPlayer ? ((EntityPlayer) event.entity).capabilities.isFlying : false;
 
 		if(!isFlying) {
-			if(event.entity.worldObj.provider instanceof WorldProviderOrbit && !HbmLivingProps.hasGravity(event.entityLiving)) {
+			if(event.entity.worldObj.provider instanceof WorldProviderOrbit) {
+				float gravity = 0;
+
+				if(HbmLivingProps.hasGravity(event.entityLiving)) {
+					OrbitalStation station = event.entity.worldObj.isRemote
+						? OrbitalStation.clientStation
+						: OrbitalStation.getStationFromPosition((int)event.entityLiving.posX, (int)event.entityLiving.posZ);
+
+					gravity = AstronomyUtil.STANDARD_GRAVITY * station.gravityMultiplier;
+					if(gravity < 0.2) gravity = 0;
+				}
+					
 				event.entityLiving.motionY /= 0.98F;
 				event.entityLiving.motionY += (AstronomyUtil.STANDARD_GRAVITY / 20F);
-				if(event.entity instanceof EntityPlayer) {
+				event.entityLiving.motionY -= (gravity / 20F);
+
+				if(event.entity instanceof EntityPlayer && gravity == 0) {
 					EntityPlayer player = (EntityPlayer) event.entity;
-					if(player.isSneaking()) {
-						event.entityLiving.motionY -= 0.01F;
-					}
-					if(player.isJumping) {
-						event.entityLiving.motionY += 0.01F;
-					}
+					if(player.isSneaking()) event.entityLiving.motionY -= 0.01F;
+					if(player.isJumping) event.entityLiving.motionY += 0.01F;
 				}
-				event.entityLiving.motionY *= 0.91F;
+
+				event.entityLiving.motionY *= gravity == 0 ? 0.91F : 0.98F;
 			} else {
 				CelestialBody body = CelestialBody.getBody(event.entity.worldObj);
 				float gravity = body.getSurfaceGravity() * AstronomyUtil.PLAYER_GRAVITY_MODIFIER;

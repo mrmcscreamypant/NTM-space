@@ -92,6 +92,11 @@ public class TileEntityOrbitalStationComputer extends TileEntityMachineBase impl
 			OrbitalStation station = OrbitalStation.getStationFromPosition(xCoord, zCoord);
 			station.name = data.getString("name");
 		}
+
+		if(data.hasKey("gravity")) {
+			OrbitalStation station = OrbitalStation.getStationFromPosition(xCoord, zCoord);
+			station.gravityMultiplier = data.getBoolean("gravity") ? 1 : 0;
+		}
 	}
 
 	AxisAlignedBB bb = null;

@@ -11,6 +11,7 @@ import com.hbm.packet.PacketDispatcher;
 import com.hbm.tileentity.machine.TileEntityOrbitalStationComputer;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -56,7 +57,22 @@ public class GUIOrbitalStationComputer extends GuiInfoContainer {
 		Minecraft.getMinecraft().getTextureManager().bindTexture(texture);
 		drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
 
+		if(OrbitalStation.clientStation.gravityMultiplier > 0) {
+			drawTexturedModalRect(guiLeft + 36, guiTop + 84, xSize, 0, 29, 5);
+		}
+
 		stationName.drawTextBox();
+	}
+
+	@Override
+	protected void mouseClicked(int x, int y, int i) {
+		super.mouseClicked(x, y, i);
+		
+		// Toggle gravity
+		if(checkClick(x, y, 36, 84, 29, 5)) {
+			mc.getSoundHandler().playSound(PositionedSoundRecord.func_147674_a(new ResourceLocation("gui.button.press"), 1.0F));
+			setGravity(OrbitalStation.clientStation.gravityMultiplier == 0);
+		}
 	}
 
 	@Override
@@ -75,6 +91,12 @@ public class GUIOrbitalStationComputer extends GuiInfoContainer {
 	private void setName(String name) {
 		NBTTagCompound data = new NBTTagCompound();
 		data.setString("name", name);
+		PacketDispatcher.wrapper.sendToServer(new NBTControlPacket(data, computer.xCoord, computer.yCoord, computer.zCoord));
+	}
+
+	private void setGravity(boolean enabled) {
+		NBTTagCompound data = new NBTTagCompound();
+		data.setBoolean("gravity", enabled);
 		PacketDispatcher.wrapper.sendToServer(new NBTControlPacket(data, computer.xCoord, computer.yCoord, computer.zCoord));
 	}
 	
