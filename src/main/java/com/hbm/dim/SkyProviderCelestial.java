@@ -36,6 +36,7 @@ public class SkyProviderCelestial extends IRenderHandler {
 	private static final ResourceLocation noise = new ResourceLocation(RefStrings.MODID, "shaders/iChannel1.png");
 
 	protected static final Shader planetShader = new Shader(new ResourceLocation(RefStrings.MODID, "shaders/crescent.frag"));
+	protected static final Shader swarmShader = new Shader(new ResourceLocation(RefStrings.MODID, "shaders/swarm.frag"));
 
 	public static boolean displayListsInitialized = false;
 	public static int glSkyList;
@@ -496,6 +497,30 @@ public class SkyProviderCelestial extends IRenderHandler {
 			tessellator.addVertexWithUV(coronaSize, 100.0D, coronaSize, 1.0D, 1.0D);
 			tessellator.addVertexWithUV(-coronaSize, 100.0D, coronaSize, 0.0D, 1.0D);
 			tessellator.draw();
+
+
+			// bloodseeking, parasitic, ecstatically tracing decay
+			// thriving in the glow that death emits, the warm perfume it radiates
+			double swarmRadius = sunSize;
+
+			GL11.glColor4f(1.0F, 0.0F, 0.0F, visibility);
+
+			swarmShader.use();
+
+			float time = ((float)world.getWorldTime() + partialTicks) / 20.0F;
+			int textureUnit = 0;
+	
+			swarmShader.setTime(time);
+			swarmShader.setTextureUnit(textureUnit);
+
+			tessellator.startDrawingQuads();
+			tessellator.addVertexWithUV(-swarmRadius, 100.0D, -swarmRadius, 0.0D, 0.0D);
+			tessellator.addVertexWithUV(swarmRadius, 100.0D, -swarmRadius, 1.0D, 0.0D);
+			tessellator.addVertexWithUV(swarmRadius, 100.0D, swarmRadius, 1.0D, 1.0D);
+			tessellator.addVertexWithUV(-swarmRadius, 100.0D, swarmRadius, 0.0D, 1.0D);
+			tessellator.draw();
+
+			swarmShader.stop();
 		}
 	}
 
