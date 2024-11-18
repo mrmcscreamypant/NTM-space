@@ -36,7 +36,7 @@ public class SkyProviderCelestial extends IRenderHandler {
 	private static final ResourceLocation noise = new ResourceLocation(RefStrings.MODID, "shaders/iChannel1.png");
 
 	protected static final Shader planetShader = new Shader(new ResourceLocation(RefStrings.MODID, "shaders/crescent.frag"));
-	protected static final Shader swarmShader = new Shader(new ResourceLocation(RefStrings.MODID, "shaders/swarm.frag"));
+	protected static final Shader swarmShader = new Shader(new ResourceLocation(RefStrings.MODID, "shaders/swarm.vert"), new ResourceLocation(RefStrings.MODID, "shaders/swarm.frag"));
 
 	public static boolean displayListsInitialized = false;
 	public static int glSkyList;
@@ -473,10 +473,12 @@ public class SkyProviderCelestial extends IRenderHandler {
 			tessellator.addVertex(-sunSize, 99.9D, sunSize);
 			tessellator.draw();
 
-			// Draw the MIGHTY SUN
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
 			GL11.glColor4f(1.0F, 1.0F, 1.0F, visibility);
 
+			renderSwarm(partialTicks, world, mc, sunSize * 0.5, false, 1024);
+
+			// Draw the MIGHTY SUN
 			mc.renderEngine.bindTexture(SolarSystem.kerbol.texture);
 
 			tessellator.startDrawingQuads();
@@ -485,6 +487,8 @@ public class SkyProviderCelestial extends IRenderHandler {
 			tessellator.addVertexWithUV(sunSize, 100.0D, sunSize, 1.0D, 1.0D);
 			tessellator.addVertexWithUV(-sunSize, 100.0D, sunSize, 0.0D, 1.0D);
 			tessellator.draw();
+
+			renderSwarm(partialTicks, world, mc, sunSize * 0.5, true, 1024);
 
 			// Draw a big ol' spiky flare! Less so when there is an atmosphere
 			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1 - MathHelper.clamp_float(pressure, 0.0F, 1.0F) * 0.75F);
@@ -497,31 +501,103 @@ public class SkyProviderCelestial extends IRenderHandler {
 			tessellator.addVertexWithUV(coronaSize, 100.0D, coronaSize, 1.0D, 1.0D);
 			tessellator.addVertexWithUV(-coronaSize, 100.0D, coronaSize, 0.0D, 1.0D);
 			tessellator.draw();
+		}
+	}
 
+	private void renderSwarm(float partialTicks, WorldClient world, Minecraft mc, double swarmRadius, boolean inFront, int swarmCount) {
+		Tessellator tessellator = Tessellator.instance;
 
-			// bloodseeking, parasitic, ecstatically tracing decay
-			// thriving in the glow that death emits, the warm perfume it radiates
-			double swarmRadius = sunSize;
+		// bloodseeking, parasitic, ecstatically tracing decay
+		// thriving in the glow that death emits, the warm perfume it radiates
 
-			GL11.glColor4f(1.0F, 0.0F, 0.0F, visibility);
+		swarmShader.use();
 
-			swarmShader.use();
+		float time = ((float)world.getWorldTime() + partialTicks) / 200.0F;
+		int textureUnit = 0;
 
-			float time = ((float)world.getWorldTime() + partialTicks) / 20.0F;
-			int textureUnit = 0;
-	
-			swarmShader.setTime(time);
-			swarmShader.setTextureUnit(textureUnit);
+		swarmShader.setTime(time);
+		swarmShader.setTextureUnit(textureUnit);
+		
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-			tessellator.startDrawingQuads();
-			tessellator.addVertexWithUV(-swarmRadius, 100.0D, -swarmRadius, 0.0D, 0.0D);
-			tessellator.addVertexWithUV(swarmRadius, 100.0D, -swarmRadius, 1.0D, 0.0D);
-			tessellator.addVertexWithUV(swarmRadius, 100.0D, swarmRadius, 1.0D, 1.0D);
-			tessellator.addVertexWithUV(-swarmRadius, 100.0D, swarmRadius, 0.0D, 1.0D);
+		// yes I'll refactor it don't fret
+		GL11.glPushMatrix();
+		{
+
+			GL11.glTranslatef(0.0F, 100.0F, 0.0F);
+			GL11.glRotatef(80.0F, 1, 0, 0);
+
+			tessellator.startDrawing(GL11.GL_POINTS);
+			for(int i = 0; i < swarmCount; i++) {
+				swarmShader.setOffset(i);
+
+				float t = i + time;
+				double z = Math.sin(t) * swarmRadius;
+				
+				if(inFront ? z < 0 : z >= 0) continue;
+
+				double x = Math.cos(t) * swarmRadius;
+
+				tessellator.addVertex(x, 0.0D, z);
+			}
 			tessellator.draw();
 
-			swarmShader.stop();
 		}
+		GL11.glPopMatrix();
+
+		GL11.glPushMatrix();
+		{
+			
+			GL11.glTranslatef(0.0F, 100.0F, 0.0F);
+			GL11.glRotatef(60.0F, 0, 1, 0);
+			GL11.glRotatef(80.0F, 1, 0, 0);
+
+			tessellator.startDrawing(GL11.GL_POINTS);
+			for(int i = 0; i < swarmCount; i++) {
+				swarmShader.setOffset(i);
+
+				float t = i + time;
+				double z = Math.sin(t) * swarmRadius;
+				
+				if(inFront ? z < 0 : z >= 0) continue;
+
+				double x = Math.cos(t) * swarmRadius;
+
+				tessellator.addVertex(x, 0.0D, z);
+			}
+			tessellator.draw();
+
+		}
+		GL11.glPopMatrix();
+
+		GL11.glPushMatrix();
+		{
+			
+			GL11.glTranslatef(0.0F, 100.0F, 0.0F);
+			GL11.glRotatef(-60.0F, 0, 1, 0);
+			GL11.glRotatef(80.0F, 1, 0, 0);
+
+			tessellator.startDrawing(GL11.GL_POINTS);
+			for(int i = 0; i < swarmCount; i++) {
+				swarmShader.setOffset(i);
+
+				float t = i + time;
+				double z = Math.sin(t) * swarmRadius;
+				
+				if(inFront ? z < 0 : z >= 0) continue;
+
+				double x = Math.cos(t) * swarmRadius;
+
+				tessellator.addVertex(x, 0.0D, z);
+			}
+			tessellator.draw();
+
+		}
+		GL11.glPopMatrix();
+
+		swarmShader.stop();
+
+		OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ONE, GL11.GL_ZERO);
 	}
 
 	protected void renderCelestials(float partialTicks, WorldClient world, Minecraft mc, List<AstroMetric> metrics, float celestialAngle, CelestialBody tidalLockedBody, Vec3 planetTint, float visibility, float blendAmount, CelestialBody orbiting, float maxSize) {
