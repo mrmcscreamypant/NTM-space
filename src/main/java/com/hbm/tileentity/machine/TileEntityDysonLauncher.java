@@ -27,8 +27,8 @@ public class TileEntityDysonLauncher extends TileEntityMachineBase implements IE
 			for(ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS) trySubscribe(worldObj, xCoord + dir.offsetX, yCoord + dir.offsetY, zCoord + dir.offsetZ, dir);
 
 			if(power == maxPower && slots[0] != null && slots[0].getItem() == ModItems.swarm_member) {
-				worldObj.playSoundEffect(xCoord, yCoord, zCoord, "hbm:turret.howard_fire", 4.0F, 0.9F + worldObj.rand.nextFloat() * 0.3F);
-				worldObj.playSoundEffect(xCoord, yCoord, zCoord, "hbm:turret.howard_fire", 4.0F, 1F + worldObj.rand.nextFloat() * 0.3F);
+				worldObj.playSoundEffect(xCoord, yCoord, zCoord, "hbm:misc.spinshot", 4.0F, 0.9F + worldObj.rand.nextFloat() * 0.3F);
+				worldObj.playSoundEffect(xCoord, yCoord, zCoord, "hbm:misc.spinshot", 4.0F, 1F + worldObj.rand.nextFloat() * 0.3F);
 
 				slots[0] = null;
 				power = 0;
