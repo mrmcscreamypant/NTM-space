@@ -1,5 +1,6 @@
 package com.hbm.tileentity.machine;
 
+import com.hbm.dim.trait.CBT_Dyson;
 import com.hbm.items.ModItems;
 import com.hbm.tileentity.TileEntityMachineBase;
 
@@ -27,6 +28,8 @@ public class TileEntityDysonLauncher extends TileEntityMachineBase implements IE
 			for(ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS) trySubscribe(worldObj, xCoord + dir.offsetX, yCoord + dir.offsetY, zCoord + dir.offsetZ, dir);
 
 			if(power == maxPower && slots[0] != null && slots[0].getItem() == ModItems.swarm_member) {
+				CBT_Dyson.launch(worldObj, 12345);
+
 				worldObj.playSoundEffect(xCoord, yCoord, zCoord, "hbm:misc.spinshot", 4.0F, 0.9F + worldObj.rand.nextFloat() * 0.3F);
 				worldObj.playSoundEffect(xCoord, yCoord, zCoord, "hbm:misc.spinshot", 4.0F, 1F + worldObj.rand.nextFloat() * 0.3F);
 

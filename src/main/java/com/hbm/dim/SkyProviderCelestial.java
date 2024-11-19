@@ -18,6 +18,7 @@ import org.lwjgl.opengl.GL11;
 
 import com.hbm.dim.SolarSystem.AstroMetric;
 import com.hbm.dim.trait.CBT_Atmosphere;
+import com.hbm.dim.trait.CBT_Dyson;
 import com.hbm.dim.trait.CelestialBodyTrait.CBT_Destroyed;
 import com.hbm.extprop.HbmLivingProps;
 import com.hbm.lib.RefStrings;
@@ -116,6 +117,7 @@ public class SkyProviderCelestial extends IRenderHandler {
 		}
 
 		CelestialBody body = CelestialBody.getBody(world);
+		CelestialBody sun = body.getStar();
 		CBT_Atmosphere atmosphere = body.getTrait(CBT_Atmosphere.class);
 
 		boolean hasAtmosphere = atmosphere != null;
@@ -197,7 +199,7 @@ public class SkyProviderCelestial extends IRenderHandler {
 			double sunSize = SolarSystem.calculateSunSize(body);
 			double coronaSize = sunSize * (3 - MathHelper.clamp_float(pressure, 0.0F, 1.0F));
 
-			renderSun(partialTicks, world, mc, sunSize, coronaSize, visibility, pressure);
+			renderSun(partialTicks, world, mc, sun, sunSize, coronaSize, visibility, pressure);
 			
 			float blendAmount = hasAtmosphere ? MathHelper.clamp_float(1 - world.getSunBrightnessFactor(partialTicks), 0.25F, 1F) : 1F;
 
@@ -428,16 +430,19 @@ public class SkyProviderCelestial extends IRenderHandler {
 		}
 	}
 
-	protected void renderSun(float partialTicks, WorldClient world, Minecraft mc, double sunSize, double coronaSize, float visibility, float pressure) {
+	protected void renderSun(float partialTicks, WorldClient world, Minecraft mc, CelestialBody sun, double sunSize, double coronaSize, float visibility, float pressure) {
 		Tessellator tessellator = Tessellator.instance;
 
-		if(SolarSystem.kerbol.shader != null && SolarSystem.kerbol.hasTrait(CBT_Destroyed.class)) {
+		CBT_Dyson dyson = sun.getTrait(CBT_Dyson.class);
+		int swarmCount = dyson != null ? dyson.size() * 128 : 0;
+
+		if(sun.shader != null && sun.hasTrait(CBT_Destroyed.class)) {
 			// BLACK HOLE SUN
 			// WON'T YOU COME
 			// AND WASH AWAY THE RAIN
 
-			Shader shader = SolarSystem.kerbol.shader;
-			double shaderSize = sunSize * SolarSystem.kerbol.shaderScale;
+			Shader shader = sun.shader;
+			double shaderSize = sunSize * sun.shaderScale;
 
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
@@ -476,10 +481,10 @@ public class SkyProviderCelestial extends IRenderHandler {
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
 			GL11.glColor4f(1.0F, 1.0F, 1.0F, visibility);
 
-			renderSwarm(partialTicks, world, mc, sunSize * 0.5, false, 1024);
+			renderSwarm(partialTicks, world, mc, sunSize * 0.5, false, swarmCount);
 
 			// Draw the MIGHTY SUN
-			mc.renderEngine.bindTexture(SolarSystem.kerbol.texture);
+			mc.renderEngine.bindTexture(sun.texture);
 
 			tessellator.startDrawingQuads();
 			tessellator.addVertexWithUV(-sunSize, 100.0D, -sunSize, 0.0D, 0.0D);
@@ -488,7 +493,7 @@ public class SkyProviderCelestial extends IRenderHandler {
 			tessellator.addVertexWithUV(-sunSize, 100.0D, sunSize, 0.0D, 1.0D);
 			tessellator.draw();
 
-			renderSwarm(partialTicks, world, mc, sunSize * 0.5, true, 1024);
+			renderSwarm(partialTicks, world, mc, sunSize * 0.5, true, swarmCount);
 
 			// Draw a big ol' spiky flare! Less so when there is an atmosphere
 			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1 - MathHelper.clamp_float(pressure, 0.0F, 1.0F) * 0.75F);
