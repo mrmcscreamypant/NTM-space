@@ -1347,6 +1347,8 @@ public class ModBlocks {
 	public static Block orbital_station_port;
 	public static Block orbital_station_computer;
 	public static Block propulsion_creative;
+
+	public static Block dyson_launcher;
 	
 	public static Material materialGas = new MaterialGas();
 		
@@ -2602,6 +2604,8 @@ public class ModBlocks {
 		orbital_station_port = new BlockOrbitalStation(Material.iron).setBlockName("orbital_station_port").setHardness(1.0F).setCreativeTab(MainRegistry.machineTab).setBlockTextureName(RefStrings.MODID + ":block_steel");
 		orbital_station_computer = new BlockOrbitalStationComputer(Material.iron).setBlockName("orbital_station_computer").setHardness(1.0F).setCreativeTab(MainRegistry.machineTab).setBlockTextureName(RefStrings.MODID + ":block_steel");
 		propulsion_creative = new BlockStationPropulsionCreative(Material.iron).setBlockName("propulsion_creative").setHardness(1.0F).setCreativeTab(MainRegistry.machineTab).setBlockTextureName(RefStrings.MODID + ":block_steel");
+
+		dyson_launcher = new MachineDysonLauncher(Material.iron).setBlockName("dyson_launcher").setHardness(10.0F).setResistance(20.0F).setCreativeTab(MainRegistry.machineTab).setBlockTextureName(RefStrings.MODID + ":block_steel_machine");
 	}
 
 	private static void registerBlock() {
@@ -3835,13 +3839,15 @@ public class ModBlocks {
 		GameRegistry.registerBlock(pink_stairs, pink_stairs.getUnlocalizedName());
 
 		// Terraforming
-		GameRegistry.registerBlock(atmosphere_editor, ItemBlockBase.class, atmosphere_editor.getUnlocalizedName());
+		register(atmosphere_editor);
 
 		register(transporter_rocket);
 		register(orbital_station);
 		register(orbital_station_port);
 		register(orbital_station_computer);
 		register(propulsion_creative);
+
+		register(dyson_launcher);
 	}
 	
 	private static void register(Block b) {
@@ -3873,60 +3879,3 @@ public class ModBlocks {
 		return ret;
 	}
 }
-
-/*
- * package com.hbm.blocks.generic;
-
-import com.hbm.blocks.IBlockMultiPass;
-import com.hbm.lib.RefStrings;
-import com.hbm.render.block.RenderBlockMultipass;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.init.Blocks;
-import net.minecraft.util.IIcon;
-
-public class BlockFissure extends Block implements IBlockMultiPass {
-
-	private IIcon overlay;
-
-	public BlockFissure() {
-		super(Material.rock);
-		this.setBlockTextureName("bedrock");
-		this.setBlockUnbreakable();
-		this.setResistance(1_000_000);
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void registerBlockIcons(IIconRegister reg) {
-		
-		this.blockIcon = reg.registerIcon("bedrock");
-		this.overlay = reg.registerIcon(RefStrings.MODID + ":molten_overlay");
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public IIcon getIcon(int side, int meta) {
-		
-		if(RenderBlockMultipass.currentPass == 0)
-			return Blocks.bedrock.getIcon(0, 0);
-		
-		return this.overlay;
-	}
-
-	@Override
-	public int getPasses() {
-		return 2;
-	}
-	
-	@Override
-	public int getRenderType(){
-		return IBlockMultiPass.getRenderType();
-	}
-}
-
- */

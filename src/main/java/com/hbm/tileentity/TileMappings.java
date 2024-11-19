@@ -383,6 +383,8 @@ public class TileMappings {
 		put(TileEntityOrbitalStation.class, "tileentity_orbital_station");
 		put(TileEntityOrbitalStationComputer.class, "tileentity_orbital_station_computer");
 		put(TileEntityStationPropulsionCreative.class, "tileentity_propulsion_creative");
+
+		put(TileEntityDysonLauncher.class, "tileentity_dyson_launcher");
 	}
 	
 	private static void putPile() {
