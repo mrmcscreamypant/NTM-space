@@ -5,9 +5,15 @@ import java.util.List;
 import java.util.Random;
 import java.util.Stack;
 
+import com.hbm.config.SpaceConfig;
+import com.hbm.dim.CelestialBody;
+import com.hbm.dim.trait.CBT_War.ProjectileType;
+
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.World;
 import scala.reflect.internal.Trees.This;
 
 public class CBT_War extends CelestialBodyTrait {
@@ -44,6 +50,26 @@ public class CBT_War extends CelestialBodyTrait {
 		projectiles.add(projectile);
 	}
 
+	public void split(World world, int amount, Projectile projectile, ProjectileType type) {
+        CBT_War war = CelestialBody.getTrait(world, CBT_War.class);
+                       
+                //currently kind of temp, there might be a better way to generalize this
+    	   if (projectile.getTravel() <= 0) {
+    		   for (int j = 0; j < amount; j++) {
+    			   	float rand = Minecraft.getMinecraft().theWorld.rand.nextFloat();
+            		war.launchProjectile(Math.abs(20 + j * 10), 
+                    projectile.getSize(), 
+                    projectile.getDamage(), 
+                    (float) (projectile.getTranslateX() * rand * j), 
+                    projectile.getTranslateY(), 
+                    projectile.getTranslateZ() * rand * j, 
+                    type);
+    		   }
+            war.destroyProjectile(projectile); 
+            
+        }
+	}
+	
 	public void destroyProjectile(Projectile proj) {
 		projectiles.remove(proj);
 	}
