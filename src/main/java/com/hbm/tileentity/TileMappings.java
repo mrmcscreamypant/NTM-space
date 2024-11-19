@@ -385,6 +385,7 @@ public class TileMappings {
 		put(TileEntityStationPropulsionCreative.class, "tileentity_propulsion_creative");
 
 		put(TileEntityDysonLauncher.class, "tileentity_dyson_launcher");
+		put(TileEntityDysonReceiver.class, "tileentity_dyson_receiver");
 	}
 	
 	private static void putPile() {

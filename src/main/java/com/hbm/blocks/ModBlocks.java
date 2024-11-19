@@ -1349,6 +1349,7 @@ public class ModBlocks {
 	public static Block propulsion_creative;
 
 	public static Block dyson_launcher;
+	public static Block dyson_receiver;
 	
 	public static Material materialGas = new MaterialGas();
 		
@@ -2606,6 +2607,7 @@ public class ModBlocks {
 		propulsion_creative = new BlockStationPropulsionCreative(Material.iron).setBlockName("propulsion_creative").setHardness(1.0F).setCreativeTab(MainRegistry.machineTab).setBlockTextureName(RefStrings.MODID + ":block_steel");
 
 		dyson_launcher = new MachineDysonLauncher(Material.iron).setBlockName("dyson_launcher").setHardness(10.0F).setResistance(20.0F).setCreativeTab(MainRegistry.machineTab).setBlockTextureName(RefStrings.MODID + ":block_steel_machine");
+		dyson_receiver = new MachineDysonReceiver(Material.iron).setBlockName("dyson_receiver").setHardness(10.0F).setResistance(20.0F).setCreativeTab(MainRegistry.machineTab).setBlockTextureName(RefStrings.MODID + ":block_steel_machine");
 	}
 
 	private static void registerBlock() {
@@ -3848,6 +3850,7 @@ public class ModBlocks {
 		register(propulsion_creative);
 
 		register(dyson_launcher);
+		register(dyson_receiver);
 	}
 	
 	private static void register(Block b) {

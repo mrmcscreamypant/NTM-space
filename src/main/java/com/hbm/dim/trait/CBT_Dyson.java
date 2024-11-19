@@ -12,7 +12,7 @@ import net.minecraft.world.World;
 public class CBT_Dyson extends CelestialBodyTrait {
 
 	// Correlates an ID with a count of swarm members
-	public HashMap<Integer, Integer> swarm = new HashMap<>();
+	private HashMap<Integer, Integer> swarm = new HashMap<>();
 
 	public static void launch(World world, int id) {
 		CelestialBody star = CelestialBody.getStar(world);
@@ -22,6 +22,14 @@ public class CBT_Dyson extends CelestialBodyTrait {
 		dyson.swarm.put(id, dyson.swarm.getOrDefault(id, 0) + 1);
 
 		star.modifyTraits(dyson);
+	}
+
+	public static int count(World world, int id) {
+		CelestialBody star = CelestialBody.getStar(world);
+		CBT_Dyson dyson = star.getTrait(CBT_Dyson.class);
+		if(dyson == null) return 0;
+
+		return dyson.swarm.getOrDefault(id, 0);
 	}
 
 	public int size() {
