@@ -234,7 +234,6 @@ public class SkyProviderCelestial extends IRenderHandler {
 		GL11.glPopMatrix();
 		render3DModel(partialTicks, world, mc);
 
-		renderSpecialEffects(partialTicks, world, mc);
 		
 		if(body.hasRings) {
 			GL11.glPushMatrix();
