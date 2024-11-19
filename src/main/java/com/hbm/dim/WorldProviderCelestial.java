@@ -2,9 +2,11 @@ package com.hbm.dim;
 
 import java.util.ArrayList;
 
+import com.hbm.config.SpaceConfig;
 import com.hbm.dim.trait.CBT_Atmosphere;
 import com.hbm.dim.trait.CBT_War;
 import com.hbm.dim.trait.CBT_Atmosphere.FluidEntry;
+import com.hbm.dim.trait.CBT_War.ProjectileType;
 import com.hbm.dim.trait.CelestialBodyTrait.CBT_Destroyed;
 import com.hbm.handler.atmosphere.ChunkAtmosphereManager;
 import com.hbm.inventory.fluid.Fluids;
@@ -20,10 +22,12 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.util.WeightedRandomFishable;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.client.IRenderHandler;
@@ -52,11 +56,45 @@ public abstract class WorldProviderCelestial extends WorldProvider {
 	@Override
 	public void updateWeather() {
 		CBT_Atmosphere atmosphere = CelestialBody.getTrait(worldObj, CBT_Atmosphere.class);
+
+        CBT_War war = CelestialBody.getTrait(worldObj, CBT_War.class);
+        if(!worldObj.isRemote) {
+	        if (war != null) {
+	            for (int i = 0; i < war.getProjectiles().size(); i++) {
+	                CBT_War.Projectile projectile = war.getProjectiles().get(i);
+	                
+	                projectile.update();
+	                float travel = projectile.getTravel();
+	          
+	                
+	                if(projectile.getAnimtime() >= 100) {
+		                    war.destroyProjectile(projectile);
+		    				World targetBody = MinecraftServer.getServer().worldServerForDimension(SpaceConfig.laytheDimension);
+		                    i--;
+		                    System.out.println("damaged: " + targetBody + " health left: " + war.health);
+		                    if(war.health > 0) {
+			    				CelestialBody.damage(projectile.getDamage(), targetBody);		                    
+	                	}
+	                }
+	                //currently kind of temp, there might be a better way to generalize this
+	                if(projectile.getType() == ProjectileType.SPLITSHOT) {
+	                	if (projectile.getTravel() <= 0) {
+	                		war.split(worldObj, 4, projectile, ProjectileType.SMALL);
+	                		war.destroyProjectile(projectile);
+	                		i--;
+	                	}
+	                	
+	                }
+	            }
+	        }
+        }
+		
 		if(atmosphere != null && atmosphere.getPressure() > 0.5F) {
 			super.updateWeather();
 			return;
 		}
 
+    
 		this.worldObj.getWorldInfo().setRainTime(0);
 		this.worldObj.getWorldInfo().setRaining(false);
 		this.worldObj.getWorldInfo().setThunderTime(0);

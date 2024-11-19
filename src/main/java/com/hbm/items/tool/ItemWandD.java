@@ -98,7 +98,7 @@ public class ItemWandD extends Item {
 					if(war != null) {
 						float rand = Minecraft.getMinecraft().theWorld.rand.nextFloat();
 						System.out.println(rand);
-						war.launchProjectile(100, 20, 1, 28 * rand * 5, 33, 20, ProjectileType.SMALL);
+						war.launchProjectile(100, 20, 1, 28 * rand * 5, 33, 20, ProjectileType.SPLITSHOT);
 						System.out.println(war);
 						if(war.health <= 0) {
 							war.health = 100;
