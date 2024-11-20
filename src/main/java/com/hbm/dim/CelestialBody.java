@@ -10,6 +10,7 @@ import java.util.Map;
 import com.hbm.config.SpaceConfig;
 import com.hbm.dim.orbit.OrbitalStation;
 import com.hbm.dim.trait.CBT_Atmosphere;
+import com.hbm.dim.trait.CBT_Dyson;
 import com.hbm.dim.trait.CBT_Atmosphere.FluidEntry;
 import com.hbm.dim.trait.CBT_Water;
 import com.hbm.dim.trait.CelestialBodyTrait;
@@ -350,6 +351,17 @@ public class CelestialBody {
 		}
 
 		if(hasUpdated) setTraits(world, currentTraits);
+	}
+
+	// Called once per tick to attenuate swarm counts based on a swarm half-life
+	public static void updateSwarms() {
+		// We currently only have the one solar body, so we just update that directly
+		HashMap<Class<? extends CelestialBodyTrait>, CelestialBodyTrait> currentTraits = SolarSystem.kerbol.getTraits();
+
+		CBT_Dyson dyson = (CBT_Dyson) currentTraits.get(CBT_Dyson.class);
+		if(dyson == null) return;
+
+		dyson.attenuate();
 	}
 
 	// /Terraforming

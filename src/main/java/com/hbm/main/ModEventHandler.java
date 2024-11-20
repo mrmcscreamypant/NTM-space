@@ -1524,6 +1524,7 @@ public class ModEventHandler {
 			RequestNetwork.updateEntries();
 			TileEntityMachineRadarNT.updateSystem();
 			Nodespace.updateNodespace();
+			CelestialBody.updateSwarms();
 		}
 	}
 	

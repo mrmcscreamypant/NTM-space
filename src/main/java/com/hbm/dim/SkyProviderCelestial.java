@@ -434,7 +434,7 @@ public class SkyProviderCelestial extends IRenderHandler {
 		Tessellator tessellator = Tessellator.instance;
 
 		CBT_Dyson dyson = sun.getTrait(CBT_Dyson.class);
-		int swarmCount = dyson != null ? dyson.size() * 128 : 0;
+		int swarmCount = dyson != null ? dyson.size() : 0;
 
 		if(sun.shader != null && sun.hasTrait(CBT_Destroyed.class)) {
 			// BLACK HOLE SUN

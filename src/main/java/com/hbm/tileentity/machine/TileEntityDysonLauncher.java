@@ -35,8 +35,10 @@ public class TileEntityDysonLauncher extends TileEntityMachineBase implements IE
 				worldObj.playSoundEffect(xCoord, yCoord, zCoord, "hbm:misc.spinshot", 4.0F, 0.9F + worldObj.rand.nextFloat() * 0.3F);
 				worldObj.playSoundEffect(xCoord, yCoord, zCoord, "hbm:misc.spinshot", 4.0F, 1F + worldObj.rand.nextFloat() * 0.3F);
 
-				slots[0] = null;
+				slots[0].stackSize--;
 				power = 0;
+			
+				if(slots[0].stackSize <= 0) slots[0] = null;
 			}
 		}
 	}

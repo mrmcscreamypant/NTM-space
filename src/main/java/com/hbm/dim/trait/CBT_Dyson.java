@@ -40,6 +40,15 @@ public class CBT_Dyson extends CelestialBodyTrait {
 		return size;
 	}
 
+	// Called once per frame to lower swarm counts from satellite failures,
+	// encouraging continuous automation
+	public void attenuate() {
+		for(Entry<Integer, Integer> entry : swarm.entrySet()) {
+			double decayChance = (double)entry.getValue() / (4_096 * 20);
+			if(Math.random() < decayChance) entry.setValue(entry.getValue() - 1);
+		}
+	}
+
 	@Override
 	public void writeToNBT(NBTTagCompound nbt) {
 		int[] swarmData = new int[swarm.size() * 2];
