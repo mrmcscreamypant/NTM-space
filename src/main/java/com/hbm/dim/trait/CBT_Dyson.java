@@ -44,7 +44,7 @@ public class CBT_Dyson extends CelestialBodyTrait {
 	// encouraging continuous automation
 	public void attenuate() {
 		for(Entry<Integer, Integer> entry : swarm.entrySet()) {
-			double decayChance = (double)entry.getValue() / (4_096 * 20);
+			double decayChance = (double)entry.getValue() / (1024 * 3 * 20);
 			if(Math.random() < decayChance) entry.setValue(entry.getValue() - 1);
 		}
 	}
