@@ -21,7 +21,7 @@ public class TileEntityDysonReceiver extends TileEntityMachineBase {
 	// converters can collect this beam and turn it into HE/TU or used for analysis, crafting, etc.
 
 	public TileEntityDysonReceiver() {
-		super(0);
+		super(1);
 	}
 
 	// Sun luminosity is 4*10^26, which we can't represent in any Java integer primitive
@@ -40,6 +40,7 @@ public class TileEntityDysonReceiver extends TileEntityMachineBase {
 	}
 
 	public int swarmCount;
+	public int beamLength;
 
 	@Override
 	public String getName() {
@@ -49,7 +50,7 @@ public class TileEntityDysonReceiver extends TileEntityMachineBase {
 	@Override
 	public void updateEntity() {
 		if(!worldObj.isRemote) {
-			ForgeDirection dir = ForgeDirection.getOrientation(this.getBlockMetadata() - BlockDummyable.offset);
+			ForgeDirection dir = ForgeDirection.getOrientation(this.getBlockMetadata() - BlockDummyable.offset).getOpposite();
 
 			int swarmId = 12345;
 
@@ -58,6 +59,7 @@ public class TileEntityDysonReceiver extends TileEntityMachineBase {
 			if(swarmCount > 0) {
 				long energyOutput = getEnergyOutput(swarmCount);
 
+				beamLength = 24;
 				for(int i = 3; i < 24; i++) {
 					int x = xCoord + dir.offsetX * i;
 					int y = yCoord;
@@ -75,6 +77,7 @@ public class TileEntityDysonReceiver extends TileEntityMachineBase {
 
 					if(te instanceof IDysonConverter) {
 						((IDysonConverter) te).provideEnergy(x, y, z, energyOutput);
+						beamLength = i;
 						break;
 					}
 				}
@@ -88,12 +91,14 @@ public class TileEntityDysonReceiver extends TileEntityMachineBase {
 	public void serialize(ByteBuf buf) {
 		super.serialize(buf);
 		buf.writeInt(swarmCount);
+		buf.writeInt(beamLength);
 	}
 
 	@Override
 	public void deserialize(ByteBuf buf) {
 		super.deserialize(buf);
 		swarmCount = buf.readInt();
+		beamLength = buf.readInt();
 	}
 
 	public static void runTests() {

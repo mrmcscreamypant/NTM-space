@@ -14,7 +14,7 @@ public class TileEntityDysonLauncher extends TileEntityMachineBase implements IE
 	private long maxPower = 1_000_000;
 
 	public TileEntityDysonLauncher() {
-		super(1);
+		super(2);
 	}
 
 	@Override
@@ -45,7 +45,8 @@ public class TileEntityDysonLauncher extends TileEntityMachineBase implements IE
 
 	@Override
 	public boolean isItemValidForSlot(int slot, ItemStack itemStack) {
-		return itemStack != null && itemStack.getItem() == ModItems.swarm_member;
+		if(slot == 0) return itemStack.getItem() == ModItems.swarm_member;
+		return false;
 	}
 
 	@Override

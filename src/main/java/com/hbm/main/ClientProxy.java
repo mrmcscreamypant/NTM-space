@@ -428,6 +428,8 @@ public class ClientProxy extends ServerProxy {
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityVaultDoor.class, new RenderVaultDoor());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityBlastDoor.class, new RenderBlastDoor());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityDoorGeneric.class, new RenderDoorGeneric());
+		//dyson
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityDysonReceiver.class, new RenderDysonReceiver());
 	}
 
 	@Override

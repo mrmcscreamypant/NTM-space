@@ -38,21 +38,6 @@ public class MachineDysonReceiver extends BlockDummyable implements ILookOverlay
 		return 0;
 	}
 
-	//. TEMP .//
-	@Override
-	public int getRenderType() {
-		return 0;
-	}
-	@Override
-	public boolean isOpaqueCube() {
-		return true;
-	}
-	@Override
-	public boolean renderAsNormalBlock() {
-		return true;
-	}
-	//. TEMP .//
-
 	@Override
 	public void printHook(Pre event, World world, int x, int y, int z) {
 		int[] pos = this.findCore(world, x, y, z);
