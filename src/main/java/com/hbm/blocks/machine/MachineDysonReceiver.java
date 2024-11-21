@@ -49,10 +49,16 @@ public class MachineDysonReceiver extends BlockDummyable implements ILookOverlay
 		if(!(te instanceof TileEntityDysonReceiver)) return;
 		
 		TileEntityDysonReceiver receiver = (TileEntityDysonReceiver) te;
+
+		long energyOutput = 0;
+		if(receiver.swarmConsumers > 0) {
+			energyOutput = TileEntityDysonReceiver.getEnergyOutput(receiver.swarmCount) / receiver.swarmConsumers * 20;
+		}
 		
 		List<String> text = new ArrayList<String>();
 		text.add("Swarm: " + receiver.swarmCount + " members");
-		text.add("Power: " + BobMathUtil.getShortNumber(TileEntityDysonReceiver.getEnergyOutput(receiver.swarmCount) * 20) + "HE/s");
+		text.add("Consumers: " + receiver.swarmConsumers + " consumers");
+		text.add("Power: " + BobMathUtil.getShortNumber(energyOutput) + "HE/s");
 		
 		ILookOverlay.printGeneric(event, I18nUtil.resolveKey(getUnlocalizedName() + ".name"), 0xffff00, 0x404000, text);
 	}

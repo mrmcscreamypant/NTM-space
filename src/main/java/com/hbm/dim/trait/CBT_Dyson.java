@@ -11,15 +11,36 @@ import net.minecraft.world.World;
 
 public class CBT_Dyson extends CelestialBodyTrait {
 
-	// Correlates an ID with a count of swarm members
-	private HashMap<Integer, Integer> swarm = new HashMap<>();
+	// Correlates an ID with a swarm
+	private HashMap<Integer, Swarm> swarms = new HashMap<>();
+
+	private static class Swarm {
+
+		int members;
+		int consumers;
+		
+		// Incremented whenever another consumer is added
+		// is copied to consumers at the start of a tick
+		private int addedConsumers;
+
+		public Swarm(int members) {
+			this.members = members;
+		}
+
+	}
 
 	public static void launch(World world, int id) {
 		CelestialBody star = CelestialBody.getStar(world);
 		CBT_Dyson dyson = star.getTrait(CBT_Dyson.class);
 		if(dyson == null) dyson = new CBT_Dyson();
 
-		dyson.swarm.put(id, dyson.swarm.getOrDefault(id, 0) + 1);
+		Swarm swarm = dyson.swarms.get(id);
+		if(swarm == null) {
+			swarm = new Swarm(0);
+			dyson.swarms.put(id, swarm);
+		}
+
+		swarm.members++;
 
 		star.modifyTraits(dyson);
 	}
@@ -28,14 +49,30 @@ public class CBT_Dyson extends CelestialBodyTrait {
 		CelestialBody star = CelestialBody.getStar(world);
 		CBT_Dyson dyson = star.getTrait(CBT_Dyson.class);
 		if(dyson == null) return 0;
+		
+		Swarm swarm = dyson.swarms.get(id);
+		if(swarm == null) return 0;
 
-		return dyson.swarm.getOrDefault(id, 0);
+		swarm.addedConsumers++;
+
+		return swarm.members;
+	}
+
+	public static int consumers(World world, int id) {
+		CelestialBody star = CelestialBody.getStar(world);
+		CBT_Dyson dyson = star.getTrait(CBT_Dyson.class);
+		if(dyson == null) return 0;
+		
+		Swarm swarm = dyson.swarms.get(id);
+		if(swarm == null) return 0;
+
+		return swarm.consumers;
 	}
 
 	public int size() {
 		int size = 0;
-		for(int count : swarm.values()) {
-			size += count;
+		for(Swarm swarm : swarms.values()) {
+			size += swarm.members;
 		}
 		return size;
 	}
@@ -43,19 +80,22 @@ public class CBT_Dyson extends CelestialBodyTrait {
 	// Called once per frame to lower swarm counts from satellite failures,
 	// encouraging continuous automation
 	public void attenuate() {
-		for(Entry<Integer, Integer> entry : swarm.entrySet()) {
-			double decayChance = (double)entry.getValue() / (1024 * 3 * 20);
-			if(Math.random() < decayChance) entry.setValue(entry.getValue() - 1);
+		for(Swarm swarm : swarms.values()) {
+			swarm.consumers = swarm.addedConsumers;
+			swarm.addedConsumers = 0;
+
+			double decayChance = (double)swarm.members / (1024 * 3 * 20);
+			if(Math.random() < decayChance) swarm.members--;
 		}
 	}
 
 	@Override
 	public void writeToNBT(NBTTagCompound nbt) {
-		int[] swarmData = new int[swarm.size() * 2];
+		int[] swarmData = new int[swarms.size() * 2];
 		int i = 0;
-		for(Entry<Integer, Integer> entry : swarm.entrySet()) {
+		for(Entry<Integer, Swarm> entry : swarms.entrySet()) {
 			swarmData[i] = entry.getKey();
-			swarmData[i+1] = entry.getValue();
+			swarmData[i+1] = entry.getValue().members;
 			i += 2;
 		}
 
@@ -65,29 +105,29 @@ public class CBT_Dyson extends CelestialBodyTrait {
 	@Override
 	public void readFromNBT(NBTTagCompound nbt) {
 		int[] swarmData = nbt.getIntArray("swarm");
-		swarm = new HashMap<>();
+		swarms = new HashMap<>();
 		for(int i = 0; i < swarmData.length; i += 2) {
-			swarm.put(swarmData[i], swarmData[i+1]);
+			swarms.put(swarmData[i], new Swarm(swarmData[i+1]));
 		}
 	}
 
 	@Override
 	public void writeToBytes(ByteBuf buf) {
-		buf.writeInt(swarm.size() * 2);
-		for(Entry<Integer, Integer> entry : swarm.entrySet()) {
+		buf.writeInt(swarms.size() * 2);
+		for(Entry<Integer, Swarm> entry : swarms.entrySet()) {
 			buf.writeShort(entry.getKey());
-			buf.writeInt(entry.getValue());
+			buf.writeInt(entry.getValue().members);
 		}
 	}
 
 	@Override
 	public void readFromBytes(ByteBuf buf) {
 		int count = buf.readInt();
-		swarm = new HashMap<>();
+		swarms = new HashMap<>();
 		for(int i = 0; i < count; i += 2) {
 			int id = buf.readShort();
-			int number = buf.readInt();
-			swarm.put(id, number);
+			int members = buf.readInt();
+			swarms.put(id, new Swarm(members));
 		}
 	}
 	

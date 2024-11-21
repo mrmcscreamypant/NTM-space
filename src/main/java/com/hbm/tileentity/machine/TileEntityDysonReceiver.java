@@ -7,9 +7,12 @@ import com.hbm.tileentity.IDysonConverter;
 import com.hbm.tileentity.TileEntityMachineBase;
 import com.hbm.util.BobMathUtil;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.common.util.ForgeDirection;
 
 public class TileEntityDysonReceiver extends TileEntityMachineBase {
@@ -40,6 +43,7 @@ public class TileEntityDysonReceiver extends TileEntityMachineBase {
 	}
 
 	public int swarmCount;
+	public int swarmConsumers;
 	public int beamLength;
 
 	@Override
@@ -55,9 +59,10 @@ public class TileEntityDysonReceiver extends TileEntityMachineBase {
 			int swarmId = 12345;
 
 			swarmCount = CBT_Dyson.count(worldObj, swarmId);
+			swarmConsumers = CBT_Dyson.consumers(worldObj, swarmId);
 
-			if(swarmCount > 0) {
-				long energyOutput = getEnergyOutput(swarmCount);
+			if(swarmCount > 0 && swarmConsumers > 0) {
+				long energyOutput = getEnergyOutput(swarmCount) / swarmConsumers;
 
 				beamLength = 24;
 				for(int i = 3; i < 24; i++) {
@@ -91,6 +96,7 @@ public class TileEntityDysonReceiver extends TileEntityMachineBase {
 	public void serialize(ByteBuf buf) {
 		super.serialize(buf);
 		buf.writeInt(swarmCount);
+		buf.writeInt(swarmConsumers);
 		buf.writeInt(beamLength);
 	}
 
@@ -98,7 +104,33 @@ public class TileEntityDysonReceiver extends TileEntityMachineBase {
 	public void deserialize(ByteBuf buf) {
 		super.deserialize(buf);
 		swarmCount = buf.readInt();
+		swarmConsumers = buf.readInt();
 		beamLength = buf.readInt();
+	}
+	
+	AxisAlignedBB bb = null;
+	
+	@Override
+	public AxisAlignedBB getRenderBoundingBox() {
+		
+		if(bb == null) {
+			bb = AxisAlignedBB.getBoundingBox(
+				xCoord - 25,
+				yCoord,
+				zCoord - 25,
+				xCoord + 25,
+				yCoord + 1,
+				zCoord + 25
+			);
+		}
+		
+		return bb;
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public double getMaxRenderDistanceSquared() {
+		return 65536.0D;
 	}
 
 	public static void runTests() {
