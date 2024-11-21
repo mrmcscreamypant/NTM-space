@@ -31,6 +31,11 @@ public class TileEntityDysonConverterTU extends TileEntityMachineBase implements
     }
 
 	@Override
+	public long maximumEnergy() {
+		return Integer.MAX_VALUE;
+	}
+
+	@Override
 	public int getHeatStored() {
         if(heatEnergy > Integer.MAX_VALUE) return Integer.MAX_VALUE;
 		return (int)heatEnergy;
