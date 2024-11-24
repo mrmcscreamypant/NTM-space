@@ -4,9 +4,12 @@ import java.io.IOException;
 
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonWriter;
+import com.hbm.dim.CelestialBody;
+import com.hbm.dim.trait.CBT_Atmosphere;
 import com.hbm.inventory.fluid.Fluids;
 import com.hbm.inventory.fluid.tank.FluidTank;
 import com.hbm.saveddata.TomSaveData;
+import com.hbm.tileentity.IFluidCopiable;
 import com.hbm.tileentity.IConfigurableMachine;
 import com.hbm.tileentity.INBTPacketReceiver;
 import com.hbm.tileentity.TileEntityLoadedBase;
@@ -17,13 +20,15 @@ import api.hbm.tile.IInfoProviderEC;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.EnumSkyBlock;
 
-public class TileEntityCondenser extends TileEntityLoadedBase implements IFluidStandardTransceiver, INBTPacketReceiver, IInfoProviderEC, IConfigurableMachine {
+public class TileEntityCondenser extends TileEntityLoadedBase implements IFluidStandardTransceiver, INBTPacketReceiver, IInfoProviderEC, IConfigurableMachine, IFluidCopiable {
 
 	public int age = 0;
 	public FluidTank[] tanks;
 	
 	public int waterTimer = 0;
 	protected int throughput;
+
+	public boolean vacuumOptimised = false;
 	
 	//Configurable values
 	public static int inputTankSize = 100;
@@ -80,8 +85,14 @@ public class TileEntityCondenser extends TileEntityLoadedBase implements IFluidS
 					this.waterTimer = 20;
 				
 				int light = this.worldObj.getSavedLightValue(EnumSkyBlock.Sky, this.xCoord, this.yCoord, this.zCoord);
+
+				boolean shouldEvaporate = TomSaveData.forWorld(worldObj).fire > 1e-5 && light > 7;
+				if(!shouldEvaporate && !vacuumOptimised) {
+					CBT_Atmosphere atmosphere = CelestialBody.getTrait(worldObj, CBT_Atmosphere.class);
+					if(CelestialBody.inOrbit(worldObj) || atmosphere == null || atmosphere.getPressure() < 0.01) shouldEvaporate = true;
+				}
 				
-				if(TomSaveData.forWorld(worldObj).fire > 1e-5 && light > 7) { // Make both steam and water evaporate during firestorms...
+				if(shouldEvaporate) { // Make both steam and water evaporate during firestorms and in vacuums
 					tanks[1].setFill(tanks[1].getFill() - convert);
 				} else {
 					tanks[1].setFill(tanks[1].getFill() + convert);
@@ -145,5 +156,10 @@ public class TileEntityCondenser extends TileEntityLoadedBase implements IFluidS
 	public void provideExtraInfo(NBTTagCompound data) {
 		data.setDouble(CompatEnergyControl.D_CONSUMPTION_MB, throughput);
 		data.setDouble(CompatEnergyControl.D_OUTPUT_MB, throughput);
+	}
+
+	@Override
+	public FluidTank getTankToPaste() {
+		return null;
 	}
 }

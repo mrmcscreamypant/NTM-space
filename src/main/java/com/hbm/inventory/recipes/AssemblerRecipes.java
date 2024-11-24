@@ -1046,6 +1046,14 @@ public class AssemblerRecipes extends SerializableRecipe {
 				new ComparableStack(ModItems.motor_desh, 2),
 				new ComparableStack(ModItems.circuit, 1, EnumCircuitType.BISMOID)
 			}, 200);
+		makeRecipe(new ComparableStack(ModBlocks.machine_pyrooven, 1), new AStack[] {
+				!exp ? new OreDictStack(STEEL.plateWelded(), 16) : new OreDictStack(STEEL.heavyComp(), 4),
+				new OreDictStack(ANY_HARDPLASTIC.ingot(), 16),
+				new ComparableStack(ModItems.ingot_cft, 4),
+				new OreDictStack(CU.pipe(), 12),
+				new ComparableStack(ModItems.motor_desh, 1),
+				new ComparableStack(ModItems.circuit, 1, EnumCircuitType.BISMOID)
+			}, 200);
 
 		makeRecipe(new ComparableStack(ModBlocks.machine_compressor, 1), new AStack[] {
 				new OreDictStack(STEEL.plateCast(), 8),
@@ -1380,12 +1388,90 @@ public class AssemblerRecipes extends SerializableRecipe {
 				new ComparableStack(ModItems.motor, 2)
 		}, 200);
 		makeRecipe(new ComparableStack(ModBlocks.machine_milk_reformer, 1), new AStack[] {
-			new OreDictStack(STEEL.plateCast(), 14),
-			new ComparableStack(ModItems.ingot_steel, 2),
-			new ComparableStack(ModItems.motor, 2),
-			//new ComparableStack(ModItems.hull_big_steel, 3),
-			new ComparableStack(ModItems.pipes_steel, 2)
-	}, 300);
+				new OreDictStack(STEEL.plateCast(), 14),
+				new OreDictStack(STEEL.ingot(), 2),
+				new ComparableStack(ModItems.motor, 2),
+				new OreDictStack(STEEL.pipe(), 8)
+		}, 300);
+
+		makeRecipe(new ComparableStack(ModBlocks.algae_film, 1), new AStack[] {
+				new OreDictStack(AL.plate(), 8),
+				new ComparableStack(ModItems.saltleaf, 16),
+				new ComparableStack(ModBlocks.fan, 1),
+				new ComparableStack(ModBlocks.steel_beam, 4),
+				new ComparableStack(ModBlocks.fence_metal, 2)
+		}, 100);
+		makeRecipe(new ComparableStack(ModBlocks.air_scrubber, 1), new AStack[] {
+				new OreDictStack(STAINLESS.plate(), 6),
+				new OreDictStack(CA.dust(), 4),
+				new OreDictStack(LI.dust(), 12),
+				new ComparableStack(ModItems.motor, 1),
+				new ComparableStack(ModItems.blades_titanium, 2),
+		}, 100);
+		
+		makeRecipe(new ComparableStack(ModBlocks.orbital_station_computer, 1), new AStack[] {
+				new OreDictStack(AL.plateCast(), 4),
+				new OreDictStack(STAINLESS.plate(), 4),
+				new OreDictStack(ANY_HARDPLASTIC.ingot(), 2),
+				new OreDictStack(KEY_CLEARGLASS, 1),
+				new OreDictStack(QUARTZ.dust(), 4), // has a liquid crystal display
+				new ComparableStack(ModItems.circuit, 4, EnumCircuitType.MOLYCHIP),
+				new ComparableStack(ModItems.circuit, 1, EnumCircuitType.AVIONICS),
+		}, 100);
+
+		// About as expensive as the auxiliary cooling tower
+		makeRecipe(new ComparableStack(ModBlocks.machine_radiator, 1), new AStack[] {
+				new OreDictStack(AL.plateCast(), 6),
+				new OreDictStack(STAINLESS.plate(), 6),
+				new OreDictStack(CU.pipe(), 4),
+				new ComparableStack(ModItems.thermo_element, 3),
+		}, 250);
+		
+		// Station components are only lightly gated behind space, _propulsion_ is hard gated
+		makeRecipe(new ComparableStack(ModBlocks.orbital_station_port, 1), new AStack[] {
+				new OreDictStack(TI.plateWelded(), 6),
+				new ComparableStack(ModItems.motor, 4),
+				new OreDictStack(KEY_CLEARGLASS, 8),
+				new OreDictStack(ANY_PLASTIC.ingot(), 8),
+				new ComparableStack(ModItems.circuit, 4, EnumCircuitType.BASIC),
+				new OreDictStack(STAINLESS.plate(), 4),
+		}, 300);
+		makeRecipe(new ComparableStack(ModItems.rp_station_core_20, 1), new AStack[] {
+				new ComparableStack(ModBlocks.orbital_station_port, 1), // we're basically sending up a port
+				new OreDictStack(AL.plateCast(), 4), // wrapped in a fairing
+				new ComparableStack(ModItems.circuit, 1, EnumCircuitType.AVIONICS), // with a computer to navigate
+		}, 100);
+		makeRecipe(new ComparableStack(ModItems.rp_pod_20, 1), new AStack[] {
+				new OreDictStack(AL.shell(), 4),
+				new OreDictStack(STAINLESS.plate(), 8),
+				new ComparableStack(ModItems.tank_steel, 2),
+				new OreDictStack(FIBER.ingot(), 4),
+				new OreDictStack(ANY_PLASTIC.ingot(), 2),
+				new ComparableStack(ModItems.circuit, 1, EnumCircuitType.AVIONICS),
+				new ComparableStack(ModItems.thruster_small, 4),
+		}, 100);
+
+		// LPW
+		makeRecipe(new ComparableStack(ModBlocks.machine_lpw2, 1), new AStack[] {
+				new OreDictStack(STEEL.plateWelded(), 16),
+				new OreDictStack(STEEL.bolt(), 32),
+				new OreDictStack(TI.shell(), 8),
+				new ComparableStack(ModItems.motor_desh, 2),
+				new ComparableStack(ModItems.coil_advanced_alloy, 8),
+				new OreDictStack(ANY_HARDPLASTIC.ingot(), 8),
+				new ComparableStack(ModItems.circuit, 1, EnumCircuitType.ADVANCED),
+				new OreDictStack(CU.pipe(), 4),
+		}, 400);
+		makeRecipe(new ComparableStack(ModBlocks.machine_htr3, 1), new AStack[] {
+				new OreDictStack(STEEL.plateWelded(), 8),
+				new OreDictStack(STEEL.bolt(), 16),
+				new OreDictStack(W.plateWelded(), 2),
+				new ComparableStack(ModItems.motor_bismuth, 1),
+				new OreDictStack(ANY_HARDPLASTIC.ingot(), 8),
+				new ComparableStack(ModItems.circuit, 1, EnumCircuitType.ADVANCED),
+				new OreDictStack(CU.pipe(), 4),
+		}, 400);
+
 		makeRecipe(new ComparableStack(ModBlocks.large_vehicle_door, 1), new AStack[]{new OreDictStack(STEEL.plateCast(), 16), new ComparableStack(ModItems.plate_polymer, 4), new ComparableStack(ModItems.motor, 4), new OreDictStack(DURA.bolt(), 16), new OreDictStack("dyeGreen", 4)}, 400);
 		makeRecipe(new ComparableStack(ModBlocks.water_door, 1), new AStack[]{new OreDictStack(STEEL.plate(), 16), new OreDictStack(DURA.bolt(), 4), new OreDictStack("dyeRed", 1)}, 200);
 		makeRecipe(new ComparableStack(ModBlocks.qe_containment, 1), new AStack[]{new OreDictStack(STEEL.plateCast(), 4), new OreDictStack(ALLOY.plate(), 4), new ComparableStack(ModItems.plate_polymer, 8), new ComparableStack(ModItems.motor, 2), new OreDictStack(DURA.bolt(), 32), new OreDictStack("dyeBlack", 4)}, 400);

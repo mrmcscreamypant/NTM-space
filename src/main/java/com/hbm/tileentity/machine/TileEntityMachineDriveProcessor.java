@@ -177,6 +177,7 @@ public class TileEntityMachineDriveProcessor extends TileEntityMachineBase imple
 			return;
 		}
 
+		ItemVOTVdrive.markCopied(slots[0]);
 		slots[1] = slots[0].copy();
 
 		status = EnumChatFormatting.GREEN + "Drive cloned ";
@@ -200,7 +201,7 @@ public class TileEntityMachineDriveProcessor extends TileEntityMachineBase imple
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public GuiScreen provideGUI(int ID, EntityPlayer player, World world, int x, int y, int z) {
+	public Object provideGUI(int ID, EntityPlayer player, World world, int x, int y, int z) {
 		return new GUIMachineDriveProcessor(player.inventory, this);
 	}
 

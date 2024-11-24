@@ -36,7 +36,6 @@ import io.netty.buffer.ByteBuf;
 import li.cil.oc.api.machine.Arguments;
 import li.cil.oc.api.machine.Callback;
 import li.cil.oc.api.machine.Context;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
@@ -343,8 +342,7 @@ public class TileEntityLaunchTable extends TileEntityLoadedBase implements ISide
 		
 		ItemCustomMissilePart fuselage = (ItemCustomMissilePart)multipart.fuselage;
 		
-		float f = (Float)fuselage.attributes[1];
-		int fuel = (int)f;
+		int fuel = (int)fuselage.attributes[1];
 		
 		switch((FuelType)fuselage.attributes[0]) {
 			case KEROSENE:
@@ -407,7 +405,7 @@ public class TileEntityLaunchTable extends TileEntityLoadedBase implements ISide
 		
 		if((FuelType)fuselage.attributes[0] == FuelType.SOLID) {
 			
-			if(solid >= (Float)fuselage.attributes[1])
+			if(solid >= (int)fuselage.attributes[1])
 				return 1;
 			else
 				return 0;
@@ -431,7 +429,7 @@ public class TileEntityLaunchTable extends TileEntityLoadedBase implements ISide
 			case XENON:
 			case BALEFIRE:
 				
-				if(tanks[0].getFill() >= (Float)fuselage.attributes[1])
+				if(tanks[0].getFill() >= (int)fuselage.attributes[1])
 					return 1;
 				else
 					return 0;
@@ -455,7 +453,7 @@ public class TileEntityLaunchTable extends TileEntityLoadedBase implements ISide
 			case HYDROGEN:
 			case BALEFIRE:
 				
-				if(tanks[1].getFill() >= (Float)fuselage.attributes[1])
+				if(tanks[1].getFill() >= (int)fuselage.attributes[1])
 					return 1;
 				else
 					return 0;
@@ -724,7 +722,7 @@ public class TileEntityLaunchTable extends TileEntityLoadedBase implements ISide
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public GuiScreen provideGUI(int ID, EntityPlayer player, World world, int x, int y, int z) {
+	public Object provideGUI(int ID, EntityPlayer player, World world, int x, int y, int z) {
 		return new GUIMachineLaunchTable(player.inventory, this);
 	}
 }

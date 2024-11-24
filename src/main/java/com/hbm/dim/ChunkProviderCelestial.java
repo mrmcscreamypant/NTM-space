@@ -1,7 +1,10 @@
 package com.hbm.dim;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import com.hbm.world.biome.BiomeGenCraterBase;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFalling;
@@ -11,8 +14,10 @@ import net.minecraft.util.IProgressUpdate;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.ChunkPosition;
+import net.minecraft.world.SpawnerAnimals;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.world.biome.BiomeGenBase.SpawnListEntry;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.NoiseGenerator;
@@ -342,6 +347,8 @@ public abstract class ChunkProviderCelestial implements IChunkProvider {
 
 		biomegenbase.decorate(worldObj, rand, k, l);
 
+		SpawnerAnimals.performWorldGenSpawning(this.worldObj, biomegenbase, k + 8, l + 8, 16, 16, this.rand);
+
 		BlockFalling.fallInstantly = false;
 	}
 
@@ -388,6 +395,7 @@ public abstract class ChunkProviderCelestial implements IChunkProvider {
 	@Override
 	public List getPossibleCreatures(EnumCreatureType creatureType, int x, int y, int z) {
         BiomeGenBase biomegenbase = this.worldObj.getBiomeGenForCoords(x, z);
+		if(biomegenbase instanceof BiomeGenCraterBase) return new ArrayList<SpawnListEntry>();
         return biomegenbase.getSpawnableList(creatureType);
 	}
 

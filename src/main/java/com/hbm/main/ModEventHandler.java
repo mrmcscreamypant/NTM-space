@@ -26,6 +26,8 @@ import com.hbm.dim.DebugTeleporter;
 import com.hbm.dim.WorldGeneratorCelestial;
 import com.hbm.dim.WorldProviderCelestial;
 import com.hbm.dim.WorldTypeTeleport;
+import com.hbm.dim.orbit.OrbitalStation;
+import com.hbm.dim.orbit.WorldProviderOrbit;
 import com.hbm.dim.trait.CBT_Atmosphere;
 import com.hbm.dim.trait.CBT_War;
 import com.hbm.dim.trait.CBT_War.Projectile;
@@ -80,19 +82,9 @@ import com.hbm.saveddata.AuxSavedData;
 import com.hbm.tileentity.machine.TileEntityMachineRadarNT;
 import com.hbm.tileentity.network.RTTYSystem;
 import com.hbm.tileentity.network.RequestNetwork;
-import com.hbm.util.AchievementHandler;
-import com.hbm.util.ArmorRegistry;
-import com.hbm.util.ArmorUtil;
-import com.hbm.util.AstronomyUtil;
-import com.hbm.util.ContaminationUtil;
 import com.hbm.util.ContaminationUtil.ContaminationType;
 import com.hbm.util.ContaminationUtil.HazardType;
-import com.hbm.util.EnchantmentUtil;
-import com.hbm.util.EntityDamageUtil;
-import com.hbm.util.EnumUtil;
-import com.hbm.util.InventoryUtil;
-import com.hbm.util.ParticleUtil;
-import com.hbm.util.ShadyUtil;
+import com.hbm.util.*;
 import com.hbm.util.ArmorRegistry.HazardClass;
 import com.hbm.world.generator.TimedGenerator;
 
@@ -579,6 +571,83 @@ public class ModEventHandler {
 	}
 	@SubscribeEvent
 	public void onLivingUpdate(LivingUpdateEvent event) {
+
+		if(!event.entity.worldObj.isRemote && event.entityLiving.isPotionActive(HbmPotion.slippery.id)) {
+			if (event.entityLiving.onGround) {
+				double slipperiness = 0.6; 
+				double inertia = 0.1;
+				boolean isMoving = event.entityLiving.moveForward != 0.0 || event.entityLiving.moveStrafing != 0.0;
+
+				double angle = Math.atan2(event.entityLiving.motionZ, event.entityLiving.motionX);
+
+				double targetXMotion = Math.cos(angle) * slipperiness;
+				double targetZMotion = Math.sin(angle) * slipperiness;
+
+				double diffX = targetXMotion - event.entityLiving.motionX;
+				double diffZ = targetZMotion - event.entityLiving.motionZ;
+
+				event.entityLiving.motionX += diffX * inertia; //god weeps
+				event.entityLiving.motionZ += diffZ * inertia;
+				
+				if (!isMoving) {
+					event.entityLiving.motionX *= (1.0 - 0.1);
+
+					double totalVelocity = Math.sqrt(event.entityLiving.motionX * event.entityLiving.motionX + event.entityLiving.motionZ * event.entityLiving.motionZ);
+					double smoothingAmount = totalVelocity * 0.02;
+						event.entityLiving.motionX -= event.entityLiving.motionX / totalVelocity * smoothingAmount;
+						event.entityLiving.motionZ -= event.entityLiving.motionZ / totalVelocity * smoothingAmount;
+				}
+			}
+		}
+	
+		boolean isFlying = event.entity instanceof EntityPlayer ? ((EntityPlayer) event.entity).capabilities.isFlying : false;
+
+		if(!isFlying) {
+			if(event.entity.worldObj.provider instanceof WorldProviderOrbit) {
+				float gravity = 0;
+
+				if(HbmLivingProps.hasGravity(event.entityLiving)) {
+					OrbitalStation station = event.entity.worldObj.isRemote
+						? OrbitalStation.clientStation
+						: OrbitalStation.getStationFromPosition((int)event.entityLiving.posX, (int)event.entityLiving.posZ);
+
+					gravity = AstronomyUtil.STANDARD_GRAVITY * station.gravityMultiplier;
+					if(gravity < 0.2) gravity = 0;
+				}
+					
+				event.entityLiving.motionY /= 0.98F;
+				event.entityLiving.motionY += (AstronomyUtil.STANDARD_GRAVITY / 20F);
+				event.entityLiving.motionY -= (gravity / 20F);
+
+				if(event.entity instanceof EntityPlayer && gravity == 0) {
+					EntityPlayer player = (EntityPlayer) event.entity;
+					if(player.isSneaking()) event.entityLiving.motionY -= 0.01F;
+					if(player.isJumping) event.entityLiving.motionY += 0.01F;
+				}
+
+				event.entityLiving.motionY *= gravity == 0 ? 0.91F : 0.98F;
+			} else {
+				CelestialBody body = CelestialBody.getBody(event.entity.worldObj);
+				float gravity = body.getSurfaceGravity() * AstronomyUtil.PLAYER_GRAVITY_MODIFIER;
+		
+				// If gravity is basically the same as normal, do nothing
+				// Also do nothing in water, or if we've been alive less than a second (so we don't glitch into the ground)
+				if(!event.entityLiving.isInWater() && event.entityLiving.ticksExisted > 20 && (gravity < 1.5F || gravity > 1.7F)) {
+		
+					// Minimum gravity to prevent floating bug
+					if(gravity < 0.2F) gravity = 0.2F;
+		
+					// Undo falling, and add our intended falling speed
+					// On high gravity planets, only apply falling speed when descending, so we can still jump up single blocks
+					if (gravity < 1.5F || event.entityLiving.motionY < 0) {
+						event.entityLiving.motionY /= 0.98F;
+						event.entityLiving.motionY += (AstronomyUtil.STANDARD_GRAVITY / 20F);
+						event.entityLiving.motionY -= (gravity / 20F);
+						event.entityLiving.motionY *= 0.98F;
+					}
+				}
+			}
+		}
 		
 		ItemStack[] prevArmor = event.entityLiving.previousEquipment;
 
@@ -586,7 +655,7 @@ public class ModEventHandler {
 				&& (prevArmor[0] == null || prevArmor[0].getItem() != event.entityLiving.getHeldItem().getItem())
 				&& event.entityLiving.getHeldItem().getItem() instanceof IEquipReceiver) {
 
-			((IEquipReceiver)event.entityLiving.getHeldItem().getItem()).onEquip((EntityPlayer) event.entityLiving);
+			((IEquipReceiver)event.entityLiving.getHeldItem().getItem()).onEquip((EntityPlayer) event.entityLiving, event.entityLiving.getHeldItem());
 		}
 		
 		for(int i = 1; i < 5; i++) {
@@ -695,11 +764,14 @@ public class ModEventHandler {
 								RocketState state = rocket.getState();
 
 								// Prevent leaving a rocket in motion, for safety
-								if(state != RocketState.LANDING && state != RocketState.LAUNCHING) {
+								if(state != RocketState.LANDING && state != RocketState.LAUNCHING && state != RocketState.DOCKING && state != RocketState.UNDOCKING) {
+									boolean inOrbit = event.world.provider instanceof WorldProviderOrbit;
 									Entity ridingEntity = player.ridingEntity;
 									float prevHeight = ridingEntity.height;
-									ridingEntity.height = 1.0F;
+									
+									ridingEntity.height = inOrbit ? ridingEntity.height + 1.0F : 1.0F;
 									player.mountEntity(null);
+									if(!inOrbit) player.setPositionAndUpdate(player.posX + 2, player.posY, player.posZ);
 									ridingEntity.height = prevHeight;
 								}
 								
@@ -833,6 +905,11 @@ public class ModEventHandler {
 				EntityRailCarBase.updateMotion(event.world);
 
 				DebugTeleporter.runQueuedTeleport();
+
+				// Once per second, run atmospheric chemistry
+				if(event.world.getTotalWorldTime() % 20 == 0) {
+					CelestialBody.updateChemistry(event.world);
+				}
 			}
 
 			// Tick our per celestial body timer
@@ -850,8 +927,17 @@ public class ModEventHandler {
 
 			updateWaterOpacity(event.world);
 		}
-	    if(event.phase == TickEvent.Phase.START) {
-	    }
+
+		if(event.phase == Phase.START && event.world.provider.dimensionId == SpaceConfig.orbitDimension) {
+			for(Object o : event.world.loadedEntityList) {
+				if(o instanceof EntityItem) {
+					EntityItem item = (EntityItem) o;
+					item.motionX *= 0.9D;
+					item.motionY = 0.03999999910593033D; // when entity gravity is applied, this becomes exactly 0
+					item.motionZ *= 0.9D;
+				}
+			}
+		}
 	}
 
 	private void updateWaterOpacity(World world) {
@@ -867,7 +953,7 @@ public class ModEventHandler {
 
 	@SubscribeEvent
 	public void onGenerateOre(GenerateMinable event) {
-		if(event.world.provider instanceof WorldProviderCelestial) {
+		if(event.world.provider instanceof WorldProviderCelestial && event.world.provider.dimensionId != 0) {
 			WorldGeneratorCelestial.onGenerateOre(event);
 		}
 	}
@@ -1033,14 +1119,18 @@ public class ModEventHandler {
 		
 		EntityLivingBase e = event.entityLiving;
 
-		CelestialBody body = CelestialBody.getBody(event.entity.worldObj);
-		float gravity = body.getSurfaceGravity() * AstronomyUtil.PLAYER_GRAVITY_MODIFIER;
-
-		// Reduce fall damage on low gravity bodies
-		if(gravity < 0.3F) {
+		if(event.entity.worldObj.provider instanceof WorldProviderOrbit) {
 			event.distance = 0;
-		} else if(gravity < 1.5F) {
-			event.distance *= gravity / AstronomyUtil.STANDARD_GRAVITY;
+		} else {
+			CelestialBody body = CelestialBody.getBody(event.entity.worldObj);
+			float gravity = body.getSurfaceGravity() * AstronomyUtil.PLAYER_GRAVITY_MODIFIER;
+	
+			// Reduce fall damage on low gravity bodies
+			if(gravity < 0.3F) {
+				event.distance = 0;
+			} else if(gravity < 1.5F) {
+				event.distance *= gravity / AstronomyUtil.STANDARD_GRAVITY;
+			}
 		}
 		
 		if(e instanceof EntityPlayer && ((EntityPlayer)e).inventory.armorInventory[2] != null && ((EntityPlayer)e).inventory.armorInventory[2].getItem() instanceof ArmorFSB)
@@ -1182,59 +1272,7 @@ public class ModEventHandler {
 			}
 		}
 	}
-	@SubscribeEvent
-	public void onEntityTick(LivingUpdateEvent event) {
-		if(!event.entity.worldObj.isRemote && event.entityLiving.isPotionActive(HbmPotion.slippery.id)) {
-			if (event.entityLiving.onGround) {
-				double slipperiness = 0.6; 
-				double inertia = 0.1;
-				boolean isMoving = event.entityLiving.moveForward != 0.0 || event.entityLiving.moveStrafing != 0.0;
 
-				double angle = Math.atan2(event.entityLiving.motionZ, event.entityLiving.motionX);
-
-				double targetXMotion = Math.cos(angle) * slipperiness;
-				double targetZMotion = Math.sin(angle) * slipperiness;
-
-				double diffX = targetXMotion - event.entityLiving.motionX;
-				double diffZ = targetZMotion - event.entityLiving.motionZ;
-
-				event.entityLiving.motionX += diffX * inertia; //god weeps
-				event.entityLiving.motionZ += diffZ * inertia;
-				
-				if (!isMoving) {
-					event.entityLiving.motionX *= (1.0 - 0.1);
-
-					double totalVelocity = Math.sqrt(event.entityLiving.motionX * event.entityLiving.motionX + event.entityLiving.motionZ * event.entityLiving.motionZ);
-					double smoothingAmount = totalVelocity * 0.02;
-						event.entityLiving.motionX -= event.entityLiving.motionX / totalVelocity * smoothingAmount;
-						event.entityLiving.motionZ -= event.entityLiving.motionZ / totalVelocity * smoothingAmount;
-				}
-			}
-		}
-
-		CelestialBody body = CelestialBody.getBody(event.entity.worldObj);
-		float gravity = body.getSurfaceGravity() * AstronomyUtil.PLAYER_GRAVITY_MODIFIER;
-
-		boolean isFlying = event.entity instanceof EntityPlayer ? ((EntityPlayer) event.entity).capabilities.isFlying : false;
-
-		// If gravity is basically the same as normal, do nothing
-		// Also do nothing in water, or if we've been alive less than a second (so we don't glitch into the ground)
-		if(!isFlying && !event.entityLiving.isInWater() && event.entityLiving.ticksExisted > 20 && (gravity < 1.5F || gravity > 1.7F)) {
-
-			// Minimum gravity to prevent floating bug
-			if(gravity < 0.2F) gravity = 0.2F;
-
-			// Undo falling, and add our intended falling speed
-			// On high gravity planets, only apply falling speed when descending, so we can still jump up single blocks
-			if (gravity < 1.5F || event.entityLiving.motionY < 0) {
-				event.entityLiving.motionY /= 0.98F;
-				event.entityLiving.motionY += (AstronomyUtil.STANDARD_GRAVITY / 20F);
-				event.entityLiving.motionY -= (gravity / 20F);
-				event.entityLiving.motionY *= 0.98F;
-			}
-		}
-	}
-	
 	@SubscribeEvent
 	public void onPlayerTick(TickEvent.PlayerTickEvent event) {
 
@@ -1243,28 +1281,13 @@ public class ModEventHandler {
 			Vec3 vec = Vec3.createVectorHelper(3 * rand.nextDouble(), 0, 0);
 			CBT_Atmosphere thatmosphere = CelestialBody.getTrait(player.worldObj, CBT_Atmosphere.class);
 
-
-			if(thatmosphere != null)
-			if(!player.isRiding()) {
-				if (!player.worldObj.isRemote) {
-					if(player.motionX > 1 || player.motionY > 1 || player.motionZ > 1) {
-						ParticleUtil.spawnGasFlame(player.worldObj, player.posX - 1+ vec.xCoord, player.posY + vec.yCoord, player.posZ + vec.zCoord, 0, 0, 0);
-					}
-					if(player.motionX < -1 || player.motionY < -1 || player.motionZ < -1) {
-						ParticleUtil.spawnGasFlame(player.worldObj, player.posX - 1+ vec.xCoord, player.posY + vec.yCoord, player.posZ + vec.zCoord, 0, 0, 0);
-					}
-				
-				} else {
-					if(player.motionX > 1 || player.motionY > 1 || player.motionZ > 1) {
-						ParticleUtil.spawnGasFlame(player.worldObj, player.posX - 1+ vec.xCoord, player.posY + vec.yCoord, player.posZ + vec.zCoord, 0, 0, 0);
-					}
-					if(player.motionX < -1 || player.motionY < -1 || player.motionZ < -1) {
-						ParticleUtil.spawnGasFlame(player.worldObj, player.posX - 1+ vec.xCoord, player.posY + vec.yCoord, player.posZ + vec.zCoord, 0, 0, 0);
-					}
+			if(thatmosphere != null && thatmosphere.getPressure() > 0.05 && !player.isRiding()) {
+				if(Math.abs(player.motionX) > 1 || Math.abs(player.motionY) > 1 || Math.abs(player.motionZ) > 1) {
+					ParticleUtil.spawnGasFlame(player.worldObj, player.posX - 1 + vec.xCoord, player.posY + vec.yCoord, player.posZ + vec.zCoord, 0, 0, 0);
 				}
+			}
 		}
 
-		}
 		if(player.isPotionActive(HbmPotion.slippery.id) && !player.capabilities.isFlying) {
 			if (player.onGround) {
 				double slipperiness = 0.6; 
@@ -1315,6 +1338,26 @@ public class ModEventHandler {
 	
 		
 		if(!player.worldObj.isRemote && event.phase == TickEvent.Phase.START) {
+			// Check for players attempting to cross over to another orbital grid
+			if(player.worldObj.provider instanceof WorldProviderOrbit) {
+				double rx = Math.abs(player.posX) % OrbitalStation.STATION_SIZE;
+				double rz = Math.abs(player.posZ) % OrbitalStation.STATION_SIZE;
+
+				int minBuffer = OrbitalStation.BUFFER_SIZE;
+				int maxBuffer = OrbitalStation.STATION_SIZE - minBuffer;
+
+				int minWarning = OrbitalStation.BUFFER_SIZE + OrbitalStation.WARNING_SIZE;
+				int maxWarning = OrbitalStation.STATION_SIZE - minWarning;
+
+				if(player instanceof EntityPlayerMP && (rx < minWarning || rx > maxWarning || rz < minWarning || rz > maxWarning)) {
+					PacketDispatcher.wrapper.sendTo(new PlayerInformPacket(ChatBuilder.start("").nextTranslation("info.orbitfall").color(EnumChatFormatting.RED).flush(), ServerProxy.ID_GAS_HAZARD, 3000), (EntityPlayerMP) player);
+				}
+
+				if(rx < minBuffer || rx > maxBuffer || rz < minBuffer || rz > maxBuffer) {
+					OrbitalStation station = OrbitalStation.getStationFromPosition((int)player.posX, (int)player.posZ);
+					DebugTeleporter.teleport(player, station.orbiting.dimensionId, rand.nextInt(SpaceConfig.maxProbeDistance * 2) - SpaceConfig.maxProbeDistance, 800, rand.nextInt(SpaceConfig.maxProbeDistance * 2) - SpaceConfig.maxProbeDistance, false);
+				}
+			}
 
 			// keep Nether teleports localized
 			// this effectively turns the Nether into a shared pocket dimension, but disallows using it to travel between celestial bodies
@@ -1618,7 +1661,7 @@ public class ModEventHandler {
 	public void onTrySleep(PlayerInteractEvent event) {
 		if(event.world.isRemote) return;
 		if(event.world.provider.dimensionId == 0) return;
-		if(!(event.world.provider instanceof WorldProviderCelestial)) return;
+		if(!(event.world.provider instanceof WorldProviderCelestial) && !(event.world.provider instanceof WorldProviderOrbit)) return;
 
 		if(event.action == Action.RIGHT_CLICK_BLOCK && event.world.getBlock(event.x, event.y, event.z) instanceof BlockBed) {
 			WorldProviderCelestial.attemptingSleep = true;

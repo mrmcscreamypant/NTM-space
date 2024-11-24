@@ -16,6 +16,7 @@ import com.hbm.inventory.fluid.Fluids;
 import com.hbm.lib.RefStrings;
 import com.hbm.main.MainRegistry;
 import com.hbm.util.AstronomyUtil;
+import com.hbm.util.BobMathUtil;
 
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
@@ -124,7 +125,7 @@ public class SolarSystem {
 					
 
 				new CelestialBody("jool")
-					.withMassRadius(4.233e24F, 6_000)
+					.withMassRadius(4.233e24F, 3_000) // was radius 6_000 but that just rendered too large, so density is currently incorrect
 					.withSemiMajorAxis(68_773_560)
 					.withRotationalPeriod(36_000)
 					.withColor(0.4588f, 0.6784f, 0.3059f)
@@ -138,12 +139,12 @@ public class SolarSystem {
 							.withProcessingLevel(3)
 							.withTraits(new CBT_Atmosphere(Fluids.AIR, 0.45D).and(Fluids.XENON, 0.15D), new CBT_Water()),
 
-						new CelestialBody("vall")
+						new CelestialBody("vall") //probably
 							.withMassRadius(3.109e21F, 300)
 							.withSemiMajorAxis(43_152)
 							.withRotationalPeriod(105_962),
 
-						new CelestialBody("tylo")
+						new CelestialBody("tylo") // what value is this planet gonna add???
 							.withMassRadius(4.233e22F, 600)
 							.withSemiMajorAxis(68_500)
 							.withRotationalPeriod(211_926),
@@ -158,8 +159,43 @@ public class SolarSystem {
 							.withSemiMajorAxis(179_890)
 							.withRotationalPeriod(901_902)
 
-					)
+					),
+					
+				new CelestialBody("sarnus")
+					.withMassRadius(1.223e24F, 5_300)
+					.withSemiMajorAxis(125_798_522)
+					.withRotationalPeriod(28_500)
+					.withColor(1f, 0.6862f, 0.5882f)
+					.withSatellites(
+							
+					new CelestialBody("hale") //no
+						.withMassRadius(1.2166e16F, 6)
+						.withSemiMajorAxis(10_488)
+						.withRotationalPeriod(23_555),
 
+					new CelestialBody("ovok") //nah
+						.withMassRadius(4.233e17F, 26)
+						.withSemiMajorAxis(12_169)
+						.withRotationalPeriod(29_440),
+
+					new CelestialBody("eeloo") //will add
+						.withMassRadius(1.115e21F, 210)
+						.withSemiMajorAxis(19_106)
+						.withRotationalPeriod(57_915),
+
+					new CelestialBody("slate") //not you tho
+						.withMassRadius(2.965e22F, 540)
+						.withSemiMajorAxis(42_593)
+						.withRotationalPeriod(192_771),
+
+					new CelestialBody("tekto")
+						.withMassRadius(2.883e21F, 480)
+						.withSemiMajorAxis(67_355)
+						.withRotationalPeriod(57_915)
+						.withAxialTilt(25F)
+						.withTraits(new CBT_Atmosphere(Fluids.TEKTOAIR, 1.5F))
+
+				)
 			);
 
 		runTests();
@@ -167,7 +203,7 @@ public class SolarSystem {
 
 	// Simple enum used for blocks and items
 	public enum Body {
-		BLANK(""),
+		ORBIT(""),
 		KERBIN("kerbin"),
 		MUN("mun"),
 		MINMUS("minmus"),
@@ -177,6 +213,7 @@ public class SolarSystem {
 		EVE("eve"),
 		IKE("ike"),
 		LAYTHE("laythe");
+		// TEKTO("tekto");
 
 		public String name;
 
@@ -187,7 +224,7 @@ public class SolarSystem {
 		// memoising, since ore rendering would be horrendous otherwise
 		private CelestialBody body;
 		public CelestialBody getBody() {
-			if(this == BLANK)
+			if(this == ORBIT)
 				return null;
 
 			if(body == null)
@@ -197,17 +234,17 @@ public class SolarSystem {
 		}
 
 		public int getProcessingLevel() {
-			if(this == BLANK) return 0;
+			if(this == ORBIT) return 0;
 			return getBody().processingLevel;
 		}
 
 		public String getStoneTexture() {
-			if(this == BLANK) return null;
+			if(this == ORBIT) return null;
 			return getBody().stoneTexture;
 		}
 
 		public int getDimensionId() {
-			if(this == BLANK) return -1;
+			if(this == ORBIT) return SpaceConfig.orbitDimension;
 			return getBody().dimensionId;
 		}
 	}
@@ -259,6 +296,94 @@ public class SolarSystem {
 		return metrics;
 	}
 
+	public static List<AstroMetric> calculateMetricsFromSatellite(World world, float partialTicks, CelestialBody orbiting, double altitude) {
+		List<AstroMetric> metrics = new ArrayList<AstroMetric>();
+
+		double ticks = ((double)world.getTotalWorldTime() + partialTicks) * (double)AstronomyUtil.TIME_MULTIPLIER;
+		
+		// Get our XYZ coordinates of all bodies
+		calculatePositionsRecursive(metrics, null, orbiting.getStar(), ticks);
+
+		// Add our orbiting satellite position
+		Vec3 position = calculatePosition(orbiting, altitude, ticks);
+		for(AstroMetric metric : metrics) {
+			if(metric.body == orbiting) {
+				position = position.addVector(metric.position.xCoord, metric.position.yCoord, metric.position.zCoord);
+				break;
+			}
+		}
+
+		// Get the metrics from the orbiting position
+		calculateMetricsFromPosition(metrics, position);
+
+		// Sort by increasing distance
+		metrics.sort((a, b) -> {
+			return (int)(b.distance - a.distance);
+		});
+
+		return metrics;
+	}
+
+	public static List<AstroMetric> calculateMetricsBetweenSatelliteOrbits(World world, float partialTicks, CelestialBody from, CelestialBody to, double fromAltitude, double toAltitude, double t) {
+		List<AstroMetric> metrics = new ArrayList<AstroMetric>();
+
+		double ticks = ((double)world.getTotalWorldTime() + partialTicks) * (double)AstronomyUtil.TIME_MULTIPLIER;
+		
+		// Get our XYZ coordinates of all bodies
+		calculatePositionsRecursive(metrics, null, from.getStar(), ticks);
+
+		// Add our orbiting satellite position
+		Vec3 fromPos = calculatePosition(from, fromAltitude, ticks);
+		Vec3 toPos = calculatePosition(to, toAltitude, ticks);
+		for(AstroMetric metric : metrics) {
+			if(metric.body == from) {
+				fromPos = fromPos.addVector(metric.position.xCoord, metric.position.yCoord, metric.position.zCoord);
+			}
+			if(metric.body == to) {
+				toPos = toPos.addVector(metric.position.xCoord, metric.position.yCoord, metric.position.zCoord);
+			}
+		}
+
+		// Lerp smoothly between the two positions (maybe a fancy circular lerp somehow?)
+		Vec3 position = lerp(fromPos, toPos, t);
+
+		// Get the metrics from the orbiting position
+		calculateMetricsFromPosition(metrics, position);
+
+		// Sort by increasing distance
+		metrics.sort((a, b) -> {
+			return (int)(b.distance - a.distance);
+		});
+
+		return metrics;
+	}
+
+	public static double calculateDistanceBetweenTwoBodies(World world, CelestialBody from, CelestialBody to) {
+		List<AstroMetric> metrics = new ArrayList<AstroMetric>();
+
+		double ticks = (double)world.getTotalWorldTime() * (double)AstronomyUtil.TIME_MULTIPLIER;
+		
+		// Get our XYZ coordinates of all bodies
+		calculatePositionsRecursive(metrics, null, from.getStar(), ticks);
+
+		Vec3 fromPos = Vec3.createVectorHelper(0, 0, 0);
+		Vec3 toPos = Vec3.createVectorHelper(0, 0, 0);
+		for(AstroMetric metric : metrics) {
+			if(metric.body == from) fromPos = metric.position;
+			if(metric.body == to) toPos = metric.position;
+		}
+
+		return fromPos.distanceTo(toPos);
+	}
+
+	private static Vec3 lerp(Vec3 from, Vec3 to, double t) {
+		double x = BobMathUtil.clampedLerp(from.xCoord, to.xCoord, t);
+		double y = BobMathUtil.clampedLerp(from.yCoord, to.yCoord, t);
+		double z = BobMathUtil.clampedLerp(from.zCoord, to.zCoord, t);
+
+		return Vec3.createVectorHelper(x, y, z);
+	}
+
 	// Recursively calculate the XYZ position of all planets from polar coordinates + time
 	private static void calculatePositionsRecursive(List<AstroMetric> metrics, AstroMetric parentMetric, CelestialBody body, double ticks) {
 		Vec3 parentPosition = parentMetric != null ? parentMetric.position : Vec3.createVectorHelper(0, 0, 0);
@@ -276,11 +401,24 @@ public class SolarSystem {
 	// Calculates the position of the body around its parent
 	private static Vec3 calculatePosition(CelestialBody body, double ticks) {
 		// Get how far (in radians) a planet has gone around its parent
-		double yearTicks = (double)body.getOrbitalPeriod() * (double)AstronomyUtil.TICKS_IN_DAY;
+		double yearTicks = body.getOrbitalPeriod() * (double)AstronomyUtil.TICKS_IN_DAY;
 		double angleRadians = 2 * Math.PI * (ticks / yearTicks);
 
 		double x = body.semiMajorAxisKm * Math.cos(angleRadians);
 		double y = body.semiMajorAxisKm * Math.sin(angleRadians);
+
+		return Vec3.createVectorHelper(x, y, 0);
+	}
+
+	// Same but for an arbitrary satellite around a body
+	private static Vec3 calculatePosition(CelestialBody body, double altitude, double ticks) {
+		double orbitalPeriod = 2 * Math.PI * Math.sqrt((altitude * altitude * altitude) / (AstronomyUtil.GRAVITATIONAL_CONSTANT * body.massKg));
+		orbitalPeriod /= (double)AstronomyUtil.SECONDS_IN_KSP_DAY;
+		double orbitTicks = orbitalPeriod * (double)AstronomyUtil.TICKS_IN_DAY;
+		double angleRadians = 2 * Math.PI * (ticks / orbitTicks);
+
+		double x = altitude / 1000 * Math.cos(angleRadians);
+		double y = altitude / 1000 * Math.sin(angleRadians);
 
 		return Vec3.createVectorHelper(x, y, 0);
 	}
@@ -299,17 +437,27 @@ public class SolarSystem {
 			if(from == to)
 				continue;
 
-			// Calculate distance between bodies, for sorting
-			to.distance = from.position.distanceTo(to.position);
-			
-			// Calculate apparent size, for scaling in render
-			to.apparentSize = getApparentSize(to.body.radiusKm, to.distance);
-
-			// Get angle in relation to 0, 0 (sun position, origin)
-			to.angle = getApparentAngleDegrees(from.position, to.position);
-
-			to.phase = getApparentAngleDegrees(to.position, from.position) / 180.0;
+			calculateMetric(to, from.position);
 		}
+	}
+
+	private static void calculateMetricsFromPosition(List<AstroMetric> metrics, Vec3 position) {
+		for(AstroMetric to : metrics) {
+			calculateMetric(to, position);
+		}
+	}
+
+	private static void calculateMetric(AstroMetric metric, Vec3 position) {
+		// Calculate distance between bodies, for sorting
+		metric.distance = position.distanceTo(metric.position);
+		
+		// Calculate apparent size, for scaling in render
+		metric.apparentSize = getApparentSize(metric.body.radiusKm, metric.distance);
+
+		// Get angle in relation to 0, 0 (sun position, origin)
+		metric.angle = getApparentAngleDegrees(position, metric.position);
+
+		metric.phase = getApparentAngleDegrees(metric.position, position) / 180.0;
 	}
 
 	private static double getApparentSize(double radius, double distance) {
@@ -353,38 +501,65 @@ public class SolarSystem {
 		return getApparentAngleDegrees(metricFrom.position, metricTo.position);
 	}
 
+	public static double calculateSingleAngle(World world, float partialTicks, CelestialBody orbiting, double altitude) {
+		List<AstroMetric> metrics = new ArrayList<AstroMetric>();
+
+		double ticks = ((double)world.getTotalWorldTime() + partialTicks) * (double)AstronomyUtil.TIME_MULTIPLIER;
+		
+		// Get our XYZ coordinates of all bodies
+		calculatePositionsRecursive(metrics, null, orbiting.getStar(), ticks);
+
+		// Add our orbiting satellite position
+		Vec3 from = calculatePosition(orbiting, altitude, ticks);
+		Vec3 to = Vec3.createVectorHelper(0, 0, 0);
+		for(AstroMetric metric : metrics) {
+			if(metric.body == orbiting) {
+				to = metric.position;
+				from = from.addVector(to.xCoord, to.yCoord, to.zCoord);
+				break;
+			}
+		}
+
+		return getApparentAngleDegrees(from, to);
+	}
+
 
 	/**
 	 * Delta-V Calcs
 	 */
 
 	// Get a number of buckets of fuel required to travel somewhere, (halved, since we're assuming bipropellant)
-	public static int getCostBetween(CelestialBody from, CelestialBody to, int mass, int thrust, int isp) {
+	public static int getCostBetween(CelestialBody from, CelestialBody to, int mass, int thrust, int isp, boolean fromOrbit, boolean toOrbit) {
 		double fromDrag = getAtmosphericDrag(from.getTrait(CBT_Atmosphere.class));
 		double toDrag = getAtmosphericDrag(to.getTrait(CBT_Atmosphere.class));
 
-		double launchDV = SolarSystem.getLiftoffDeltaV(from, mass, thrust, fromDrag);
+		double launchDV = fromOrbit ? 0 : SolarSystem.getLiftoffDeltaV(from, mass, thrust, fromDrag);
 		double travelDV = SolarSystem.getDeltaVBetween(from, to);
-		double landerDV = SolarSystem.getLandingDeltaV(to, mass, thrust, toDrag);
-		System.out.println("launch " + launchDV);
-		System.out.println("travel: " + travelDV);
-		System.out.println("land: " + landerDV);
-
+		double landerDV = toOrbit ? 0 : SolarSystem.getLandingDeltaV(to, mass, thrust, toDrag);
+		
 		double totalDV = launchDV + travelDV + landerDV;
 
+		return getFuelCost(totalDV, mass, isp);
+	}
+
+	public static int getFuelCost(double deltaV, int mass, int isp) {
+		// Get the fraction of the rocket that must be fuel in order to achieve the deltaV
 		double g0 = 9.81;
 		double exhaustVelocity = isp * g0;
-		double propellantMass = mass * (1 - Math.exp(-(totalDV / exhaustVelocity)));
+		double massFraction = 1 - Math.exp(-(deltaV / exhaustVelocity));
 
-		// You can do some fuckery here to get the propellant mass into some reasonable number of buckets
+		// Get the mass of a rocket that has that fraction, and the mass of the propellant
+		double totalMass = mass / (1 - massFraction);
+		double propellantMass = totalMass - mass;
+		double propellantVolume = propellantMass / 2; // two propellants
 
-		return MathHelper.ceiling_double_int(propellantMass * 5) * 10;
+		return propellantVolume + 100 > Integer.MAX_VALUE ? Integer.MAX_VALUE : MathHelper.ceiling_double_int(propellantVolume * 0.01D) * 100;
 	}
 
 	private static double getAtmosphericDrag(CBT_Atmosphere atmosphere) {
 		if(atmosphere == null) return 0;
 		double pressure = atmosphere.getPressure();
-		return pressure * 0.01F;
+		return Math.log(pressure + 1.0D) / 10.0D;
 	}
 
 	// Provides the deltaV required to get into orbit, ignoring losses due to atmospheric friction
@@ -395,21 +570,22 @@ public class SolarSystem {
 
 	// Uses aerobraking if an atmosphere is present
 	public static double getLandingDeltaV(CelestialBody body, float craftMassKg, float craftThrustN, double atmosphericDrag) {
-		return calculateSurfaceToOrbitDeltaV(body, craftMassKg, craftThrustN, atmosphericDrag, atmosphericDrag > 0.0005);
+		return calculateSurfaceToOrbitDeltaV(body, craftMassKg, craftThrustN, atmosphericDrag, atmosphericDrag > 0.006);
 	}
 
 	private static double calculateSurfaceToOrbitDeltaV(CelestialBody body, float craftMassKg, float craftThrustN, double atmosphericDrag, boolean lossesOnly) {
+		float gravity = body.getSurfaceGravity();
 		double orbitalDeltaV = Math.sqrt((AstronomyUtil.GRAVITATIONAL_CONSTANT * body.massKg) / (body.radiusKm * 1_000));
-		double thrustToWeightRatio = craftThrustN / (craftMassKg * body.getSurfaceGravity());
+		double thrustToWeightRatio = craftThrustN / (craftMassKg * gravity);
 
 		if(thrustToWeightRatio < 1)
 			return Double.MAX_VALUE;
 
 		// We have to find out how long the burn will take to get our "gravity tax"
 		// Shorter burns have less gravity losses, meaning higher thrust is desirable
-		double acceleration = thrustToWeightRatio * body.getSurfaceGravity();
+		double acceleration = (thrustToWeightRatio - 1) * gravity;
 		double timeToOrbit = orbitalDeltaV / acceleration;
-		double gravityLosses = body.getSurfaceGravity() * timeToOrbit;
+		double gravityLosses = gravity * timeToOrbit * 2; // No perfect burns
 
 		if(lossesOnly)
 			return gravityLosses * (1 - atmosphericDrag); // drag helps on the way down

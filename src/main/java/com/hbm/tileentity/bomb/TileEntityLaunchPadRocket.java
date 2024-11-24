@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import com.hbm.blocks.BlockDummyable;
 import com.hbm.blocks.ModBlocks;
 import com.hbm.dim.CelestialBody;
+import com.hbm.dim.SolarSystem;
 import com.hbm.entity.missile.EntityRideableRocket;
 import com.hbm.extprop.HbmPlayerProps;
 import com.hbm.handler.CompatHandler;
@@ -19,14 +20,15 @@ import com.hbm.inventory.fluid.Fluids;
 import com.hbm.inventory.fluid.tank.FluidTank;
 import com.hbm.inventory.gui.GUILaunchPadRocket;
 import com.hbm.items.ItemVOTVdrive;
+import com.hbm.items.ItemVOTVdrive.Target;
 import com.hbm.items.ModItems;
 import com.hbm.items.weapon.ItemCustomRocket;
-import com.hbm.items.weapon.ItemMissile;
 import com.hbm.lib.Library;
 import com.hbm.tileentity.IGUIProvider;
 import com.hbm.tileentity.TileEntityMachineBase;
 import com.hbm.util.fauxpointtwelve.DirPos;
 
+import api.hbm.energymk2.IBatteryItem;
 import api.hbm.energymk2.IEnergyReceiverMK2;
 import api.hbm.fluid.IFluidStandardReceiver;
 import cpw.mods.fml.common.Optional;
@@ -36,10 +38,9 @@ import io.netty.buffer.ByteBuf;
 import li.cil.oc.api.machine.Arguments;
 import li.cil.oc.api.machine.Callback;
 import li.cil.oc.api.machine.Context;
-import li.cil.oc.api.network.SimpleComponent;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.EnumChatFormatting;
@@ -48,7 +49,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
 @Optional.InterfaceList({@Optional.Interface(iface = "li.cil.oc.api.network.SimpleComponent", modid = "OpenComputers")})
-public class TileEntityLaunchPadRocket extends TileEntityMachineBase implements IControlReceiver, IEnergyReceiverMK2, IFluidStandardReceiver, IGUIProvider, SimpleComponent, CompatHandler.OCComponent {
+public class TileEntityLaunchPadRocket extends TileEntityMachineBase implements IControlReceiver, IEnergyReceiverMK2, IFluidStandardReceiver, IGUIProvider, CompatHandler.OCComponent {
 
 	public long power;
 	public final long maxPower = 100_000;
@@ -80,6 +81,8 @@ public class TileEntityLaunchPadRocket extends TileEntityMachineBase implements 
 		ForgeDirection rot = dir.getRotation(ForgeDirection.UP);
 
 		if(!worldObj.isRemote) {
+			ItemVOTVdrive.getTarget(slots[1], worldObj);
+
 			// Setup tanks required for the current rocket
 			updateTanks();
 
@@ -106,8 +109,8 @@ public class TileEntityLaunchPadRocket extends TileEntityMachineBase implements 
 				if(solidFuel > maxSolidFuel) solidFuel = maxSolidFuel;
 			}
 
-			if(slots[0] != null && slots[0].getItem() instanceof ItemCustomRocket) {
-				rocket = ItemCustomRocket.get(slots[0]);
+			rocket = ItemCustomRocket.get(slots[0]);
+			if(rocket != null) {
 				int newHeight = MathHelper.floor_double(rocket.getHeight() - rocket.capsule.height + 1);
 				if(newHeight <= 8) newHeight = 0;
 
@@ -208,8 +211,6 @@ public class TileEntityLaunchPadRocket extends TileEntityMachineBase implements 
 
 					height = newHeight;
 				}
-			} else {
-				rocket = null;
 			}
 
 			networkPackNT(250);
@@ -260,10 +261,10 @@ public class TileEntityLaunchPadRocket extends TileEntityMachineBase implements 
 		return conPos;
 	}
 
-	public void launch() {
+	public void launch(EntityPlayer player) {
 		if(!canLaunch()) return;
 
-		EntityRideableRocket rocket = new EntityRideableRocket(worldObj, xCoord + 0.5F, yCoord + 3.0F, zCoord + 0.5F, slots[0]).withPayload(slots[1]);
+		EntityRideableRocket rocket = new EntityRideableRocket(worldObj, xCoord + 0.5F, yCoord + 3.0F, zCoord + 0.5F, slots[0]).withProgram(slots[1]).launchedBy(player);
 		worldObj.spawnEntityInWorld(rocket);
 
 		// Deplete all fills
@@ -277,7 +278,7 @@ public class TileEntityLaunchPadRocket extends TileEntityMachineBase implements 
 	}
 
 	private boolean hasRocket() {
-		return slots[0] != null && slots[0].getItem() instanceof ItemCustomRocket;
+		return ItemCustomRocket.get(slots[0]) != null;
 	}
 
 	private boolean hasDrive() {
@@ -291,21 +292,25 @@ public class TileEntityLaunchPadRocket extends TileEntityMachineBase implements 
 	}
 
 	private boolean canReachDestination() {
-		CelestialBody localBody = CelestialBody.getBody(worldObj);
-		CelestialBody destination = ItemVOTVdrive.getDestination(slots[1]).body.getBody();
-
 		// Check that the drive is processed
 		if(!ItemVOTVdrive.getProcessed(slots[1])) {
 			return false;
 		}
 
-		// Check if the stage can make the journey
-		if(destination != null && destination != localBody) {
-			RocketStruct rocket = ItemCustomRocket.get(slots[0]);
-			if(rocket.hasSufficientFuel(localBody, destination)) return true;
-		}
+		SolarSystem.Body target = ItemVOTVdrive.getDestination(slots[1]).body;
+		if(target == SolarSystem.Body.ORBIT && rocket.capsule.part != ModItems.rp_capsule_20 && rocket.capsule.part != ModItems.rp_station_core_20)
+			return false;
 
-		return false;
+		Target from = CelestialBody.getTarget(worldObj, xCoord, zCoord);
+		Target to = ItemVOTVdrive.getTarget(slots[1], worldObj);
+
+		RocketStruct rocket = ItemCustomRocket.get(slots[0]);
+
+		if(!to.isValid && rocket.capsule.part != ModItems.rp_station_core_20) return false;
+		if(to.isValid && rocket.capsule.part == ModItems.rp_station_core_20) return false;
+
+		// Check if the stage can make the journey
+		return rocket.hasSufficientFuel(from.body, to.body, from.inOrbit, to.inOrbit);
 	}
 
 	public boolean canLaunch() {
@@ -318,9 +323,14 @@ public class TileEntityLaunchPadRocket extends TileEntityMachineBase implements 
 		RocketStruct rocket = ItemCustomRocket.get(slots[0]);
 		Map<FluidType, Integer> fuels = rocket.getFillRequirement();
 
+		// If the rocket is already fueled, unmark it and fill the tanks
+		boolean hasFuel = ItemCustomRocket.hasFuel(slots[0]);
+		if(hasFuel) ItemCustomRocket.setFuel(slots[0], false);
+
 		// Remove solid fuels (listed as NONE fluid) from tank updates
 		if(fuels.containsKey(Fluids.NONE)) {
 			maxSolidFuel = fuels.get(Fluids.NONE);
+			if(hasFuel) solidFuel = maxSolidFuel;
 			fuels.remove(Fluids.NONE);
 		} else {
 			maxSolidFuel = 0;
@@ -339,6 +349,13 @@ public class TileEntityLaunchPadRocket extends TileEntityMachineBase implements 
 		// Add new tanks
 		for(Entry<FluidType, Integer> entry : fuels.entrySet()) {
 			keepTanks.add(new FluidTank(entry.getKey(), entry.getValue()));
+		}
+
+		// Fill tanks if rocket had fuel
+		if(hasFuel) {
+			for(FluidTank tank : keepTanks) {
+				tank.setFill(tank.getMaxFill());
+			}
 		}
 
 		// Sort and fill the tank array to place NONE at the end
@@ -400,19 +417,38 @@ public class TileEntityLaunchPadRocket extends TileEntityMachineBase implements 
 			return issues;
 		}
 
-		// Check that the rocket is actually capable of reaching our destination
-		CelestialBody localBody = CelestialBody.getBody(worldObj);
-		CelestialBody destination = ItemVOTVdrive.getDestination(slots[1]).body.getBody();
+		SolarSystem.Body target = ItemVOTVdrive.getDestination(slots[1]).body;
+		if(target == SolarSystem.Body.ORBIT && rocket.capsule.part != ModItems.rp_capsule_20 && rocket.capsule.part != ModItems.rp_station_core_20) {
+			issues.add(EnumChatFormatting.RED + "Satellite target must be a planet");
+			return issues;
+		}
 
-		if(destination == null || destination == localBody) {
-			issues.add(EnumChatFormatting.RED + "Invalid destination");
-		} else {
-			if(!rocket.hasSufficientFuel(localBody, destination)) {
-				issues.add(EnumChatFormatting.RED + "Rocket can't reach destination");
-			}
+		// Check that the rocket is actually capable of reaching our destination
+		Target from = CelestialBody.getTarget(worldObj, xCoord, zCoord);
+		Target to = ItemVOTVdrive.getTarget(slots[1], worldObj);
+
+		if(to.inOrbit && !to.isValid && rocket.capsule.part != ModItems.rp_station_core_20) {
+			issues.add(EnumChatFormatting.RED + "Station not yet launched");
+		}
+
+		if(to.inOrbit && to.isValid && rocket.capsule.part == ModItems.rp_station_core_20) {
+			issues.add(EnumChatFormatting.RED + "Station already launched");
+		}
+
+		if(!rocket.hasSufficientFuel(from.body, to.body, from.inOrbit, to.inOrbit)) {
+			issues.add(EnumChatFormatting.RED + "Rocket can't reach destination");
 		}
 
 		return issues;
+	}
+
+	@Override
+	public boolean isItemValidForSlot(int index, ItemStack stack) {
+		if(stack == null) return true;
+		if(index == 0 && !(stack.getItem() instanceof ItemCustomRocket)) return false;
+		if(index == 1 && !(stack.getItem() instanceof ItemVOTVdrive)) return false;
+		if(index == 2 && !(stack.getItem() instanceof IBatteryItem) && stack.getItem() != ModItems.battery_creative) return false;
+		return true;
 	}
 
 	@Override
@@ -484,9 +520,12 @@ public class TileEntityLaunchPadRocket extends TileEntityMachineBase implements 
 	}
 
 	@Override
-	public void receiveControl(NBTTagCompound data) {
+	public void receiveControl(NBTTagCompound data) { }
+
+	@Override
+	public void receiveControl(EntityPlayer player, NBTTagCompound data) {
 		if(data.getBoolean("launch")) {
-			launch();
+			launch(player);
 		}
 	}
 
@@ -552,7 +591,7 @@ public class TileEntityLaunchPadRocket extends TileEntityMachineBase implements 
 	@Optional.Method(modid = "OpenComputers")
 	public Object[] launch(Context context, Arguments args) {
 		// doesn't really "launch" it per-say, just spawns the rocket, so I guess this works
-		launch();
+		launch(null);
 		// update: it so worked!
 		return new Object[] {};
 	}
@@ -563,9 +602,9 @@ public class TileEntityLaunchPadRocket extends TileEntityMachineBase implements 
 		if(hasDrive()) { // ok maybe I should actually check if there's an item there first
 			return new Object[] {null, "No destination drive."};
 		}
-		CelestialBody destination = ItemVOTVdrive.getDestination(slots[1]).body.getBody();
-		if(destination != null) {
-			return new Object[] {destination.name.toLowerCase()};
+		Target target = ItemVOTVdrive.getTarget(slots[1], null);
+		if(target.body != null) {
+			return new Object[] {target.body.name.toLowerCase()};
 		}
 		return new Object[] {null, "Drive has no destination."};
 	}
@@ -628,7 +667,7 @@ public class TileEntityLaunchPadRocket extends TileEntityMachineBase implements 
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public GuiScreen provideGUI(int ID, EntityPlayer player, World world, int x, int y, int z) {
+	public Object provideGUI(int ID, EntityPlayer player, World world, int x, int y, int z) {
 		return new GUILaunchPadRocket(player.inventory, this);
 	}
 

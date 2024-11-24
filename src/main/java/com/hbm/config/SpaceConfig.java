@@ -4,7 +4,7 @@ import net.minecraftforge.common.config.Configuration;
 
 public class SpaceConfig {
 
-	//thanks minecraft, for making the biome id limit 128 because apparently anything after that spawns in the overworld.
+	//thanks minecraft, for making the biome id limit 127(!!) because apparently anything after that spawns in the overworld.
 	//THANKS MOJANG..
 	public static int dunaoilSpawn = 100;
 
@@ -16,27 +16,44 @@ public class SpaceConfig {
 	public static int mohoDimension = 20;
 	public static int minmusDimension = 21;
 	public static int laytheDimension = 22;
+	public static int orbitDimension = 23;
+	public static int tektoDimension = 24;
+
+	public static int orbitBiome = 42;
 
 	public static int minmusBiome = 40;
 	public static int minmusBasins = 41;
-	// why are we squished into the ceiling
+
 	public static int moonBiome = 111;
+
 	public static int dunaBiome = 112;
 	public static int dunaLowlandsBiome = 113;
 	public static int dunaPolarBiome = 114;
 	public static int dunaHillsBiome = 115;
 	public static int dunaPolarHillsBiome = 116;
+
 	public static int eveBiome = 117;
 	public static int eveMountainsBiome = 118;
 	public static int eveOceanBiome = 119;
+	public static int eveSeismicBiome = 125;
+	public static int eveRiverBiome = 110;
+
 	public static int dresBiome = 120;
 	public static int dresBasins = 121;
+
 	public static int mohoBiome = 122;
+	public static int mohoBasaltBiome = 43;
+
 	public static int laytheBiome = 123;
 	public static int laytheOceanBiome = 124;
-	public static int eveSeismicBiome = 125;
-	public static int laythePolarBiome = 126; //fuck my stupid chungus life
+	public static int laythePolarBiome = 126;
+
 	public static int ikeBiome = 127;
+
+	public static int tektoPolyvinyl = 100;
+	public static int HalogenHill = 101;
+	public static int TektoRiver = 102;
+
 
 	
 
@@ -46,6 +63,8 @@ public class SpaceConfig {
 
 
 	public static boolean allowNetherPortals = false;
+
+	public static boolean enableVolcanoGen = true;
 
 	public static int maxProbeDistance = 32_000;
 	
@@ -62,9 +81,12 @@ public class SpaceConfig {
 		mohoDimension = CommonConfig.createConfigInt(config, CATEGORY_DIM, "17.06_mohoDimension", "Moho dimension ID", mohoDimension);
 		minmusDimension = CommonConfig.createConfigInt(config, CATEGORY_DIM, "17.07_minmusDimension", "Minmus dimension ID", minmusDimension);
 		laytheDimension = CommonConfig.createConfigInt(config, CATEGORY_DIM, "17.08_laytheDimension", "Laythe dimension ID", laytheDimension);
+		orbitDimension = CommonConfig.createConfigInt(config, CATEGORY_DIM, "17.09_orbitDimension", "Orbital dimension ID", orbitDimension);
+		tektoDimension = CommonConfig.createConfigInt(config, CATEGORY_DIM, "17.10_tektoDimension", "Tekto dimension ID", tektoDimension);
 		
 		final String CATEGORY_GENERAL = CommonConfig.CATEGORY_GENERAL;
 		maxProbeDistance = CommonConfig.createConfigInt(config, CATEGORY_GENERAL, "1.90_maxProbeDistance", "How far from the center of the dimension can probes generate landing coordinates", maxProbeDistance);
+		enableVolcanoGen = CommonConfig.createConfigBool(config, CATEGORY_GENERAL, "1.91_enableVolcanoGen", "Should volcanoes be active when spawning, disabling will prevent natural volcanoes from spewing lava and growing", enableVolcanoGen);
 
 		final String CATEGORY_BIOME = CommonConfig.CATEGORY_BIOMES;
 		moonBiome = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.02_moonBiome", "Mun Biome ID", moonBiome);
@@ -77,6 +99,7 @@ public class SpaceConfig {
 		eveMountainsBiome = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.09_eveMountainsBiome", "Eve Mountains Biome ID", eveMountainsBiome);
 		eveOceanBiome = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.10_eveOceanBiome", "Eve Ocean Biome ID", eveOceanBiome);
 		eveSeismicBiome = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.12_eveSeismicBiome", "Eve Seismic Biome ID", eveSeismicBiome);
+		eveRiverBiome = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.24_eveRiverBiome", "Eve River Biome ID", eveRiverBiome);
 		ikeBiome = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.13_ikeBiome", "Ike Biome ID", ikeBiome);
 		laytheBiome = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.14_laytheBiome", "Laythe Biome ID", laytheBiome);
 		laytheOceanBiome = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.15_laytheOceanBiome", "Laythe Ocean Biome ID", laytheOceanBiome);
@@ -86,6 +109,8 @@ public class SpaceConfig {
 		mohoBiome = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.19_mohoBiome", "Moho Biome ID", mohoBiome);
 		dresBiome = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.20_dresBiome", "Dres Biome ID", dresBiome);
 		dresBasins = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.21_dresBasinsBiome", "Dres Basins Biome ID", dresBasins);
+		mohoBasaltBiome = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.22_mohoBasaltBiome", "Moho Basalt Biome ID", mohoBasaltBiome);
+		orbitBiome = CommonConfig.createConfigInt(config, CATEGORY_BIOME, "16.23_orbitBiome", "Space Biome ID", orbitBiome);
 	}
 
 }

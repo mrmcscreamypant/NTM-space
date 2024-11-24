@@ -4,10 +4,10 @@ import java.util.List;
 
 import org.lwjgl.opengl.GL11;
 
-import com.hbm.dim.CelestialBody;
 import com.hbm.handler.RocketStruct;
 import com.hbm.inventory.container.ContainerMachineRocketAssembly;
 import com.hbm.items.ItemVOTVdrive;
+import com.hbm.items.ItemVOTVdrive.Target;
 import com.hbm.lib.RefStrings;
 import com.hbm.packet.toserver.NBTControlPacket;
 import com.hbm.packet.PacketDispatcher;
@@ -96,19 +96,17 @@ public class GUIMachineRocketAssembly extends GuiInfoContainerLayered {
 			ItemStack fromStack = machine.slots[machine.slots.length - 2];
 			ItemStack toStack = machine.slots[machine.slots.length - 1];
 
-			CelestialBody fromBody = fromStack != null ? ItemVOTVdrive.getDestination(fromStack).body.getBody() : null;
-			CelestialBody toBody = toStack != null ? ItemVOTVdrive.getDestination(toStack).body.getBody() : null;
+			Target from = ItemVOTVdrive.getTarget(fromStack, machine.getWorldObj());
+			Target to = ItemVOTVdrive.getTarget(toStack, machine.getWorldObj());
 
-			List<String> issues = machine.rocket.findIssues(stage, fromBody, toBody);
+			List<String> issues = machine.rocket.findIssues(stage, from.body, to.body, from.inOrbit, to.inOrbit);
 			for(int i = 0; i < issues.size(); i++) {
 				String issue = issues.get(i);
 				fontRendererObj.drawStringWithShadow(issue, (guiLeft + 65) * 2, (guiTop + 5) * 2 + i * 8, 0xFFFFFF);
 			}
 
-			if(fromBody != null)
-				fontRendererObj.drawString(I18nUtil.resolveKey("body." + fromBody.name), (guiLeft + 162) * 2, (guiTop + 75) * 2, 0x00FF00);
-			if(toBody != null)
-				fontRendererObj.drawString(I18nUtil.resolveKey("body." + toBody.name), (guiLeft + 162) * 2, (guiTop + 108) * 2, 0x00FF00);
+			if(from.body != null) fontRendererObj.drawString(I18nUtil.resolveKey("body." + from.body.name), (guiLeft + 162) * 2, (guiTop + 75) * 2, 0x00FF00);
+			if(to.body != null) fontRendererObj.drawString(I18nUtil.resolveKey("body." + to.body.name), (guiLeft + 162) * 2, (guiTop + 108) * 2, 0x00FF00);
 
 		}
 		GL11.glPopMatrix();
@@ -129,6 +127,10 @@ public class GUIMachineRocketAssembly extends GuiInfoContainerLayered {
 
 		if(machine.rocket.validate()) {
 			drawTexturedModalRect(41, 62, xSize + 18, 8, 18, 18);
+		}
+
+		if(machine.canDeconstruct()) {
+			drawTexturedModalRect(39, 52, xSize + 36, 8, 20, 38);
 		}
 	}
 
@@ -155,11 +157,18 @@ public class GUIMachineRocketAssembly extends GuiInfoContainerLayered {
 		}
 
 		// Construct rocket
-		if(machine.rocket != null && machine.rocket.validate() && checkClick(x, y, 41, 62, 18, 18)) {
-			mc.getSoundHandler().playSound(PositionedSoundRecord.func_147674_a(new ResourceLocation("gui.button.press"), 1.0F));
-			NBTTagCompound data = new NBTTagCompound();
-			data.setBoolean("construct", true);
-			PacketDispatcher.wrapper.sendToServer(new NBTControlPacket(data, machine.xCoord, machine.yCoord, machine.zCoord));
+		if(checkClick(x, y, 41, 62, 18, 18)) {
+			if(machine.rocket.validate()) {
+				mc.getSoundHandler().playSound(PositionedSoundRecord.func_147674_a(new ResourceLocation("gui.button.press"), 1.0F));
+				NBTTagCompound data = new NBTTagCompound();
+				data.setBoolean("construct", true);
+				PacketDispatcher.wrapper.sendToServer(new NBTControlPacket(data, machine.xCoord, machine.yCoord, machine.zCoord));
+			} else if(machine.canDeconstruct()) {
+				mc.getSoundHandler().playSound(PositionedSoundRecord.func_147674_a(new ResourceLocation("gui.button.press"), 1.0F));
+				NBTTagCompound data = new NBTTagCompound();
+				data.setBoolean("deconstruct", true);
+				PacketDispatcher.wrapper.sendToServer(new NBTControlPacket(data, machine.xCoord, machine.yCoord, machine.zCoord));
+			}
 		}
 	}
 		

@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.hbm.inventory.fluid.FluidType;
 import com.hbm.inventory.fluid.Fluids;
+import com.hbm.items.ModItems;
 import com.hbm.items.special.ItemLootCrate;
 import com.hbm.lib.RefStrings;
 import com.hbm.main.MainRegistry;
@@ -104,6 +105,7 @@ public class ItemCustomMissilePart extends Item {
 		CLOUD,
 		TURBINE,
 		APOLLO,
+		SATELLITE,
 	}
 	
 	public enum FuelType {
@@ -203,8 +205,9 @@ public class ItemCustomMissilePart extends Item {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean bool)
-	{
+	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean bool) {
+
+		if(this == ModItems.rp_pod_20) return;
 
 		if(title != null)
 			list.add(EnumChatFormatting.DARK_PURPLE + "\"" + title + "\"");
@@ -217,7 +220,8 @@ public class ItemCustomMissilePart extends Item {
 			case WARHEAD:
 				list.add(EnumChatFormatting.BOLD + "Size: " + EnumChatFormatting.GRAY + getSize(bottom));
 				list.add(EnumChatFormatting.BOLD + "Type: " + EnumChatFormatting.GRAY + getWarhead());
-				list.add(EnumChatFormatting.BOLD + "Strength: " + EnumChatFormatting.GRAY + (Float)attributes[1]);
+				if(attributes[0] != WarheadType.APOLLO && attributes[0] != WarheadType.SATELLITE)
+					list.add(EnumChatFormatting.BOLD + "Strength: " + EnumChatFormatting.GRAY + (Float)attributes[1]);
 				list.add(EnumChatFormatting.BOLD + "Mass: " + EnumChatFormatting.GRAY + mass + "kg");
 				break;
 			case FUSELAGE:
@@ -306,6 +310,8 @@ public class ItemCustomMissilePart extends Item {
 			return (System.currentTimeMillis() % 1000 < 500 ? EnumChatFormatting.RED : EnumChatFormatting.LIGHT_PURPLE) + "Turbine";
 		case APOLLO:
 			return (System.currentTimeMillis() % 1000 < 500 ? EnumChatFormatting.GOLD : EnumChatFormatting.RED) + "Capsule";
+		case SATELLITE:
+			return (System.currentTimeMillis() % 1000 < 500 ? EnumChatFormatting.GOLD : EnumChatFormatting.RED) + "Satellite";
 		default:
 			return EnumChatFormatting.BOLD + "N/A";
 		}

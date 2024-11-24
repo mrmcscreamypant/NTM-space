@@ -2,10 +2,12 @@ package com.hbm.items.tool;
 
 import java.util.List;
 
+import com.hbm.blocks.ModBlocks;
 import com.hbm.config.SpaceConfig;
 import com.hbm.dim.CelestialBody;
 import com.hbm.dim.DebugTeleporter;
 import com.hbm.dim.SolarSystem;
+import com.hbm.dim.orbit.WorldProviderOrbit;
 import com.hbm.dim.trait.CBT_Atmosphere;
 import com.hbm.dim.trait.CBT_Atmosphere.FluidEntry;
 import com.hbm.dim.trait.CBT_War.Projectile;
@@ -22,6 +24,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
@@ -44,28 +47,35 @@ public class ItemWandD extends Item {
 			
 			if(!player.isSneaking()) {
 				int targetId = stack.stackTagCompound.getInteger("dim");
-				if(targetId == 0) targetId++; // skip blank
 
-				SolarSystem.Body target = SolarSystem.Body.values()[targetId];
-
-				DebugTeleporter.teleport(player, target.getBody().dimensionId, player.posX, 300, player.posZ, true);
-				player.addChatMessage(new ChatComponentText("Teleported to: " + target.getBody().getUnlocalizedName()));
+				if(targetId == 0) {
+					DebugTeleporter.teleport(player, SpaceConfig.orbitDimension, player.posX, 128, player.posZ, false);
+					player.addChatMessage(new ChatComponentText("Teleported to: ORBIT"));
+				} else {
+					SolarSystem.Body target = SolarSystem.Body.values()[targetId];
+	
+					DebugTeleporter.teleport(player, target.getBody().dimensionId, player.posX, 300, player.posZ, true);
+					player.addChatMessage(new ChatComponentText("Teleported to: " + target.getBody().getUnlocalizedName()));
+				}
 
 			} else {
 				int targetId = stack.stackTagCompound.getInteger("dim");
 				targetId++;
 
 				if(targetId >= SolarSystem.Body.values().length) {
-					targetId = 1;
+					targetId = 0;
 				}
 				
 				stack.stackTagCompound.setInteger("dim", targetId);
 
-				SolarSystem.Body target = SolarSystem.Body.values()[targetId];
-
-				player.addChatMessage(new ChatComponentText("Set teleport target to: " + target.getBody().getUnlocalizedName()));
+				if(targetId == 0) {
+					player.addChatMessage(new ChatComponentText("Set teleport target to: ORBIT"));
+				} else {
+					SolarSystem.Body target = SolarSystem.Body.values()[targetId];
+					player.addChatMessage(new ChatComponentText("Set teleport target to: " + target.getBody().getUnlocalizedName()));
+				}
 			}
-		} else {
+		} else if(!(world.provider instanceof WorldProviderOrbit)) {
 			if(!player.isSneaking()) {
 				// TESTING: View atmospheric data
 				CBT_Atmosphere atmosphere = CelestialBody.getTrait(world, CBT_Atmosphere.class);
@@ -113,6 +123,8 @@ public class ItemWandD extends Item {
 
 				}
 			}
+		} else {
+			world.setBlock(MathHelper.floor_double(player.posX), MathHelper.floor_double(player.posY) - 1, MathHelper.floor_double(player.posZ), ModBlocks.concrete);
 		}
 
 		return stack;
@@ -125,9 +137,12 @@ public class ItemWandD extends Item {
 
 		if(stack.stackTagCompound != null) {
 			int targetId = stack.stackTagCompound.getInteger("dim");
-			SolarSystem.Body target = SolarSystem.Body.values()[targetId];
-
-			list.add("Teleportation target: " + target.getBody().getUnlocalizedName());
+			if(targetId == 0) {
+				list.add("Teleportation target: ORBIT");
+			} else {
+				SolarSystem.Body target = SolarSystem.Body.values()[targetId];
+				list.add("Teleportation target: " + target.getBody().getUnlocalizedName());
+			}
 		}
 	}
 }

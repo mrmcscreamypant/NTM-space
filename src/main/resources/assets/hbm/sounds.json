@@ -1,11 +1,16 @@
 {
-	"misc.nullTau": {"category": "player", "sounds": [{"name": "misc/null", "stream": false}]},
 	"misc.nullChopper": {"category": "player", "sounds": [{"name": "misc/null", "stream": false}]},
 	"misc.nullCrashing": {"category": "player", "sounds": [{"name": "misc/null", "stream": false}]},
 	"misc.nullMine": {"category": "player", "sounds": [{"name": "misc/null", "stream": false}]},
 	"misc.rumble": {"category": "player", "sounds": [{"name": "misc/rumble", "stream": false}]},
 	"misc.flesh": {"category": "player", "sounds": [{"name": "misc/flesh", "stream": false}]},
 	"misc.impact": {"category": "player", "sounds": [{"name": "misc/cenimp", "stream": false}]},
+	"misc.lpwstart": {"category": "player", "sounds": [{"name": "misc/lpw2start", "stream": false}]},
+	"misc.lpwstop": {"category": "player", "sounds": [{"name": "misc/lpwstop", "stream": false}]},
+	"misc.lpwloop": {"category": "player", "sounds": [{"name": "misc/lpwloop", "stream": false}]},
+	"misc.htrstart": {"category": "player", "sounds": [{"name": "misc/htr3start", "stream": false}]},
+	"misc.htrstop": {"category": "player", "sounds": [{"name": "misc/htrstop", "stream": false}]},
+	"misc.htrloop": {"category": "player", "sounds": [{"name": "misc/htrloop", "stream": false}]},
 
 	"block.crateBreak": {"category": "block", "sounds": ["block/crateBreak1", "block/crateBreak2", "block/crateBreak3", "block/crateBreak4", "block/crateBreak5"]},
 	"block.shutdown": {"category": "block", "sounds": [{"name": "block/shutdown", "stream": true}]},
@@ -68,6 +73,7 @@
     "block.fel": {"category":  "block", "sounds":  [{"name": "block/fel", "stream":  false}]},
     "block.hephaestusRunning": {"category": "block", "sounds": [{"name": "block/hephaestusRunning", "stream": false}]},
     "block.squeakyToy": {"category": "block", "sounds": [{"name": "block/squeakyToy", "stream": false}]},
+    "block.pyroOperate": {"category": "block", "sounds": [{"name": "block/pyroOperate", "stream": false}]},
     
     "door.TransitionSealOpen": {"category": "block", "sounds": [{"name": "block/door/transition_seal_open", "stream": true}]},
     "door.wghStart": {"category": "block", "sounds": [{"name": "block/door/wgh_start", "stream": true}]},

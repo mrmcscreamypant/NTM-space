@@ -3,7 +3,9 @@ package com.hbm.items;
 import java.util.List;
 
 import com.hbm.config.SpaceConfig;
+import com.hbm.dim.CelestialBody;
 import com.hbm.dim.SolarSystem;
+import com.hbm.dim.orbit.OrbitalStation;
 import com.hbm.entity.missile.EntityRideableRocket;
 import com.hbm.entity.missile.EntityRideableRocket.RocketState;
 import com.hbm.lib.RefStrings;
@@ -41,8 +43,13 @@ public class ItemVOTVdrive extends ItemEnumMulti {
 		
 		Destination destination = getDestination(stack);
 
-		if(destination.body == SolarSystem.Body.BLANK) {
-			list.add("Destination: DRIVE IS BLANK");
+		if(destination.body == SolarSystem.Body.ORBIT) {
+			String identifier = stack.stackTagCompound.getString("stationName");
+			
+			if(identifier.equals("")) identifier = "0x" + Integer.toHexString(new ChunkCoordIntPair(destination.x, destination.z).hashCode()).toUpperCase();
+			
+			list.add("Destination: ORBITAL STATION");
+			list.add("Station: " + identifier);
 			return;
 		}
 
@@ -81,7 +88,7 @@ public class ItemVOTVdrive extends ItemEnumMulti {
 	public IIcon getIconFromDamage(int metadata) {
 		SolarSystem.Body destinationType = SolarSystem.Body.values()[metadata];
 
-		if(destinationType == SolarSystem.Body.BLANK)
+		if(destinationType == SolarSystem.Body.ORBIT)
 			return baseIcon;
 
 		int processingLevel = destinationType.getProcessingLevel();
@@ -116,6 +123,38 @@ public class ItemVOTVdrive extends ItemEnumMulti {
 		int x = stack.stackTagCompound.getInteger("x");
 		int z = stack.stackTagCompound.getInteger("z");
 		return new Destination(body, x, z);
+	}
+
+	public static Target getTarget(ItemStack stack, World world) {
+		if(stack == null) {
+			return new Target(null, false, false);
+		}
+
+		if(!stack.hasTagCompound())
+			stack.stackTagCompound = new NBTTagCompound();
+
+		Destination destination = getDestination(stack);
+
+		if(destination.body == SolarSystem.Body.ORBIT) {
+			if(world.isRemote) {
+				CelestialBody body = CelestialBody.getBody(stack.stackTagCompound.getInteger("sDim"));
+				boolean hasStation = stack.stackTagCompound.getBoolean("sHas");
+
+				return new Target(body, true, hasStation);
+			}
+			
+			OrbitalStation station = OrbitalStation.getStation(destination.x, destination.z);
+			if(!station.hasStation) station.orbiting = CelestialBody.getBody(world);
+
+			// The client can't get this information, so any time the server grabs it, serialize it to the itemstack
+			stack.stackTagCompound.setString("stationName", station.name);
+			stack.stackTagCompound.setInteger("sDim", station.orbiting.dimensionId);
+			stack.stackTagCompound.setBoolean("sHas", station.hasStation);
+
+			return new Target(station.orbiting, true, station.hasStation);
+		} else {
+			return new Target(destination.body.getBody(), false, true);
+		}
 	}
 
 	public static void setCoordinates(ItemStack stack, int x, int z) {
@@ -160,11 +199,20 @@ public class ItemVOTVdrive extends ItemEnumMulti {
 		return new Destination(body, ax, az);
 	}
 
+	public static void markCopied(ItemStack stack) {
+		if(!stack.hasTagCompound())
+			stack.stackTagCompound = new NBTTagCompound();
+		
+		stack.stackTagCompound.setBoolean("copied", true);
+	}
+
+	public static boolean wasCopied(ItemStack stack) {
+		if(!stack.hasTagCompound()) return false;
+		return stack.stackTagCompound.getBoolean("copied");
+	}
+
 	@Override
 	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player) {
-		if(player.isUsingItem())
-			return stack;
-
 		boolean isProcessed = getProcessed(stack);
 		boolean onDestination = world.provider.dimensionId == getDestination(stack).body.getDimensionId();
 
@@ -179,25 +227,24 @@ public class ItemVOTVdrive extends ItemEnumMulti {
 		if(isProcessed && player.ridingEntity != null && player.ridingEntity instanceof EntityRideableRocket) {
 			EntityRideableRocket rocket = (EntityRideableRocket) player.ridingEntity;
 
-			if(rocket.getRocket().stages.size() > 0 && (rocket.getState() == RocketState.LANDED || rocket.getState() == RocketState.AWAITING)) {
-				// Replace our held stack with the rocket drive and place our held drive into the rocket
-				if(rocket.navDrive != null) {
-					newStack = rocket.navDrive;
-				} else {
-					newStack.stackSize = 0;
-				}
-	
-				rocket.navDrive = stack;
-	
-				if(!world.isRemote) {
-					if(onDestination) {
-						rocket.setState(RocketState.LANDED);
+			if(rocket.getRocket().stages.size() > 0 || world.provider.dimensionId == SpaceConfig.orbitDimension || rocket.isReusable()) {
+				if(rocket.getState() == RocketState.LANDED || rocket.getState() == RocketState.AWAITING) {
+					// Replace our held stack with the rocket drive and place our held drive into the rocket
+					if(rocket.navDrive != null) {
+						newStack = rocket.navDrive;
 					} else {
+						newStack.stackSize = 0;
+					}
+		
+					rocket.navDrive = stack.copy();
+					rocket.navDrive.stackSize = 1;
+		
+					if(!world.isRemote) {
 						rocket.setState(RocketState.AWAITING);
 					}
-				}
 
-				world.playSoundEffect(player.posX, player.posY, player.posZ, "hbm:item.upgradePlug", 1.0F, 1.0F);
+					world.playSoundEffect(player.posX, player.posY, player.posZ, "hbm:item.upgradePlug", 1.0F, 1.0F);
+				}
 			}
 		}
 	
@@ -207,7 +254,11 @@ public class ItemVOTVdrive extends ItemEnumMulti {
 	
 	@Override
 	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float fx, float fy, float fz) {
-		boolean onDestination = world.provider.dimensionId == getDestination(stack).body.getDimensionId();
+		Destination destination = getDestination(stack);
+		if(destination.body == SolarSystem.Body.ORBIT)
+			return false;
+
+		boolean onDestination = world.provider.dimensionId == destination.body.getDimensionId();
 		if(!onDestination)
 			return false;
 
@@ -234,6 +285,20 @@ public class ItemVOTVdrive extends ItemEnumMulti {
 		
 		public ChunkCoordIntPair getChunk() {
 			return new ChunkCoordIntPair(x >> 4, z >> 4);
+		}
+
+	}
+
+	public static class Target {
+
+		public CelestialBody body;
+		public boolean inOrbit;
+		public boolean isValid;
+
+		public Target(CelestialBody body, boolean inOrbit, boolean isValid) {
+			this.body = body;
+			this.inOrbit = inOrbit;
+			this.isValid = isValid;
 		}
 
 	}

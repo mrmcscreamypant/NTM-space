@@ -24,7 +24,6 @@ import api.hbm.energymk2.IEnergyReceiverMK2;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.Item;
@@ -52,6 +51,7 @@ public class TileEntityMachineVacuumCircuit extends TileEntityMachineBase implem
 		super(8);
 	}
 
+	
 	@Override
 	public String getName() {
 		return "container.machineVacuumCircuit";
@@ -74,7 +74,7 @@ public class TileEntityMachineVacuumCircuit extends TileEntityMachineBase implem
 			canOperate = atmosphere == null || atmosphere.getPressure() <= 0.001;
 
 			this.power = Library.chargeTEFromItems(slots, 5, this.getPower(), this.getMaxPower());
-			
+			this.updateConnections();
 			recipe = VacuumCircuitRecipes.getRecipe(new ItemStack[] {slots[0], slots[1], slots[2], slots[3]});
 			long intendedMaxPower;
 			
@@ -126,26 +126,30 @@ public class TileEntityMachineVacuumCircuit extends TileEntityMachineBase implem
 		
 		if(this.power < this.consumption) return false;
 
-		if(slots[6] != null) {
-			if(slots[6].getItem() != recipe.output.getItem()) return false;
-			if(slots[6].getItemDamage() != recipe.output.getItemDamage()) return false;
-			if(slots[6].stackSize + recipe.output.stackSize > slots[6].getMaxStackSize()) return false;
+		if(slots[4] != null) {
+			if(slots[4].getItem() != recipe.output.getItem()) return false;
+			if(slots[4].getItemDamage() != recipe.output.getItemDamage()) return false;
+			if(slots[4].stackSize + recipe.output.stackSize > slots[4].getMaxStackSize()) return false;
 		}
 		
 		return true;
 	}
-	
+	private void updateConnections() {
+		for(DirPos pos : getConPos()) {
+			this.trySubscribe(worldObj, pos.getX(), pos.getY(), pos.getZ(), pos.getDir());
+		}
+	}
 	public void consumeItems(VacuumCircuitRecipe recipe) {
 		
 		for(AStack aStack : recipe.wafer) {
-			for(int i = 0; i < 3; i++) {
+			for(int i = 0; i < 2; i++) {
 				ItemStack stack = slots[i];
 				if(aStack.matchesRecipe(stack, true) && stack.stackSize >= aStack.stacksize) { this.decrStackSize(i, aStack.stacksize); break; }
 			}
 		}
 		
 		for(AStack aStack : recipe.pcb) {
-			for(int i = 3; i < 5; i++) {
+			for(int i = 2; i < 4; i++) {
 				ItemStack stack = slots[i];
 				if(aStack.matchesRecipe(stack, true) && stack.stackSize >= aStack.stacksize) { this.decrStackSize(i, aStack.stacksize); break; }
 			}
@@ -155,11 +159,11 @@ public class TileEntityMachineVacuumCircuit extends TileEntityMachineBase implem
 
 	@Override
 	public boolean isItemValidForSlot(int slot, ItemStack stack) {
-		if(slot < 3) {
-			for(int i = 0; i < 3; i++) if(i != slot && slots[i] != null && slots[i].isItemEqual(stack)) return false;
+		if(slot < 2) {
+			for(int i = 0; i < 2; i++) if(i != slot && slots[i] != null && slots[i].isItemEqual(stack)) return false;
 			for(AStack t : VacuumCircuitRecipes.wafer) if(t.matchesRecipe(stack, true)) return true;
-		} else if(slot < 5) {
-			for(int i = 3; i < 5; i++) if(i != slot && slots[i] != null && slots[i].isItemEqual(stack)) return false;
+		} else if(slot < 4) {
+			for(int i = 2; i < 4; i++) if(i != slot && slots[i] != null && slots[i].isItemEqual(stack)) return false;
 			for(AStack t : VacuumCircuitRecipes.pcb) if(t.matchesRecipe(stack, true)) return true;
 		}
 		return false;
@@ -167,12 +171,12 @@ public class TileEntityMachineVacuumCircuit extends TileEntityMachineBase implem
 
 	@Override
 	public boolean canExtractItem(int i, ItemStack itemStack, int j) {
-		return i == 6;
+		return i == 4;
 	}
 
 	@Override
 	public int[] getAccessibleSlotsFromSide(int side) {
-		return new int[] { 0, 1, 2, 3, 4, 5, 6 };
+		return new int[] { 0, 1, 2, 3, 4 };
 	}
 	
 	public DirPos[] getConPos() {
@@ -271,7 +275,7 @@ public class TileEntityMachineVacuumCircuit extends TileEntityMachineBase implem
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public GuiScreen provideGUI(int ID, EntityPlayer player, World world, int x, int y, int z) {
+	public Object provideGUI(int ID, EntityPlayer player, World world, int x, int y, int z) {
 		return new GUIVacuumCircuit(player.inventory, this);
 	}
 	

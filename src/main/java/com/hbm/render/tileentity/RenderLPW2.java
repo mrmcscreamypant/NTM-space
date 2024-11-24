@@ -3,17 +3,24 @@ package com.hbm.render.tileentity;
 import org.lwjgl.opengl.GL11;
 
 import com.hbm.blocks.BlockDummyable;
+import com.hbm.blocks.ModBlocks;
 import com.hbm.main.ResourceManager;
+import com.hbm.render.item.ItemRenderBase;
+import com.hbm.tileentity.machine.TileEntityMachineLPW2;
 import com.hbm.util.BobMathUtil;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.client.IItemRenderer;
 
-public class RenderLPW2 extends TileEntitySpecialRenderer {
+public class RenderLPW2 extends TileEntitySpecialRenderer implements IItemRendererProvider {
 
 	@Override
 	public void renderTileEntityAt(TileEntity te, double x, double y, double z, float interp) {
+		if(!(te instanceof TileEntityMachineLPW2)) return;
+		TileEntityMachineLPW2 rocket = (TileEntityMachineLPW2) te;
 
 		GL11.glPushMatrix();
 		GL11.glTranslated(x + 0.5, y, z + 0.5);
@@ -28,21 +35,23 @@ public class RenderLPW2 extends TileEntitySpecialRenderer {
 		case 3: GL11.glRotatef(270, 0F, 1F, 0F); break;
 		case 5: GL11.glRotatef(0, 0F, 1F, 0F); break;
 		}
-		
+
 		long time = te.getWorldObj().getTotalWorldTime();
+
+		double t = rocket.lastTime + (rocket.time - rocket.lastTime) * interp;
 		
-		double swayTimer = ((time + interp) / 3D) % (Math.PI * 4);
+		double swayTimer = (t / 3D) % (Math.PI * 4);
 		double sway = (Math.sin(swayTimer) + Math.sin(swayTimer * 2) + Math.sin(swayTimer * 4) + 2.23255D) * 0.5;
 
-		double bellTimer = ((time + interp) / 5D) % (Math.PI * 4);
+		double bellTimer = (t / 5D) % (Math.PI * 4);
 		double h = (Math.sin(bellTimer + Math.PI) + Math.sin(bellTimer * 1.5D)) / 1.90596D;
 		double v = (Math.sin(bellTimer) + Math.sin(bellTimer * 1.5D)) / 1.90596D;
 
-		double pistonTimer = ((time + interp) / 5D) % (Math.PI * 2);
+		double pistonTimer = (t / 5D) % (Math.PI * 2);
 		double piston = BobMathUtil.sps(pistonTimer);
-		double rotorTimer = ((time + interp) / 5D) % (Math.PI * 16);
+		double rotorTimer = (t / 5D) % (Math.PI * 16);
 		double rotor = (BobMathUtil.sps(rotorTimer) + rotorTimer / 2D - 1) / 25.1327412287D;
-		double turbine = ((time + interp) % 100) / 100D;
+		double turbine = (t % 100) / 100D;
 
 		bindTexture(ResourceManager.lpw2_tex);
 		ResourceManager.lpw2.renderPart("Frame");
@@ -63,7 +72,7 @@ public class RenderLPW2 extends TileEntitySpecialRenderer {
 		ResourceManager.lpw2.renderPart("WireRight");
 		GL11.glPopMatrix();
 
-		double coverTimer = ((time + interp) / 5D) % (Math.PI * 4);
+		double coverTimer = (t / 5D) % (Math.PI * 4);
 		double cover = (Math.sin(coverTimer) + Math.sin(coverTimer * 2) + Math.sin(coverTimer * 4)) * 0.5;
 		
 		GL11.glPushMatrix();
@@ -99,7 +108,7 @@ public class RenderLPW2 extends TileEntitySpecialRenderer {
 		ResourceManager.lpw2.renderPart("SuspensionBackCenter");
 		GL11.glPopMatrix();
 
-		double serverTimer = ((time + interp) / 2D) % (Math.PI * 4);
+		double serverTimer = (t / 2D) % (Math.PI * 4);
 		double sx = (Math.sin(serverTimer + Math.PI) + Math.sin(serverTimer * 1.5D)) / 1.90596D;
 		double sy = (Math.sin(serverTimer) + Math.sin(serverTimer * 1.5D)) / 1.90596D;
 
@@ -274,4 +283,27 @@ public class RenderLPW2 extends TileEntitySpecialRenderer {
 		ResourceManager.lpw2.renderPart("Flap");
 		GL11.glPopMatrix();
 	}
+
+	@Override
+	public Item getItemForRenderer() {
+		return Item.getItemFromBlock(ModBlocks.machine_lpw2);
+	}
+
+	@Override
+	public IItemRenderer getRenderer() {
+		return new ItemRenderBase() {
+			public void renderInventory() {
+				GL11.glTranslated(1, -1, 0);
+				GL11.glScaled(1.6, 1.6, 1.6);
+			}
+			public void renderCommon() {
+				GL11.glScaled(0.5, 0.5, 0.5);
+				GL11.glShadeModel(GL11.GL_SMOOTH);
+				bindTexture(ResourceManager.lpw2_tex);
+				ResourceManager.lpw2.renderAll();
+				GL11.glShadeModel(GL11.GL_FLAT);
+			}
+		};
+	}
+
 }

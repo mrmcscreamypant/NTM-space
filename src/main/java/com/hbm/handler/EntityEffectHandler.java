@@ -11,6 +11,7 @@ import com.hbm.config.WorldConfig;
 import com.hbm.dim.trait.CBT_Atmosphere;
 import com.hbm.entity.missile.EntityRideableRocket;
 import com.hbm.entity.mob.EntityCyberCrab;
+import com.hbm.entity.mob.EntityMoonCow;
 import com.hbm.entity.mob.glyphid.EntityGlyphid;
 import com.hbm.explosion.ExplosionNukeSmall;
 import com.hbm.extprop.HbmLivingProps;
@@ -104,8 +105,8 @@ public class EntityEffectHandler {
 					ExplosionNukeSmall.explode(entity.worldObj, entity.posX, entity.posY, entity.posZ, ExplosionNukeSmall.PARAMS_MEDIUM);
 				}
 			}
-	
-			if(GeneralConfig.enable528 && entity instanceof EntityLivingBase && !entity.isImmuneToFire() && entity.worldObj.provider.isHellWorld) {
+			//only sets players on fire so mod compatibility doesnt die
+			if((GeneralConfig.enable528 && GeneralConfig.enable528NetherBurn) && entity instanceof EntityPlayer && !entity.isImmuneToFire() && entity.worldObj.provider.isHellWorld) {
 				entity.setFire(5);
 			}
 			
@@ -120,9 +121,9 @@ public class EntityEffectHandler {
 			if(radiation > 0) {
 				ContaminationUtil.contaminate(entity, HazardType.RADIATION, ContaminationType.CREATIVE, radiation / 20F);
 			}
-			
-			CBT_Atmosphere atmosphere = getAtmosphereCached(entity);
 
+			CBT_Atmosphere atmosphere = getAtmosphereCached(entity);
+	
 			handleOxy(entity, atmosphere);
 			handleCorrosion(entity, atmosphere);
 		}
@@ -316,6 +317,7 @@ public class EntityEffectHandler {
 		if(entity.worldObj.isRemote) return;
 		if(entity instanceof EntityGlyphid) return; // can't suffocate the bastards
 		if(entity instanceof EntityCyberCrab) return; // machines
+		if(entity instanceof EntityMoonCow) return; // MOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
 		if(entity.ridingEntity != null && entity.ridingEntity instanceof EntityRideableRocket) return; // breathe easy in your ship
 
 		if (!ArmorUtil.checkForOxy(entity, atmosphere)) {
